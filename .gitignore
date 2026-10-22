@@ -1,0 +1,10 @@
+.DS_Store
+node_modules/
+.env
+.env.*
+*.log
+.openai/
+/RESEARCH*.md
+/MUSIC-RESEARCH*
+/MUSIC-EXTRA*
+*.tar.gz
