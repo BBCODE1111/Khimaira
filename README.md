@@ -1,6 +1,6 @@
 # Khimaira奇美拉 - 和弦怪物
 
-**Extend your chords like the legendary monster**
+**Morph your chords like the legendary monster**
 
 KHIMAIRA 是給作曲、編曲與吉他手的和聲探索工具。輸入一條簡單進行，讓它長出不同的和聲色彩、聲部與演奏方式，再把 MIDI 帶進 DAW。
 
