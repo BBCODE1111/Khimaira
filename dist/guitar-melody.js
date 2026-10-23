@@ -1,6 +1,6 @@
-import {parse,mod,names} from './music.js';
-import {segments} from './performance.js';
-import {seeded} from './style-engine.js';
+import {parse,mod,names} from './music.js?v=6';
+import {segments} from './performance.js?v=6';
+import {seeded} from './style-engine.js?v=6';
 const tuning=[40,45,50,55,59,64],cache=new Map;
 export function melodyShapes(symbol){if(cache.has(symbol))return cache.get(symbol);const c=parse(symbol);if(!c)return [];
 const third=c.intervals.find(n=>[3,4,5,2].includes(n)),seventh=c.intervals.find(n=>[10,11].includes(n));

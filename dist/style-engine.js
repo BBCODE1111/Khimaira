@@ -1,6 +1,8 @@
-import {names,mod,parse} from './music.js';
-import {parseBar,chordList,parseChart} from './solutions.js';
-import {songs} from './song-pool.js';
+import {names,mod,parse} from './music.js?v=6';
+import {parseBar,chordList,parseChart} from './solutions.js?v=6';
+import {songs} from './song-pool.js?v=6';
+import {worldStyles} from './world-styles.js?v=6';
+import {worldMutation} from './world-generator.js?v=6';
 export const styles={
 Jazz:{description:'功能替代、次屬和弦、ii–V、三全音／backdoor，讓 3rd 與 7th 連接。',pattern:'jazz',voicing:'rootless',phrases:[['Cmaj9 Ebdim7','Dm9 G13','Em7 A7b9','Dm9 Db7#11'],['Em9 A7alt','Dm9 G13','Fm9 Bb13','C69 G7alt'],['C69','F#m7b5 B7b9','Em9 A7alt','Dm9 G13']],T:['Cmaj9','Em9 A7alt','C69 Ebdim7'],R:['Am9','Em7 A7alt','Dm9 G13'],S:['Fmaj9','Fm9 Bb13','Dm9 G13'],D:['G13','Dm9 Db7#11','G7sus4 G7alt']},
 Gospel:{description:'斜線低音、減七經過和弦、IV–iv、sus 解決與 plagal 色彩。',pattern:'gospel',voicing:'open',phrases:[['C69 E7/G#','Am9 C7/G','Fmaj9 Fm6','C/G G7sus4'],['Cmaj9/E','Fmaj9 F#dim7','C/G A7b9','Dm9 G13'],['C69','Bb/C C7','Fmaj9 Fm6','C/G G7']],T:['C69/E','Cmaj9 E7/G#','C/G'],R:['Am9 C7/G','C7/G','Em7 A7b9'],S:['Fmaj9 Fm6','Fmaj9 F#dim7','Dm9/G'],D:['G7sus4 G13','C/G G7','Db9 C69']},
@@ -33,7 +35,8 @@ Object.assign(styles,{
 'Ambient':preset('長音、開放配置、共同音與緩慢調式變化。','ambient','open',[['Cmaj9','Fmaj9/C','D/C','Cmaj9'],['Am11','Fmaj9','Cmaj9','Gsus2'],['Fmaj9','G6','Am9','Cmaj9']])
 });
 styles.House=preset('Deep / Soulful House · 共同音九和弦、跨拍延留、稀疏切分與獨立低音。建議 114–124 BPM。','house','rootless',[['Am9','D9','Gmaj9','Cmaj9'],['Cm9','Fm9','Abmaj9','Gm9'],['Dm9','G13','Cmaj9','Fmaj9'],['Fm9','Abmaj9','Cm9','Bb13']]);
-export const styleLabels={'Neoclassical rock':'古典戲劇搖滾 · Neoclassical rock',House:'Deep / Soulful House','Major blues':'Major blues · 大調藍調','Minor blues':'Minor blues · 小調藍調'};
+Object.assign(styles,worldStyles);
+export const styleLabels={...Object.fromEntries(Object.entries(worldStyles).map(([k,v])=>[k,v.label])),'Neoclassical rock':'古典戲劇搖滾 · Neoclassical rock',House:'Deep / Soulful House','Major blues':'Major blues · 大調藍調','Minor blues':'Minor blues · 小調藍調'};
 export function seeded(seed){let n=(seed+971)>>>0;return ()=>{n=(Math.imul(n,1664525)+1013904223)>>>0;return n/4294967296;};}
 function tint(symbol,style,level,random,key=0){const c=parse(symbol);if(!c)return symbol;const simple=['Rock','Japanese rock','Classical','American pop','Mandopop','EDM','Neoclassical rock'].includes(style);if(c.symbol.includes('/')&&!c.pcs.includes(c.bass)||/[b#]/.test(c.q)||c.q==='m6'||c.q.includes('dim')||c.q.includes('m7b5')||c.q.includes('sus')||c.q==='5'||c.q.includes('alt')||c.q.includes('Maj'))return symbol;const tonal=!['House','Fusion','Chill','Ambient','Dorian folk','Phrygian dominant'].includes(style);const isDom=c.intervals.includes(10)||(tonal&&mod(c.root-key)===7&&['','6','add9'].includes(c.q));let options=c.minor?(simple?['m','m7','madd9']:['m7','m9','m11']):isDom?(simple?['7','9']:['7','9','13']):(simple?['','add9','6']:['maj7','maj9','69']);if(level==='low')options=options.slice(0,2);if(level==='high'&&!simple)options=c.minor?['m9','m11','m13']:isDom?['9','13','7#11','7b13']:['maj9','maj7#11','maj13'];if(style==='Fusion'&&!c.minor&&!c.intervals.includes(10))options=['maj7#11','maj9#11'];if(style==='Neoclassical rock')options=c.minor?['m','madd9','m']:isDom?['','7','7b9']:['','add9'];const q=options[Math.floor(random()*options.length)];return c.rootName+q+(symbol.includes('/')?'/'+names[c.bass]:'');}
 function minorize(symbol,key){const c=parse(symbol),d=mod(c.root-key);const mapped={0:[0,'m9'],2:[2,'m7b5'],4:[3,'maj9'],5:[5,'m9'],7:[7,'7b9'],9:[8,'maj9'],11:[10,'7']};if(!mapped[d])return symbol;const [root,q]=mapped[d];return names[mod(key+root)]+q;}
@@ -44,7 +47,7 @@ if(method==='original')return structuredClone(source);
 const cfg=styles[style]||styles.Jazz,random=seeded(seed),count=source.length||4,filled=source.some(b=>chordList(b).length),level=randomness;
 const songCandidates=songs.filter(s=>s.style===style&&s.mode===mode);const phrases=[...cfg.phrases,...songCandidates.map(s=>parseChart(s.chart).map(b=>b.chords.map(c=>c.symbol).join(' ')))];const phrase=phrases[((seed%phrases.length)+phrases.length)%phrases.length];
 const replace=method==='style'&&freedom==='free'&&(level==='high'||level==='medium'&&seed%2===0);
-let result=Array.from({length:count},(_,i)=>{const input=chordList(source[i]||{});let cs;
+let result=cfg.world?worldMutation(source,cfg,{key,seed,randomness,freedom,density,method}):Array.from({length:count},(_,i)=>{const input=chordList(source[i]||{});let cs;
 if(!filled||replace||!input.length){cs=parseBar(phrase[i%phrase.length]).map(c=>({...c,symbol:transpose(c.symbol,key)}));if(mode==='minor'&&!['Minor blues','Major blues','Neoclassical rock','Dorian folk','Phrygian dominant'].includes(style))cs=cs.map(c=>({...c,symbol:minorize(c.symbol,key)}));}
 else cs=structuredClone(input);
 cs=cs.map(c=>({...c,symbol:tint(c.symbol,style,level,random,key)}));
