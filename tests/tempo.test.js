@@ -38,13 +38,13 @@ test('background lag skips expired attacks instead of replaying them in a burst'
  const piano=fakePiano(),p=new BeatPlayer(piano,notes,4,{bpm:60,lead:0});piano.context.currentTime=2;p.pump();
  assert.equal(piano.voices.length,1);assert.equal(piano.voices[0].note,60);near(piano.voices[0].end,4);
 });
-test('every performed groove respects gate while full-bar sustain remains exact',()=>{
+test('gate shortens rhythmic notes while held voices keep their musical landing points',()=>{
  const bars=parseChart('| C | Am |');
  for(const pattern of Object.keys(patterns)){
  const a=performance(bars,pattern,{gate:.1,human:0,swing:0}),b=performance(bars,pattern,{gate:1,human:0,swing:0});
  assert.equal(a.length,b.length);a.forEach((n,i)=>{near(n.beat,b[i].beat);assert.equal(n.note,b[i].note);assert.ok(n.duration<=b[i].duration+1e-8,pattern);});
  if(pattern==='sustain'){assert.deepEqual(a,b);assert.ok(a.every(n=>n.duration===4));}
- else assert.ok(a.reduce((s,n)=>s+n.duration,0)<b.reduce((s,n)=>s+n.duration,0)*.6,pattern);
+ else {a.forEach((n,i)=>{if(n.articulation==='held')near(n.duration,b[i].duration);});const rhythmic=a.filter(n=>n.articulation!=='held');if(rhythmic.length)assert.ok(rhythmic.reduce((s,n)=>s+n.duration,0)<b.filter(n=>n.articulation!=='held').reduce((s,n)=>s+n.duration,0)*.6,pattern);}
  }
 });
 test('short-note releases scale with duration instead of a fixed quarter-second tail',()=>{

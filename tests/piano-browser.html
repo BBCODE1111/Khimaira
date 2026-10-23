@@ -1,6 +1,6 @@
 <!doctype html><meta charset="utf-8"><title>Piano timing verification</title><button id="run">RUN AUDIO CHECKS</button><pre id="results">Ready</pre><script type="module">
-import {Piano,releaseSeconds} from '../dist/piano.js?v=8';
-import {BeatPlayer} from '../dist/tempo-player.js?v=8';
+import {Piano,releaseSeconds} from '../dist/piano.js?v=10';
+import {BeatPlayer} from '../dist/tempo-player.js?v=10';
 const out=document.querySelector('#results');
 const assert=(value,msg)=>{if(!value)throw Error(msg);};
 function make(){const ctx=new OfflineAudioContext(1,44100*6,44100),piano=new Piano(ctx);const buffer=ctx.createBuffer(1,44100*6,44100);buffer.getChannelData(0).fill(.2);piano.buffers.set(60,buffer);return {ctx,piano};}

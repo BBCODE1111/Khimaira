@@ -1,14 +1,14 @@
-import {examplePool,nextExample} from './example-pool.js?v=9';
-import {BeatPlayer,validTempo,clampTempo} from './tempo-player.js?v=9';
-import {insertCadence,invertChord,parallelColor} from './harmony-actions.js?v=9';
-import {playbackSlice,spaceToggles} from './transport.js?v=9';
-import {names,mod,parse,generate,approach,events,guitarShapes,scales,midiBytes,chordTones} from './music.js?v=9';
-import {parseBar,parseChart,chordList,serialize,solve} from './solutions.js?v=9';
-import {styles,mutate,library,styleLabels,cadenceTo} from './style-engine.js?v=9';
-import {patterns,voicePlan} from './performance.js?v=9';
-import {scaleNotes,scalePositions} from './scale-library.js?v=9';
-import {guitarMelody,melodyShapes,melodyEvents} from './guitar-melody.js?v=9';
-import {Piano} from './piano.js?v=9';
+import {examplePool,nextExample} from './example-pool.js?v=10';
+import {BeatPlayer,validTempo,clampTempo} from './tempo-player.js?v=10';
+import {insertCadence,invertChord,parallelColor} from './harmony-actions.js?v=10';
+import {playbackSlice,spaceToggles} from './transport.js?v=10';
+import {names,mod,parse,generate,approach,events,guitarShapes,scales,midiBytes,chordTones} from './music.js?v=10';
+import {parseBar,parseChart,chordList,serialize,solve} from './solutions.js?v=10';
+import {styles,mutate,library,styleLabels,cadenceTo} from './style-engine.js?v=10';
+import {patterns,voicePlan} from './performance.js?v=10';
+import {scaleNotes,scalePositions} from './scale-library.js?v=10';
+import {guitarMelody,melodyShapes,melodyEvents} from './guitar-melody.js?v=10';
+import {Piano} from './piano.js?v=10';
 const $=id=>document.getElementById(id);let bars=parseChart('| C | Am | F | G |'),source=structuredClone(bars),selected=0,selectedChord=0,tab='scales',audio=null,timer=null,started=0,run=0,activeNodes=[];
 let startBar=0,isPlaying=false,loading=false,player=null,playbackKind='score';
 let variation=0,piano=null,scaleChoice='',lastScaleChord='',positionChoice=0,method='style',currentExampleId=null,melodySeed=0,arrangement=[],history=[];
@@ -77,7 +77,7 @@ function updateCue(){
  if(!isPlaying&&!loading)$('position').textContent='READY · BAR '+(startBar+1);
 }
 function cueBar(i){const resume=isPlaying||loading;stop();startBar=i;select(i);updateCue();if(resume)play();else status('將從第 '+(i+1)+' 小節開始。按 PLAY 或空白鍵播放。');}
-function stop(){run++;isPlaying=false;loading=false;clearTimeout(timer);timer=null;if(player){player.stop();player=null;}else piano?.stop();$('play').textContent='PLAY';$('play').setAttribute('aria-pressed','false');updateCue();document.querySelectorAll('.playing,.sounding').forEach(el=>el.classList.remove('playing','sounding'));}
+function stop({natural=false}={}){run++;isPlaying=false;loading=false;clearTimeout(timer);timer=null;if(player){player.stop({natural});player=null;}else if(!natural)piano?.stop();$('play').textContent='PLAY';$('play').setAttribute('aria-pressed','false');updateCue();document.querySelectorAll('.playing,.sounding').forEach(el=>el.classList.remove('playing','sounding'));}
 let appliedTempo=clampTempo($('tempo').value);$('tempo').value=appliedTempo;
 function updateTempoHint(){
  $('tempoHint').textContent=`每拍 ${(60/appliedTempo).toFixed(2)} 秒 · 4/4 每小節 ${(240/appliedTempo).toFixed(2)} 秒。播放中可直接變速。`;
@@ -104,7 +104,7 @@ async function startPerformance(clip,{label,kind}){
  player=new BeatPlayer(piano,clip.notes,clip.beats,{bpm:appliedTempo,loop:kind!=='scale'&&$('loop').checked});
  let lastVisible=-1;
  function tick(){
-  if(token!==run)return;if(!player.pump()){stop();return;}
+  if(token!==run)return;if(!player.pump()){stop({natural:true});return;}
   const localBeat=Math.max(0,player.beatAt())%clip.beats,beat=clip.startBar*4+localBeat,idx=Math.min(bars.length-1,Math.floor(beat/4)),within=beat%4;
   if(kind!=='scale'){
    document.querySelectorAll('.bar').forEach((el,j)=>{el.classList.toggle('playing',j===idx);if(j===idx&&idx!==lastVisible){const grid=$('grid');if(el.offsetLeft<grid.scrollLeft||el.offsetLeft+el.offsetWidth>grid.scrollLeft+grid.clientWidth)grid.scrollTo({left:el.offsetLeft-grid.offsetLeft,behavior:'instant'});}});lastVisible=idx;

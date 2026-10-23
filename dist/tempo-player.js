@@ -3,7 +3,7 @@ export const clampTempo=(value,fallback=92)=>validTempo(value)?Number(value):fal
 
 // Musical beats are the source of truth; audio seconds are derived only near playback.
 export class BeatPlayer {
- constructor(piano,notes,beats,{bpm=92,loop=false,lead=.04,lookahead=.09}={}){
+ constructor(piano,notes,beats,{bpm=92,loop=false,lead=.04,lookahead=.18}={}){
   this.piano=piano;this.notes=notes;this.beats=beats;this.bpm=clampTempo(bpm);
   this.anchorTime=piano.context.currentTime+lead;this.anchorBeat=0;
   this.lookahead=lookahead;this.scheduled=new Map;this.stopBeat=loop?Infinity:beats;this.stopped=false;
@@ -42,5 +42,5 @@ export class BeatPlayer {
   }
   return true;
  }
- stop(){this.stopped=true;this.scheduled.clear();this.piano.stop();}
+ stop({natural=false}={}){this.stopped=true;this.scheduled.clear();if(!natural)this.piano.stop();}
 }
