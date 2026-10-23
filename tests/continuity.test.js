@@ -15,7 +15,7 @@ test('held voices connect every chord and bar boundary, including dense changes 
   }
  }
 });
-test('all 42 patterns round-trip through MIDI without lost, stuck, overlapping or shortened notes',()=>{
+test('all performance patterns round-trip through MIDI without lost, stuck, overlapping or shortened notes',()=>{
  for(const chart of ['| C | Am | F | G |','| C Bm7b5 E7 | Am7 D7 | Fmaj9 G13 | C69 |'])for(const pattern of Object.keys(patterns))for(const gate of [.1,.82,1])for(const rate of [.25,.5,1]){
   const bars=parseChart(chart),ns=performance(bars,pattern,{gate,rate,human:1,swing:.32}),midi=decode(midiBytes(ns,16));
   assert.equal(midi.tick,7680);assert.equal(midi.notes.length,ns.length,pattern);

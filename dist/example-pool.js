@@ -1,8 +1,8 @@
-import {styles} from './style-engine.js?v=10';
-import {songs} from './song-pool.js?v=10';
-import {parseChart,serialize} from './solutions.js?v=10';
-import {studyMood,moodCategory,exampleTitle} from './example-titles.js?v=10';
-import {contrastExamples,moodOrder} from './contrast-examples.js?v=10';
+import {styles} from './style-engine.js?v=11';
+import {songs} from './song-pool.js?v=11';
+import {parseChart,serialize} from './solutions.js?v=11';
+import {studyMood,moodCategory,exampleTitle} from './example-titles.js?v=11';
+import {contrastExamples,moodOrder} from './contrast-examples.js?v=11';
 export function examplePool(style){
  const cfg=styles[style];if(!cfg)return [];
  const studies=cfg.phrases.map((phrase,i)=>({id:`exercise-${style}-${i}`,mood:studyMood(style,i),chart:'| '+phrase.join(' | ')+' |',key:0,mode:cfg.world?'modal':['Minor blues','Neoclassical rock','Dorian folk','Phrygian dominant'].includes(style)?'minor':'major',style,type:'study'}));
