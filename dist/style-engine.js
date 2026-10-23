@@ -60,11 +60,11 @@ else if(requested&&density===1&&i%2===1)result[i]={chords:[{symbol:a[1],beats:4}
 }
 return result;}
 export const library=[
-{id:'autumn',title:'Autumn Leaves · 前 8 小節和聲骨架',key:10,mode:'major',style:'Jazz',chart:'| Cm7 | F7 | Bbmaj7 | Ebmaj7 | Am7b5 | D7b9 | Gm6 | Gm6 |'},
-{id:'rhythm',title:'Rhythm changes · A 段練習變體',key:10,mode:'major',style:'Jazz',chart:'| Bb6 G7 | Cm7 F7 | Dm7 G7 | Cm7 F7 | Fm7 Bb7 | Ebmaj7 Edim7 | Bb/F G7 | Cm7 F7 |'},
-{id:'blues',title:'Jazz blues · 12-bar study',key:5,mode:'major',style:'Jazz',chart:'| F7 | Bb7 | F7 | Cm7 F7 | Bb7 | Bdim7 | F7 | D7b9 | Gm7 | C7 | F7 D7 | Gm7 C7 |'},
-{id:'canon',title:'Canon · 八和弦骨架',key:2,mode:'major',style:'Classical',chart:'| D | A/C# | Bm | F#m/A | G | D/F# | G | A |'},
-{id:'royal',title:'王道進行 · Japanese rock study',key:0,mode:'major',style:'Japanese rock',chart:'| Fmaj7 | G | Em7 | Am7 |'},
-{id:'bossa',title:'Bossa · descending chromatic study',key:0,mode:'major',style:'Bossa nova',chart:'| C69 A7b9 | Dm9 G13 | Em7 Ebdim7 | Dm9 G7b9 |'},
-{id:'house',title:'Deep house · minor ninth loop',key:0,mode:'minor',style:'House',chart:'| Cm9 | Abmaj9 | Fm9 | Bb13 |'}
+{id:'autumn',title:'Ex1',key:10,mode:'major',style:'Jazz',chart:'| Cm7 | F7 | Bbmaj7 | Ebmaj7 | Am7b5 | D7b9 | Gm6 | Gm6 |'},
+{id:'rhythm',title:'Ex2',key:10,mode:'major',style:'Jazz',chart:'| Bb6 G7 | Cm7 F7 | Dm7 G7 | Cm7 F7 | Fm7 Bb7 | Ebmaj7 Edim7 | Bb/F G7 | Cm7 F7 |'},
+{id:'blues',title:'Ex3',key:5,mode:'major',style:'Jazz',chart:'| F7 | Bb7 | F7 | Cm7 F7 | Bb7 | Bdim7 | F7 | D7b9 | Gm7 | C7 | F7 D7 | Gm7 C7 |'},
+{id:'canon',title:'Ex4',key:2,mode:'major',style:'Classical',chart:'| D | A/C# | Bm | F#m/A | G | D/F# | G | A |'},
+{id:'royal',title:'Ex5',key:0,mode:'major',style:'Japanese rock',chart:'| Fmaj7 | G | Em7 | Am7 |'},
+{id:'bossa',title:'Ex6',key:0,mode:'major',style:'Bossa nova',chart:'| C69 A7b9 | Dm9 G13 | Em7 Ebdim7 | Dm9 G7b9 |'},
+{id:'house',title:'Ex7',key:0,mode:'minor',style:'House',chart:'| Cm9 | Abmaj9 | Fm9 | Bb13 |'}
 ];

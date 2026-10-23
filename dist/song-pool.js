@@ -1,7 +1,7 @@
 export const songs=[
   {
     "id": "song-0",
-    "title": "Chameleon · Herbie Hancock",
+    "title": "Ex1",
     "style": "Funk",
     "key": 0,
     "mode": "minor",
@@ -10,7 +10,7 @@ export const songs=[
   },
   {
     "id": "song-1",
-    "title": "Cantaloupe Island · Herbie Hancock",
+    "title": "Ex2",
     "style": "Fusion",
     "key": 0,
     "mode": "minor",
@@ -19,7 +19,7 @@ export const songs=[
   },
   {
     "id": "song-2",
-    "title": "Autumn Leaves · opening",
+    "title": "Ex3",
     "style": "Jazz",
     "key": 0,
     "mode": "major",
@@ -28,7 +28,7 @@ export const songs=[
   },
   {
     "id": "song-3",
-    "title": "All the Things You Are · opening",
+    "title": "Ex4",
     "style": "Jazz",
     "key": 0,
     "mode": "major",
@@ -37,7 +37,7 @@ export const songs=[
   },
   {
     "id": "song-4",
-    "title": "Blue Bossa · minor A",
+    "title": "Ex5",
     "style": "Bossa nova",
     "key": 0,
     "mode": "minor",
@@ -46,7 +46,7 @@ export const songs=[
   },
   {
     "id": "song-5",
-    "title": "The Girl from Ipanema · A",
+    "title": "Ex6",
     "style": "Bossa nova",
     "key": 0,
     "mode": "major",
@@ -55,7 +55,7 @@ export const songs=[
   },
   {
     "id": "song-6",
-    "title": "The Way It Goes · Kerri Chandler",
+    "title": "Ex7",
     "style": "House",
     "key": 0,
     "mode": "minor",
@@ -64,7 +64,7 @@ export const songs=[
   },
   {
     "id": "song-7",
-    "title": "Harder Gets Higher · 6:23",
+    "title": "Ex8",
     "style": "House",
     "key": 0,
     "mode": "minor",
@@ -73,7 +73,7 @@ export const songs=[
   },
   {
     "id": "song-8",
-    "title": "Keep Me Inside · Kerri Chandler",
+    "title": "Ex9",
     "style": "House",
     "key": 0,
     "mode": "minor",
@@ -82,7 +82,7 @@ export const songs=[
   },
   {
     "id": "song-9",
-    "title": "Come Home · Kerri's Mmmh Mix",
+    "title": "Ex10",
     "style": "House",
     "key": 0,
     "mode": "minor",
@@ -91,7 +91,7 @@ export const songs=[
   },
   {
     "id": "song-10",
-    "title": "Isn't She Lovely · Stevie Wonder",
+    "title": "Ex11",
     "style": "Soul",
     "key": 0,
     "mode": "major",
@@ -100,7 +100,7 @@ export const songs=[
   },
   {
     "id": "song-11",
-    "title": "丸の内サディスティック · 椎名林檎",
+    "title": "Ex12",
     "style": "Japanese rock",
     "key": 0,
     "mode": "major",
@@ -109,7 +109,7 @@ export const songs=[
   },
   {
     "id": "song-12",
-    "title": "夜に駆ける · YOASOBI",
+    "title": "Ex13",
     "style": "Japanese rock",
     "key": 0,
     "mode": "major",
@@ -118,7 +118,7 @@ export const songs=[
   },
   {
     "id": "song-13",
-    "title": "Ditto · NewJeans",
+    "title": "Ex14",
     "style": "K-pop",
     "key": 0,
     "mode": "major",
@@ -127,7 +127,7 @@ export const songs=[
   },
   {
     "id": "song-14",
-    "title": "Hype Boy · NewJeans",
+    "title": "Ex15",
     "style": "K-pop",
     "key": 0,
     "mode": "minor",
@@ -136,7 +136,7 @@ export const songs=[
   },
   {
     "id": "song-15",
-    "title": "Dynamite · BTS",
+    "title": "Ex16",
     "style": "K-pop",
     "key": 0,
     "mode": "major",
@@ -145,7 +145,7 @@ export const songs=[
   },
   {
     "id": "song-16",
-    "title": "TT · TWICE",
+    "title": "Ex17",
     "style": "K-pop",
     "key": 0,
     "mode": "minor",
@@ -154,7 +154,7 @@ export const songs=[
   },
   {
     "id": "song-17",
-    "title": "Bubble Gum · NewJeans",
+    "title": "Ex18",
     "style": "Chill",
     "key": 0,
     "mode": "major",
@@ -163,7 +163,7 @@ export const songs=[
   },
   {
     "id": "song-18",
-    "title": "Best Part · Daniel Caesar & H.E.R.",
+    "title": "Ex19",
     "style": "R&B",
     "key": 0,
     "mode": "major",
@@ -172,7 +172,7 @@ export const songs=[
   },
   {
     "id": "song-19",
-    "title": "Bad Habit · Steve Lacy",
+    "title": "Ex20",
     "style": "R&B",
     "key": 0,
     "mode": "minor",
@@ -181,7 +181,7 @@ export const songs=[
   },
   {
     "id": "song-20",
-    "title": "I Smile · Kirk Franklin",
+    "title": "Ex21",
     "style": "Gospel",
     "key": 0,
     "mode": "major",
@@ -190,7 +190,7 @@ export const songs=[
   },
   {
     "id": "song-21",
-    "title": "愛人錯過 · 告五人",
+    "title": "Ex22",
     "style": "Mandopop",
     "key": 0,
     "mode": "major",
@@ -199,7 +199,7 @@ export const songs=[
   },
   {
     "id": "song-22",
-    "title": "晴天 · 周杰倫",
+    "title": "Ex23",
     "style": "Mandopop",
     "key": 0,
     "mode": "major",
@@ -208,7 +208,7 @@ export const songs=[
   },
   {
     "id": "song-23",
-    "title": "Butterflies and Hurricanes · Muse",
+    "title": "Ex24",
     "style": "Neoclassical rock",
     "key": 0,
     "mode": "minor",
@@ -217,7 +217,7 @@ export const songs=[
   },
   {
     "id": "song-24",
-    "title": "Patient Zero · Taylor Swift",
+    "title": "Ex25",
     "style": "American pop",
     "key": 0,
     "mode": "major",
@@ -226,7 +226,7 @@ export const songs=[
   },
   {
     "id": "song-25",
-    "title": "Choosin' Texas · Ella Langley",
+    "title": "Ex26",
     "style": "American pop",
     "key": 0,
     "mode": "major",
@@ -234,7 +234,7 @@ export const songs=[
     "type": "song"
   },
   {
-    "title": "All of Me · opening",
+    "title": "Ex27",
     "style": "Jazz",
     "key": 0,
     "mode": "major",
@@ -243,7 +243,7 @@ export const songs=[
     "type": "song"
   },
   {
-    "title": "Misty · backdoor opening",
+    "title": "Ex28",
     "style": "Jazz",
     "key": 0,
     "mode": "major",
@@ -252,7 +252,7 @@ export const songs=[
     "type": "song"
   },
   {
-    "title": "There Will Never Be Another You · opening",
+    "title": "Ex29",
     "style": "Jazz",
     "key": 0,
     "mode": "major",
@@ -261,7 +261,7 @@ export const songs=[
     "type": "song"
   },
   {
-    "title": "Blue Moon · turnaround opening",
+    "title": "Ex30",
     "style": "Jazz",
     "key": 0,
     "mode": "major",
@@ -270,7 +270,7 @@ export const songs=[
     "type": "song"
   },
   {
-    "title": "Wave · diminished approach",
+    "title": "Ex31",
     "style": "Bossa nova",
     "key": 0,
     "mode": "major",
@@ -279,7 +279,7 @@ export const songs=[
     "type": "song"
   },
   {
-    "title": "Corcovado · chromatic opening",
+    "title": "Ex32",
     "style": "Bossa nova",
     "key": 0,
     "mode": "major",
@@ -288,7 +288,7 @@ export const songs=[
     "type": "song"
   },
   {
-    "title": "Desafinado · opening",
+    "title": "Ex33",
     "style": "Bossa nova",
     "key": 0,
     "mode": "major",
@@ -297,7 +297,7 @@ export const songs=[
     "type": "song"
   },
   {
-    "title": "チェリー · Spitz · verse",
+    "title": "Ex34",
     "style": "Japanese rock",
     "key": 0,
     "mode": "major",
@@ -306,7 +306,7 @@ export const songs=[
     "type": "song"
   },
   {
-    "title": "Wherever you are · ONE OK ROCK · borrowed-minor intro",
+    "title": "Ex35",
     "style": "Japanese rock",
     "key": 0,
     "mode": "major",
@@ -315,7 +315,7 @@ export const songs=[
     "type": "song"
   },
   {
-    "title": "紅 · X JAPAN · strings intro",
+    "title": "Ex36",
     "style": "Japanese rock",
     "key": 0,
     "mode": "minor",
@@ -324,7 +324,7 @@ export const songs=[
     "type": "song"
   },
   {
-    "title": "Spain · Chick Corea · Latin fusion",
+    "title": "Ex37",
     "style": "Fusion",
     "key": 0,
     "mode": "minor",
@@ -333,7 +333,7 @@ export const songs=[
     "type": "song"
   },
   {
-    "title": "New Born · Muse · piano opening",
+    "title": "Ex38",
     "style": "Neoclassical rock",
     "key": 0,
     "mode": "minor",
