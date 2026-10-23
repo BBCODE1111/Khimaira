@@ -7,7 +7,7 @@ export const songs=[
     "mode": "minor",
     "chart": "| Cm7 | F7 | Cm7 | F7 |",
     "type": "song",
-    "mood": "輕巧彈跳的夜行步伐"
+    "mood": "輕快・球鞋"
   },
   {
     "id": "song-1",
@@ -17,7 +17,7 @@ export const songs=[
     "mode": "minor",
     "chart": "| Cm7 | Ab7 | Am7 | Cm7 |",
     "type": "song",
-    "mood": "稜角分明的霓虹轉彎"
+    "mood": "緊張・霓虹"
   },
   {
     "id": "song-2",
@@ -27,7 +27,7 @@ export const songs=[
     "mode": "major",
     "chart": "| Dm7 | G7 | Cmaj7 | Fmaj7 | Bm7b5 | E7b9 | Am6 | Am6 |",
     "type": "song",
-    "mood": "微醺夜色裡的溫柔回望"
+    "mood": "憂鬱・酒吧"
   },
   {
     "id": "song-3",
@@ -37,7 +37,7 @@ export const songs=[
     "mode": "major",
     "chart": "| Am7 | Dm7 | G7 | Cmaj7 | Fmaj7 | F#m7 B7 | Emaj7 | Emaj7 |",
     "type": "song",
-    "mood": "轉過街角的明亮爵士"
+    "mood": "明亮・街角"
   },
   {
     "id": "song-4",
@@ -47,7 +47,7 @@ export const songs=[
     "mode": "minor",
     "chart": "| Cm7 | Cm7 | Fm7 | Fm7 | Dm7b5 | G7 | Cm7 | Cm7 |",
     "type": "song",
-    "mood": "海風裡的一點憂鬱"
+    "mood": "憂鬱・海風"
   },
   {
     "id": "song-5",
@@ -57,7 +57,7 @@ export const songs=[
     "mode": "major",
     "chart": "| Cmaj7 | Cmaj7 | D7 | D7 | Dm7 | G7 | Cmaj7 | Cmaj7 |",
     "type": "song",
-    "mood": "午後陽光下的輕盈搖擺"
+    "mood": "明亮・露台"
   },
   {
     "id": "song-6",
@@ -67,7 +67,7 @@ export const songs=[
     "mode": "minor",
     "chart": "| Cm7 | Fm7 | Cm7 | Fm7 |",
     "type": "song",
-    "mood": "低光舞池的深色循環"
+    "mood": "暗色・舞池"
   },
   {
     "id": "song-7",
@@ -77,7 +77,7 @@ export const songs=[
     "mode": "minor",
     "chart": "| Cm7 | Dm11 | Db9 | Db9 |",
     "type": "song",
-    "mood": "半夢半醒的漂浮舞池"
+    "mood": "夢幻・午夜"
   },
   {
     "id": "song-8",
@@ -87,7 +87,7 @@ export const songs=[
     "mode": "minor",
     "chart": "| Cm | Fmadd9 | Cm | Fmadd9 |",
     "type": "song",
-    "mood": "霧氣瀰漫的極簡律動"
+    "mood": "夢幻・霧氣"
   },
   {
     "id": "song-9",
@@ -97,7 +97,7 @@ export const songs=[
     "mode": "minor",
     "chart": "| Cm7 | Gm7 | Fm7 | Fm7 |",
     "type": "song",
-    "mood": "深夜慢慢沉下的和聲"
+    "mood": "憂鬱・地下室"
   },
   {
     "id": "song-10",
@@ -107,7 +107,7 @@ export const songs=[
     "mode": "major",
     "chart": "| Am7 | D9 | F/G | C |",
     "type": "song",
-    "mood": "溫暖舒展的靈魂落點"
+    "mood": "溫暖・沙發"
   },
   {
     "id": "song-11",
@@ -117,7 +117,7 @@ export const songs=[
     "mode": "major",
     "chart": "| Fmaj7 | E7 | Am7 | C7 |",
     "type": "song",
-    "mood": "青春裡不肯停下的心跳"
+    "mood": "苦甜・青春"
   },
   {
     "id": "song-12",
@@ -127,7 +127,7 @@ export const songs=[
     "mode": "major",
     "chart": "| F | G | Em7 | Am |",
     "type": "song",
-    "mood": "明亮奔跑的副歌"
+    "mood": "明亮・跑道"
   },
   {
     "id": "song-13",
@@ -137,7 +137,7 @@ export const songs=[
     "mode": "major",
     "chart": "| Fmaj7 | Em7 Am7 | Dm7 G7 | Cmaj7 |",
     "type": "song",
-    "mood": "甜而不膩的城市切分"
+    "mood": "明亮・都會"
   },
   {
     "id": "song-14",
@@ -147,7 +147,7 @@ export const songs=[
     "mode": "minor",
     "chart": "| Fm9 | Gm7 | Cm7 | Cm7 |",
     "type": "song",
-    "mood": "冷色燈光下的柔軟律動"
+    "mood": "暗色・絲絨"
   },
   {
     "id": "song-15",
@@ -157,7 +157,7 @@ export const songs=[
     "mode": "major",
     "chart": "| Am | Dm7 | G7sus4 | C |",
     "type": "song",
-    "mood": "輕聲回到你身旁"
+    "mood": "溫暖・臥室"
   },
   {
     "id": "song-16",
@@ -167,7 +167,7 @@ export const songs=[
     "mode": "minor",
     "chart": "| Cm7 | Gm7 | Abmaj7 | Bb7 |",
     "type": "song",
-    "mood": "夢幻上升的夜間光線"
+    "mood": "夢幻・燈光"
   },
   {
     "id": "song-17",
@@ -177,7 +177,7 @@ export const songs=[
     "mode": "major",
     "chart": "| Fmaj7 | Em7 | Am7 | Am7 |",
     "type": "song",
-    "mood": "日落後的鬆弛留白"
+    "mood": "溫暖・日落"
   },
   {
     "id": "song-18",
@@ -187,7 +187,7 @@ export const songs=[
     "mode": "major",
     "chart": "| Cmaj7 | Gm7 | Fmaj7 | Abmaj7 |",
     "type": "song",
-    "mood": "熟悉溫暖裡的一點意外"
+    "mood": "苦甜・咖啡"
   },
   {
     "id": "song-19",
@@ -197,7 +197,7 @@ export const songs=[
     "mode": "minor",
     "chart": "| Abmaj7 | Ebmaj7 | Fm11 | Gm7 |",
     "type": "song",
-    "mood": "天鵝絨般的低聲對話"
+    "mood": "憂鬱・藍光"
   },
   {
     "id": "song-20",
@@ -207,7 +207,7 @@ export const songs=[
     "mode": "major",
     "chart": "| C | C7 | Fmaj7 | Bb9 |",
     "type": "song",
-    "mood": "推開窗迎向光的合唱"
+    "mood": "明亮・教堂"
   },
   {
     "id": "song-21",
@@ -217,7 +217,7 @@ export const songs=[
     "mode": "major",
     "chart": "| F | G | Em | Am |",
     "type": "song",
-    "mood": "想把心事唱出來的副歌"
+    "mood": "苦甜・校園"
   },
   {
     "id": "song-22",
@@ -227,7 +227,7 @@ export const songs=[
     "mode": "major",
     "chart": "| Am7 | Fadd9 | C | G/B |",
     "type": "song",
-    "mood": "一路回望的溫柔低音"
+    "mood": "憂鬱・車窗"
   },
   {
     "id": "song-23",
@@ -237,7 +237,7 @@ export const songs=[
     "mode": "minor",
     "chart": "| Ab | Cm | D7 | G7 |",
     "type": "song",
-    "mood": "華麗而不安的戲劇推進"
+    "mood": "緊張・劇院"
   },
   {
     "id": "song-24",
@@ -247,7 +247,7 @@ export const songs=[
     "mode": "major",
     "chart": "| F | C | Am | G |",
     "type": "song",
-    "mood": "敞開天窗的公路副歌"
+    "mood": "明亮・公路"
   },
   {
     "id": "song-25",
@@ -257,7 +257,7 @@ export const songs=[
     "mode": "major",
     "chart": "| F | C | Dm | G | F | Am | F G | C |",
     "type": "song",
-    "mood": "逐漸展開的明亮故事"
+    "mood": "溫暖・夏天"
   },
   {
     "title": "Ex27",
@@ -267,7 +267,7 @@ export const songs=[
     "chart": "| Cmaj7 | Cmaj7 | E7 | E7 | A7 | A7 | Dm7 | Dm7 |",
     "id": "song-26",
     "type": "song",
-    "mood": "繞幾個彎才回家的爵士"
+    "mood": "緊張・轉角"
   },
   {
     "title": "Ex28",
@@ -277,7 +277,7 @@ export const songs=[
     "chart": "| Cmaj7 | Gm7 C7 | Fmaj7 | Fm7 Bb7 |",
     "id": "song-27",
     "type": "song",
-    "mood": "溫暖轉暗又透光的街景"
+    "mood": "苦甜・街景"
   },
   {
     "title": "Ex29",
@@ -287,7 +287,7 @@ export const songs=[
     "chart": "| Cmaj7 | Cmaj7 | Bm7b5 | E7 | Am7 | Am7 | Gm7 | C7 |",
     "id": "song-28",
     "type": "song",
-    "mood": "大小調之間的流動陰影"
+    "mood": "憂鬱・陰影"
   },
   {
     "title": "Ex30",
@@ -297,7 +297,7 @@ export const songs=[
     "chart": "| Cmaj7 A7 | Dm7 G7 | Em7 A7 | Dm7 G7 |",
     "id": "song-29",
     "type": "song",
-    "mood": "俐落跳躍的爵士迴圈"
+    "mood": "輕快・舞鞋"
   },
   {
     "title": "Ex31",
@@ -307,7 +307,7 @@ export const songs=[
     "chart": "| Cmaj7 | Abdim7 | Gm7 | C7b9 |",
     "id": "song-30",
     "type": "song",
-    "mood": "輕輕擦身的半音海風"
+    "mood": "夢幻・海面"
   },
   {
     "title": "Ex32",
@@ -317,7 +317,7 @@ export const songs=[
     "chart": "| Am6 | Abdim7 | Gm7 | C7b9 |",
     "id": "song-31",
     "type": "song",
-    "mood": "沿著階梯落下的微光"
+    "mood": "憂鬱・階梯"
   },
   {
     "title": "Ex33",
@@ -327,7 +327,7 @@ export const songs=[
     "chart": "| Cmaj7 | Cmaj7 | D7#11 | D7#11 | Dm7 | G7 | Em7b5 | A7b9 |",
     "id": "song-32",
     "type": "song",
-    "mood": "帶一點懸浮感的晴朗午後"
+    "mood": "夢幻・午後"
   },
   {
     "title": "Ex34",
@@ -337,7 +337,7 @@ export const songs=[
     "chart": "| C | G | Am | Em | F | C | F | G |",
     "id": "song-33",
     "type": "song",
-    "mood": "迎著風向前的青春旅程"
+    "mood": "明亮・旅途"
   },
   {
     "title": "Ex35",
@@ -347,7 +347,7 @@ export const songs=[
     "chart": "| C | Fm | C | Fm |",
     "id": "song-34",
     "type": "song",
-    "mood": "明亮中忽然泛起的酸楚"
+    "mood": "苦甜・舊照"
   },
   {
     "title": "Ex36",
@@ -357,7 +357,7 @@ export const songs=[
     "chart": "| Cm | Bb6 | Ab | G | Cm | Bb6 | Ab Bb | Cm |",
     "id": "song-35",
     "type": "song",
-    "mood": "一路下墜再奮力抬頭"
+    "mood": "緊張・雨夜"
   },
   {
     "title": "Ex37",
@@ -367,7 +367,7 @@ export const songs=[
     "chart": "| Abmaj7 | G7b9 | Fm | Bb7b9 | Ebmaj7 | Abmaj7 | D7 | G7 |",
     "id": "song-36",
     "type": "song",
-    "mood": "電影鏡頭般的和聲轉場"
+    "mood": "緊張・電影"
   },
   {
     "title": "Ex38",
@@ -377,6 +377,6 @@ export const songs=[
     "chart": "| Cm | G | Cm | G | Cm | Ab | Eb | G |",
     "id": "song-37",
     "type": "song",
-    "mood": "緊繃脈動的古典暗流"
+    "mood": "暗色・鋼琴"
   }
 ];
