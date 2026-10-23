@@ -9,10 +9,10 @@ import {performance} from '../dist/performance.js';
 
 test('every style has four distinct new directions and at least seven unique examples',()=>{
  for(const style of Object.keys(styles)){
-  const pool=examplePool(style);assert.ok(pool.length>=7,style+' '+pool.length);
+  const order=styles[style].moodOrder||moodOrder;const pool=examplePool(style);assert.ok(pool.length>=7,style+' '+pool.length);
   assert.equal(contrastExamples[style].length,4);
-  assert.deepEqual([...new Set(pool.map(p=>p.category))].sort(),[...moodOrder].sort(),style);
-  assert.deepEqual(pool.slice(0,4).map(p=>p.category),moodOrder);
+  assert.deepEqual([...new Set(pool.map(p=>p.category))].sort(),[...order].sort(),style);
+  assert.deepEqual(pool.slice(0,4).map(p=>p.category),order);
   for(let i=1;i<pool.length;i++)if(pool[i].category===pool[i-1].category)assert.ok(pool.slice(i).every(p=>p.category===pool[i].category),'unnecessary same-mood repetition '+style);
   assert.equal(new Set(pool.map(p=>serialize(parseChart(p.chart)))).size,pool.length,style);
   const short=contrastExamples[style].map(p=>serialize(parseChart(p.chart).slice(0,4)));

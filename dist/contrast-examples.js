@@ -1,3 +1,4 @@
+import {darkContrasts} from './dark-styles.js?v=12';
 // Four original contrasting studies per style, in project tonic C.
 // Mood is a listening suggestion, not a claim about a tradition or a source song.
 // Order: bright / melancholy / dreamy / tense. Explicit modes prevent major/minor relabelling.
@@ -216,3 +217,5 @@ const charts={
 export const moodOrder=['bright','melancholy','dreamy','tense'];
 export const moodLabels={bright:'明亮・輕快',melancholy:'憂鬱・深夜',dreamy:'夢幻・雲端',tense:'緊張・暗巷'};
 export const contrastExamples=Object.fromEntries(Object.entries(charts).map(([style,rows])=>[style,rows.map((row,i)=>{const [mode,chart]=row.split(';');return {id:`contrast-${style}-${moodOrder[i]}`,style,type:'study',key:0,mode,category:moodOrder[i],mood:moodLabels[moodOrder[i]],chart:`| ${chart.split('|').join(' | ')} |`,feel:{gate:[78,90,98,62][i],human:[30,55,60,25][i]},open:i===2};})]));
+
+Object.assign(contrastExamples,darkContrasts);

@@ -1,7 +1,7 @@
-import {arpeggiate} from './arpeggiator.js?v=11';
-import {parse,mod} from './music.js?v=11';
+import {arpeggiate} from './arpeggiator.js?v=12';
+import {parse,mod} from './music.js?v=12';
 export const patterns={arp:'ARP · 合成器分解',sustain:'長音和弦 · 精準全拍',ballad:'Ballad · 柔和分解',jazz:'Jazz · Swing comping',bossa:'Bossa · Bass & syncopation',gospel:'Gospel · Rolling chords',house:'Deep house · Flowing syncopation',soul:'Soul · Laid-back comping',rnb:'R&B · Broken pocket',funk:'Funk · 16th conversation',edm:'EDM · Octave pulse',lofi:'Lo-fi · Dusty late pocket',chill:'Chill · Breathing chords',neosoul:'Neo-soul · Rolling answers',pop:'Pop · Lifted eighths',blues:'Blues · Shuffle comping',neoclassical:'Classical rock · Dramatic ostinato',disco:'Nu-disco · Octave syncopation',ambient:'Ambient · Floating sustain',fusion:'Fusion · 16th accents',rock:'Rock · Eighth pulse',jpop:'J-rock · Driving broken chords',alberti:'Classical · Alberti bass',folk:'Folk · Fingerstyle',ostinato:'Modal · Pedal ostinato',arpUp:'Arp · Up',arpDown:'Arp · Down',arpBounce:'Arp · Up / Down',arpRandom:'Arp · Seeded random',arpOctave:'Arp · Two octaves'};
-Object.assign(patterns,{modalPluck:'調式 · Pedal & plucked answers',sparsePluck:'日本五聲 · Sparse plucks',highlife:'Highlife · Interlocking guitar',pentatonicAnswer:'Tizita · Pentatonic answers',slackKey:'Slack-key · Alternating bass',breathingDrone:'當代笛樂 · Breathing drone',ragaDrone:'印度音列 · Sa–Pa drone',afrobeats:'Afrobeats · Syncopated pocket',amapiano:'Amapiano · Keys & bass replies',dembow:'Reggaeton · Dembow-inspired keys',dancehall:'Dancehall · Offbeat vamp',latinPop:'Latin pop · 3–3–2 keys',flamenco:'Flamenco · 4/4 strum study'});
+Object.assign(patterns,{metal:'Metal · 低音 Gallop',doom:'Doom · 緩慢重擊',grunge:'Grunge · 重擊與留白',alternative:'Alternative · 破碎音型',gothic:'Gothic · 冷峻反覆',requiem:'Requiem · 合唱長音',modalPluck:'調式 · Pedal & plucked answers',sparsePluck:'日本五聲 · Sparse plucks',highlife:'Highlife · Interlocking guitar',pentatonicAnswer:'Tizita · Pentatonic answers',slackKey:'Slack-key · Alternating bass',breathingDrone:'當代笛樂 · Breathing drone',ragaDrone:'印度音列 · Sa–Pa drone',afrobeats:'Afrobeats · Syncopated pocket',amapiano:'Amapiano · Keys & bass replies',dembow:'Reggaeton · Dembow-inspired keys',dancehall:'Dancehall · Offbeat vamp',latinPop:'Latin pop · 3–3–2 keys',flamenco:'Flamenco · 4/4 strum study'});
 export function segments(bars){const out=[];bars.forEach((b,i)=>{let at=i*4;for(const c of b.chords??(b.symbol?[{symbol:b.symbol,beats:4}]:[])){if(parse(c.symbol))out.push({...c,beat:at});at+=c.beats;}});return out;}
 function candidates(symbol,voicing){const c=parse(symbol);let ints=c.intervals.map(mod);if(voicing==='rootless'&&ints.length>=4){const third=ints.find(n=>n===3||n===4)||ints[1];const seventh=ints.find(n=>n===10||n===11)||ints.at(-1);const colors=ints.filter(n=>![0,third,seventh,7].includes(n));ints=[third,seventh,...colors];if(ints.length<4&&c.pcs.includes(mod(c.root+7)))ints.push(7);if(ints.length<3)ints.push(0);ints=ints.slice(0,5);}else if(ints.length>6)ints=ints.filter(n=>n!==7).slice(0,6);
 const pcs=[...new Set(ints.map(n=>mod(c.root+n)))].sort((a,b)=>a-b),out=[];for(let inv=0;inv<pcs.length;inv++){const seq=pcs.slice(inv).concat(pcs.slice(0,inv));let notes=seq.map(n=>48+n);for(let j=1;j<notes.length;j++)while(notes[j]<=notes[j-1])notes[j]+=12;if(voicing==='open'&&notes.length>=4){notes[1]+=12;notes.sort((a,b)=>a-b);}for(const shift of [0,12]){const upper=notes.map(n=>n+shift);if(upper.at(-1)>88)continue;let bass=36+c.bass;while(bass>=upper[0]-3)bass-=12;out.push([bass,...upper]);}}return out;}
@@ -10,7 +10,27 @@ export function performance(bars,pattern='sustain',options={}){const alias={bloc
 if(pattern==='arp')return arpeggiate(plan,options);
 for(const [idx,s] of plan.entries()){const v=s.notes,upper=v.slice(1),length=s.beats;const add=(t,notes,dur,velocity=.74,roll=0,articulation='rhythmic')=>{notes.forEach((note,j)=>{const jitter=pattern==='sustain'||articulation==='held'&&notes.length===1?0:(random()*.025*human+j*roll);const local=t+jitter;if(local>=length)return;all.push({beat:s.beat+local,note,articulation:pattern==='sustain'?'held':articulation,duration:Math.min(pattern==='sustain'||articulation==='held'?dur:dur*gate*(.96+random()*.04),length-local),velocity:Math.max(.25,Math.min(.96,velocity+(pattern==='sustain'?0:(random()-.5)*.16*human)))});});};
 if(pattern==='sustain'){add(0,v,length,.78);continue;}
-if(pattern==='ballad'){add(0,[v[0]],length,.62,0,'held');add(.025,upper,length-.025,.7,.012*human,'held');if(length>=3)add(2.5,[upper.at(-1)],length-2.5,.57,0,'held');}
+if(pattern==='metal'){
+ for(let t=0;t<length;t+=1){add(t,[v[0]],Math.min(.34,length-t),.86);add(t+.5,[v[0]],.16,.63);add(t+.75,[v[0]],.16,.7);}
+ [0,1.5,2.75,3.5].filter(t=>t<length).forEach((t,i)=>add(t,upper,Math.min(i===0?.6:.28,length-t),i===0?.84:.68));
+}
+else if(pattern==='doom'){add(0,v,length,.78,.006*human,'held');if(length>3)add(2.5,[v[0]],length-2.5,.59,0,'held');}
+else if(pattern==='grunge'){
+ (idx%2?[0,.75,2,3.5]:[0,1.5,2,2.75]).filter(t=>t<length).forEach((t,i)=>add(t,v,Math.min(i===0?1.05:.45,length-t),i%2?.58:.84,.005*human));
+}
+else if(pattern==='alternative'){
+ add(0,[v[0]],length,.61,0,'held');const seq=[upper[0],upper.at(-1),upper[1]??upper[0],upper[0]];
+ [0,.75,1.5,2.5,3.25].filter(t=>t<length).forEach((t,i)=>add(t,[seq[(i+idx)%seq.length]],Math.min(.7,length-t),i%3?.54:.74));
+ if(idx%2)add(3,upper,Math.min(.85,length-3),.65,.008);
+}
+else if(pattern==='gothic'){
+ add(0,[v[0]],length,.65,0,'held');for(let t=0,n=0;t<length;t+=.5,n++)add(t,[upper[(n%2?upper.length-1:0)]],Math.min(.44,length-t),n%2?.51:.72);
+}
+else if(pattern==='requiem'){
+ // Each chord keeps its full harmonic span; moving basses belong to the chart, not random ornaments.
+ add(0,v,length,.61,0,'held');
+}
+else if(pattern==='ballad'){add(0,[v[0]],length,.62,0,'held');add(.025,upper,length-.025,.7,.012*human,'held');if(length>=3)add(2.5,[upper.at(-1)],length-2.5,.57,0,'held');}
 else if(pattern==='jazz'){add(0,[v[0]],Math.min(1.7,length),.63);const rhythms=idx%2?[.5+swing,2,3.5+swing]:[0,1.5+swing,3];rhythms.filter(t=>t<length).forEach((t,i)=>add(t,upper,Math.min(.9,length-t),i===0?.76:.63,.004*human));}
 else if(pattern==='bossa'){[0,2].filter(t=>t<length).forEach((t,j)=>add(t,[v[0]+(j?7:0)],Math.min(2,length-t),.64,0,'held'));(idx%2?[0,1,2.5]:[0,1.5,3]).filter(t=>t<length).forEach(t=>add(t,upper,.65,.68,.003));}
 else if(pattern==='gospel'){add(0,[v[0]],length,.68,0,'held');[0,1.5,3].filter(t=>t<length).forEach((t,i)=>add(t,i===1?[...upper].reverse():upper,Math.min(1.25,length-t),i===0?.77:.61,.018*human));}

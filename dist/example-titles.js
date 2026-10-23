@@ -1,3 +1,4 @@
+import {darkStudyMoods} from './dark-styles.js?v=12';
 // Short, original listening cues, never source-song names.
 export const studyMoods={
  Jazz:['輕快・街角','苦甜・酒吧','緊張・樓梯'],
@@ -43,6 +44,7 @@ export const studyMoods={
  'Arabic Hijaz':['夢幻・沙色','深沉・夜空','緊張・迴廊'],
  'Celtic Dorian':['明亮・小徑','夢幻・山谷','輕快・原野']
 };
+Object.assign(studyMoods,darkStudyMoods);
 export function moodCategory(label){return /^(明亮|溫暖|輕快)/.test(label)?'bright':/^(夢幻)/.test(label)?'dreamy':/^(緊張|莊重)/.test(label)?'tense':'melancholy';}
 export function studyMood(style,index){const moods=studyMoods[style]||['溫暖・琴房'];return moods[index%moods.length];}
 export function exampleTitle(example,index){return `Ex${index+1} · ${example.mood}`;}

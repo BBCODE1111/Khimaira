@@ -1,5 +1,5 @@
-import {parse,names,mod} from './music.js?v=11';
-import {chordList} from './solutions.js?v=11';
+import {parse,names,mod} from './music.js?v=12';
+import {chordList} from './solutions.js?v=12';
 
 // Resolve to the next sounding event. Never skip a rest or overwrite a target.
 export function insertCadence(bars,barIndex,chordIndex,{loop=false}={}){

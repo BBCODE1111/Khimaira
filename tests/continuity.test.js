@@ -2,7 +2,7 @@ import {test} from 'node:test';import assert from 'node:assert/strict';
 import {performance,patterns,segments} from '../dist/performance.js';
 import {parseChart} from '../dist/solutions.js';import {midiBytes} from '../dist/music.js';
 import {BeatPlayer} from '../dist/tempo-player.js';
-const connected=['sustain','ballad','bossa','gospel','soul','rnb','lofi','neosoul','chill','ambient','neoclassical','modalPluck','sparsePluck','pentatonicAnswer','breathingDrone','ragaDrone'];
+const connected=['doom','alternative','gothic','requiem','sustain','ballad','bossa','gospel','soul','rnb','lofi','neosoul','chill','ambient','neoclassical','modalPluck','sparsePluck','pentatonicAnswer','breathingDrone','ragaDrone'];
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
 function decode(bytes){let p=22,tick=0,active=new Map,notes=[];while(p<bytes.length){let delta=0,x;do{x=bytes[p++];delta=(delta<<7)|(x&127);}while(x&128);tick+=delta;const status=bytes[p++];if(status===0xc0){p++;continue;}if(status===255){assert.equal(bytes[p++],47);assert.equal(bytes[p++],0);continue;}const note=bytes[p++],velocity=bytes[p++];if(status===0x90){assert.ok(!active.has(note),'overlapping MIDI '+note);active.set(note,{note,start:tick,velocity});}else {assert.equal(status,0x80);const n=active.get(note);assert.ok(n,'unmatched note off');assert.ok(tick>n.start,'zero-length MIDI');notes.push({...n,end:tick});active.delete(note);}}
  assert.equal(active.size,0,'stuck MIDI notes');return {notes,tick};}
