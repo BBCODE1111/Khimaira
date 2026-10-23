@@ -1,15 +1,17 @@
-import {insertCadence,invertChord,parallelColor} from './harmony-actions.js?v=7';
-import {playbackSlice,spaceToggles} from './transport.js?v=7';
-import {names,mod,parse,generate,approach,events,guitarShapes,scales,midiBytes,chordTones} from './music.js?v=7';
-import {parseBar,parseChart,chordList,serialize,solve} from './solutions.js?v=7';
-import {styles,mutate,library,styleLabels,cadenceTo} from './style-engine.js?v=7';
-import {patterns,voicePlan} from './performance.js?v=7';
-import {songs} from './song-pool.js?v=7';
-import {scaleNotes,scalePositions} from './scale-library.js?v=7';
-import {guitarMelody,melodyShapes,melodyEvents} from './guitar-melody.js?v=7';
-import {Piano} from './piano.js?v=7';
+import {studyMood,exampleTitle} from './example-titles.js?v=8';
+import {BeatPlayer,validTempo,clampTempo} from './tempo-player.js?v=8';
+import {insertCadence,invertChord,parallelColor} from './harmony-actions.js?v=8';
+import {playbackSlice,spaceToggles} from './transport.js?v=8';
+import {names,mod,parse,generate,approach,events,guitarShapes,scales,midiBytes,chordTones} from './music.js?v=8';
+import {parseBar,parseChart,chordList,serialize,solve} from './solutions.js?v=8';
+import {styles,mutate,library,styleLabels,cadenceTo} from './style-engine.js?v=8';
+import {patterns,voicePlan} from './performance.js?v=8';
+import {songs} from './song-pool.js?v=8';
+import {scaleNotes,scalePositions} from './scale-library.js?v=8';
+import {guitarMelody,melodyShapes,melodyEvents} from './guitar-melody.js?v=8';
+import {Piano} from './piano.js?v=8';
 const $=id=>document.getElementById(id);let bars=parseChart('| C | Am | F | G |'),source=structuredClone(bars),selected=0,selectedChord=0,tab='scales',audio=null,timer=null,started=0,run=0,activeNodes=[];
-let startBar=0,isPlaying=false,loading=false;
+let startBar=0,isPlaying=false,loading=false,player=null,playbackKind='score';
 let variation=0,piano=null,scaleChoice='',lastScaleChord='',positionChoice=0,method='style',songIndex=-1,melodySeed=0,arrangement=[],history=[];
 const settings=['key','mode','tempo','style','pattern','freedom','density','voicing','rate','gate','swing','human','randomness'];
 for(const groupName of ['現代流行與和聲','跨文化流行與舞曲','地域調式與器樂靈感']){const group=document.createElement('optgroup');group.label=groupName;Object.keys(styles).filter(s=>(styles[s].group||'現代流行與和聲')===groupName).forEach(s=>group.append(new Option(styleLabels[s]||s,s)));$('style').append(group);}const modalOption=new Option('調式 · 依樂風','modal');modalOption.disabled=true;$('mode').add(modalOption);Object.entries(patterns).forEach(([id,label])=>$('pattern').add(new Option(label,id)));$('pattern').value='ballad';
@@ -36,6 +38,7 @@ function styleInfo(){const cfg=styles[$('style').value];$('styleNote').textConte
 function syncStyleMode(){const cfg=styles[$('style').value];$('mode').disabled=!!cfg.world;if(cfg.world)$('mode').value='modal';else if($('mode').value==='modal')$('mode').value='major';}
 function syncMethod(){document.querySelectorAll('[data-solution]').forEach(b=>b.classList.toggle('active',b.dataset.solution===method));$('methodLabel').textContent=({original:'原始進行',style:'風格改寫',color:'延伸色彩',cadence:'ii–V 接近',tritone:'三全音代理'})[method]+' · 更多設定';}
 function applyMutation(next=true){checkpoint();stop();if(next)variation++;let candidate=mutate(source,config());for(let retry=0;method!=='original'&&serialize(candidate)===serialize(bars)&&retry<8;retry++){variation++;candidate=mutate(source,config());}bars=candidate;selected=selectedChord=startBar=0;save();render();styleInfo();syncMethod();status((styleLabels[$('style').value]||$('style').value)+' · '+$('randomness').selectedOptions[0].text+' · 變體 '+variation+' · 再按相同手法換一組。');}
+$('chartInput').addEventListener('input',()=>{$('seedMood').hidden=true;});
 $('applyChart').onclick=()=>{try{const parsed=parseChart($('chartInput').value);checkpoint();stop();bars=parsed;source=structuredClone(bars);selected=selectedChord=startBar=0;variation=0;save();syncInput();render();status('已載入原始進行。可直接試聽，或按生成探索新的和聲。');}catch(e){status(e.message);}};
 function generateFromInput(chosenMethod){try{const text=$('chartInput').value.trim();if(text!==serialize(source).replaceAll(':4','')||source.length!==+$('length').value){const changed=text!==serialize(source).replaceAll(':4',''),parsed=text?parseChart(text):[];const count=changed?Math.max(+$('length').value,parsed.length):+$('length').value;source=Array.from({length:count},(_,i)=>structuredClone(parsed[i]||{chords:[]}));variation=0;}method=chosenMethod;applyMutation();syncInput();$('chartInput').removeAttribute('aria-invalid');}catch(e){$('chartInput').setAttribute('aria-invalid','true');status(e.message);}}
 $('generate').onclick=()=>generateFromInput(method==='original'?'style':method);
@@ -44,11 +47,11 @@ $('undo').onclick=()=>{if(!history.length){status('目前沒有可還原的變�
 $('clear').onclick=()=>{checkpoint();stop();bars=bars.map(()=>({chords:[]}));source=structuredClone(bars);save();syncInput();render();};
 $('useCurrent').onclick=()=>{source=structuredClone(bars);syncInput();save();status('目前的和聲已設為下一次改寫的起點。');};
 $('length').onchange=()=>{status('小節數已設定；按生成套用，輸入中的和弦會保留。');};
-for(const id of settings)$(id).onchange=()=>{stop();if(id==='tempo')$('tempo').value=Math.max(30,Math.min(260,+$('tempo').value||92));if(id==='style'){const cfg=styles[$('style').value];$('pattern').value=cfg.pattern;$('voicing').value=cfg.voicing;$('swing').value=id==='style'&&['Jazz','Major blues','Minor blues','Lo-fi hip-hop'].includes($('style').value)?16:0;}if(id==='style'){if(['Minor blues','Neoclassical rock','Dorian folk','Phrygian dominant'].includes($('style').value))$('mode').value='minor';else if($('style').value==='Major blues')$('mode').value='major';method='style';songIndex=-1;populateLibrary();const bpm={House:118,Funk:104,'Lo-fi hip-hop':78,Chill:80,Ambient:66,EDM:124,'R&B':84,'Neo-soul':82,'Neoclassical rock':128,'Major blues':96,'Minor blues':88};if(bpm[$('style').value]||styles[$('style').value].tempo)$('tempo').value=styles[$('style').value].tempo||bpm[$('style').value];syncStyleMode();syncMethod();}if(['style','freedom','density','mode','key','randomness'].includes(id)){styleInfo();reference();status('方向已設定，按「GENERATE」套用到和弦譜。');}save();};
+for(const id of settings.filter(id=>id!=='tempo'))$(id).onchange=()=>{stop();if(id==='style'){const cfg=styles[$('style').value];$('pattern').value=cfg.pattern;$('voicing').value=cfg.voicing;$('swing').value=id==='style'&&['Jazz','Major blues','Minor blues','Lo-fi hip-hop'].includes($('style').value)?16:0;}if(id==='style'){if(['Minor blues','Neoclassical rock','Dorian folk','Phrygian dominant'].includes($('style').value))$('mode').value='minor';else if($('style').value==='Major blues')$('mode').value='major';method='style';songIndex=-1;populateLibrary();const bpm={House:118,Funk:104,'Lo-fi hip-hop':78,Chill:80,Ambient:66,EDM:124,'R&B':84,'Neo-soul':82,'Neoclassical rock':128,'Major blues':96,'Minor blues':88};if(bpm[$('style').value]||styles[$('style').value].tempo)$('tempo').value=styles[$('style').value].tempo||bpm[$('style').value];syncStyleMode();syncMethod();}if(['style','freedom','density','mode','key','randomness'].includes(id)){styleInfo();reference();status('方向已設定，按「GENERATE」套用到和弦譜。');}if(id==='style')applyTempo(true);save();};
 $('styleGroove').onclick=()=>{stop();const cfg=styles[$('style').value];$('pattern').value=cfg.pattern;$('voicing').value=cfg.voicing;$('swing').value=['Jazz','Major blues','Minor blues','Lo-fi hip-hop'].includes($('style').value)?16:0;save();status('已套用 '+$('style').value+' 的演奏與配置；MIDI 會使用同一組音符。');};
-function currentPool(){const style=$('style').value;const related={'Neo-soul':['R&B'],Soul:['R&B'],Chill:['House','R&B'],Funk:['Soul'],EDM:['American pop'],'Lo-fi hip-hop':['Jazz','R&B'],'Nu-disco':['Funk','K-pop'],Rock:['Japanese rock'],'Major blues':[],'Minor blues':[]};const own=songs.filter(s=>s.style===style),other=songs.filter(s=>(related[style]||[]).includes(s.style));const exercises=styles[style].phrases.map((phrase,i)=>({id:'exercise-'+style+'-'+i,title:(styleLabels[style]||style)+' · 練習 '+(i+1),chart:'| '+phrase.join(' | ')+' |',key:0,mode:styles[style].world?'modal':['Minor blues','Neoclassical rock','Dorian folk','Phrygian dominant'].includes(style)?'minor':'major',style,type:'study'}));return [...own,...other,...exercises].map((p,i)=>({...p,title:`Ex${i+1}`}));}
+function currentPool(){const style=$('style').value;const related={'Neo-soul':['R&B'],Soul:['R&B'],Chill:['House','R&B'],Funk:['Soul'],EDM:['American pop'],'Lo-fi hip-hop':['Jazz','R&B'],'Nu-disco':['Funk','K-pop'],Rock:['Japanese rock'],'Major blues':[],'Minor blues':[]};const own=songs.filter(s=>s.style===style),other=songs.filter(s=>(related[style]||[]).includes(s.style));const exercises=styles[style].phrases.map((phrase,i)=>({id:'exercise-'+style+'-'+i,mood:studyMood(style,i),title:(styleLabels[style]||style)+' · 練習 '+(i+1),chart:'| '+phrase.join(' | ')+' |',key:0,mode:styles[style].world?'modal':['Minor blues','Neoclassical rock','Dorian folk','Phrygian dominant'].includes(style)?'minor':'major',style,type:'study'}));return [...own,...other,...exercises].map((p,i)=>({...p,title:exampleTitle(p,i)}));}
 function populateLibrary(){const items=currentPool();$('library').replaceChildren();items.forEach(p=>$('library').add(new Option(p.title,p.id)));$('presetNote').textContent=items.filter(p=>p.type==='song').length+' 組歌曲短句 + '+styles[$('style').value].phrases.length+' 組風格練習。按下一組逐一探索。';}
-function loadSeed(p){if(!p)return;checkpoint();stop();const transposeTo=+$('key').value;const raw=parseChart(p.chart);const n=+$('length').value;bars=Array.from({length:n},(_,i)=>{const b=structuredClone(raw[i%raw.length]);b.chords=b.chords.map(c=>{const x=parse(c.symbol);return {...c,symbol:names[mod(x.root+transposeTo)]+x.q+(c.symbol.includes('/')?'/'+names[mod(x.bass+transposeTo)]:'')};});b.reason=p.type==='song'?'歌曲短句 · 可改寫':'風格練習';return b;});source=structuredClone(bars);$('mode').value=p.mode;$('pattern').value=styles[$('style').value].pattern;$('voicing').value=styles[$('style').value].voicing;variation=0;selected=selectedChord=startBar=0;save();syncInput();render();styleInfo();$('library').value=p.id;$('presetNote').textContent=p.title+' · '+(p.type==='song'?'簡化和聲短句，已依選定調性與小節數編排。':'原創風格練習。');status('已載入 '+p.title+'；再按下一組換參考，或用 mutation 改寫。');}
+function loadSeed(p){if(!p)return;checkpoint();stop();const transposeTo=+$('key').value;const raw=parseChart(p.chart);const n=+$('length').value;bars=Array.from({length:n},(_,i)=>{const b=structuredClone(raw[i%raw.length]);b.chords=b.chords.map(c=>{const x=parse(c.symbol);return {...c,symbol:names[mod(x.root+transposeTo)]+x.q+(c.symbol.includes('/')?'/'+names[mod(x.bass+transposeTo)]:'')};});b.reason=p.type==='song'?'歌曲短句 · 可改寫':'風格練習';return b;});source=structuredClone(bars);$('mode').value=p.mode;$('pattern').value=styles[$('style').value].pattern;$('voicing').value=styles[$('style').value].voicing;variation=0;selected=selectedChord=startBar=0;save();syncInput();render();styleInfo();$('library').value=p.id;$('seedMood').textContent='靈感起點 · '+p.title;$('seedMood').hidden=false;$('presetNote').textContent=p.title+' · '+(p.type==='song'?'簡化和聲短句，已依選定調性與小節數編排。':'原創風格練習。');status('已載入 '+p.title+'；再按下一組換參考，或用 mutation 改寫。');}
 $('loadPreset').onclick=()=>{const pool=currentPool();songIndex=pool.findIndex(p=>p.id===$('library').value);loadSeed(pool[songIndex]);};
 $('nextSong').onclick=()=>{const all=currentPool(),references=all.filter(p=>p.type==='song'),pool=references.length?references:all;songIndex=(songIndex+1)%pool.length;loadSeed(pool[songIndex]);};
 $('voicingTab').onclick=()=>{tab='chords';$('voicingTab').classList.add('active');$('scaleTab').classList.remove('active');reference();};$('scaleTab').onclick=()=>{tab='scales';$('scaleTab').classList.add('active');$('voicingTab').classList.remove('active');reference();};
@@ -66,7 +69,7 @@ $('editorApply').onclick=()=>{const symbol=editorSymbol();if(!parse(symbol))retu
 $('editorSplit').onclick=()=>{const c=bars[selected].chords[selectedChord];if(c.beats<1||bars[selected].chords.length>=4)return;checkpoint();stop();bars[selected].chords.splice(selectedChord,1,{...c,beats:c.beats/2},{...c,beats:c.beats/2});$('chordEditor').close();save();render();};
 $('editorDelete').onclick=()=>{checkpoint();stop();const list=bars[selected].chords,removed=list.splice(selectedChord,1)[0];if(list.length)list[Math.max(0,selectedChord-1)].beats+=removed.beats;selectedChord=Math.max(0,selectedChord-1);$('chordEditor').close();save();render();};
 $('melodyGenerate').onclick=()=>{stop();const [minFret,maxFret]=$('melodyRegion').value.split(',').map(Number);arrangement=guitarMelody(bars,{seed:++melodySeed,minFret,maxFret});$('melodyGrid').innerHTML=arrangement.map(s=>{const v=s.shape;return `<div class="melody-card ${v?'':'missing'}"><div class="melody-top">BAR ${Math.floor(s.beat/4)+1} · 拍 ${s.beat%4+1} · ${s.beats} 拍</div><h3>${safe(s.symbol)}</h3>${v?`<div class="melody-top">MELODY ${pitchLabel(s.symbol,v.top)}</div>${diagram(v.frets)}<div class="melody-frets">${v.frets.map(f=>f<0?'×':f).join(' ')}</div><p>${v.omitted.length?'省略音 '+v.omitted.join(' · '):'完整和弦音'} · 最高音帶旋律</p>`:'<p>這個區域沒有符合跨度與低音條件的按法。可改選全指板或簡化延伸音。</p>'}</div>`;}).join('');const missing=arrangement.filter(s=>!s.shape).length;$('melodyNote').textContent=missing?'有 '+missing+' 個和弦沒有合適按法；請放寬把位或編輯和弦後再生成。':'第 '+melodySeed+' 組 · 四音和弦、至多跨四格 · 圖示由低 E 到高 e；× 弦需悶音，請依手掌調整指法。';};
-async function previewArrangement(){if(!arrangement.length){status('請先 Generate chord melody。');return;}stop();const token=run;piano ||=new Piano;try{await piano.load();if(token!==run)return;const sec=60/+$('tempo').value,start=piano.context.currentTime+.1;melodyEvents(arrangement).forEach(n=>piano.note(n.note,start+n.beat*sec,n.duration*sec,n.velocity));status('以鋼琴試聽吉他實際按法與頂聲部。');}catch{status('採樣載入失敗，請稍後重試。');}}
+async function previewArrangement(){if(!arrangement.length){status('請先 Generate chord melody。');return;}await startPerformance(playbackSlice(melodyEvents(arrangement),startBar,bars.length),{label:'吉他按法與頂聲部',kind:'melody'});}
 $('melodyPlay').onclick=previewArrangement;
 $('melodyMidi').onclick=()=>{if(!arrangement.length||arrangement.some(s=>!s.shape)){status('請先生成所有和弦都有按法的一組 chord melody。');return;}downloadNotes(melodyEvents(arrangement),'chord-melody');};
 function updateCue(){
@@ -75,36 +78,50 @@ function updateCue(){
  if(!isPlaying&&!loading)$('position').textContent='READY · BAR '+(startBar+1);
 }
 function cueBar(i){const resume=isPlaying||loading;stop();startBar=i;select(i);updateCue();if(resume)play();else status('將從第 '+(i+1)+' 小節開始。按 PLAY 或空白鍵播放。');}
-function stop(){run++;isPlaying=false;loading=false;clearTimeout(timer);timer=null;piano?.stop();$('play').textContent='PLAY';$('play').setAttribute('aria-pressed','false');updateCue();document.querySelectorAll('.playing,.sounding').forEach(el=>el.classList.remove('playing','sounding'));}
-async function previewScale(scale,c){stop();const token=run;try{piano ||=new Piano;status('載入鋼琴採樣…');await piano.load();if(token!==run)return;const start=piano.context.currentTime+.1;const root=scale.root??c.root;const offsets=scale.pcs.map(pc=>mod(pc-root)).sort((a,b)=>a-b);[...offsets,12].forEach((n,i)=>piano.note(60+root+n,start+i*.32,.42,.65));status(scale.name+' · 上行試聽');}catch{status('鋼琴採樣載入失敗，請重試。MIDI 匯出仍可使用。');}}
-async function play(){
- stop();const clip=playbackSlice(events(bars,$('pattern').value,performanceOptions()),startBar,bars.length);
- if(!clip.notes.length){status('起播點後沒有和弦，請選擇其他小節或生成和弦。');return;}
- const token=run;loading=true;$('position').textContent='LOADING PIANO';
+function stop(){run++;isPlaying=false;loading=false;clearTimeout(timer);timer=null;if(player){player.stop();player=null;}else piano?.stop();$('play').textContent='PLAY';$('play').setAttribute('aria-pressed','false');updateCue();document.querySelectorAll('.playing,.sounding').forEach(el=>el.classList.remove('playing','sounding'));}
+let appliedTempo=clampTempo($('tempo').value);$('tempo').value=appliedTempo;
+function updateTempoHint(){
+ $('tempoHint').textContent=`每拍 ${(60/appliedTempo).toFixed(2)} 秒 · 4/4 每小節 ${(240/appliedTempo).toFixed(2)} 秒。播放中可直接變速。`;
+}
+function applyTempo(commit=false){
+ let value=Number($('tempo').value);
+ if(!validTempo(value)){if(!commit)return;value=$('tempo').value.trim()&&Number.isFinite(value)?Math.max(30,Math.min(260,value)):appliedTempo;$('tempo').value=value;}
+ appliedTempo=value;player?.setTempo(value);updateTempoHint();save();
+}
+$('tempo').oninput=()=>applyTempo();$('tempo').onchange=()=>applyTempo(true);$('tempo').onblur=()=>applyTempo(true);
+$('tempo').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();applyTempo(true);$('tempo').blur();}};
+async function previewScale(scale,c){
+ const root=scale.root??c.root,offsets=scale.pcs.map(pc=>mod(pc-root)).sort((a,b)=>a-b);
+ const notes=[...offsets,12].map((n,i)=>({note:60+root+n,beat:i*.5,duration:.42,velocity:.65}));
+ await startPerformance({notes,beats:notes.length*.5,startBar:0},{label:scale.name+' · 上行試聽',kind:'scale'});
+}
+async function play(){await startPerformance(playbackSlice(events(bars,$('pattern').value,performanceOptions()),startBar,bars.length),{label:patterns[$('pattern').value],kind:'score'});}
+async function startPerformance(clip,{label,kind}){
+ stop();applyTempo(true);if(!clip.notes.length){status('起播點後沒有音符，請選擇其他小節或生成和弦。');return;}
+ const token=run;loading=true;playbackKind=kind;$('position').textContent='LOADING PIANO';
  try{piano ||=new Piano;await piano.load();if(token!==run)return;}
  catch{if(token===run){stop();status('鋼琴採樣載入失敗，請重試。MIDI 匯出仍可使用。');}return;}
  loading=false;isPlaying=true;$('play').setAttribute('aria-pressed','true');
- const seconds=60/Math.max(30,Math.min(260,+$('tempo').value||92)),total=clip.beats*seconds;
- started=piano.context.currentTime+.12;let scheduled=1,lastVisible=-1;
- const schedule=start=>clip.notes.forEach(n=>piano.note(n.note,start+n.beat*seconds,n.duration*seconds,n.velocity));schedule(started);
+ player=new BeatPlayer(piano,clip.notes,clip.beats,{bpm:appliedTempo,loop:kind!=='scale'&&$('loop').checked});
+ let lastVisible=-1;
  function tick(){
-  if(token!==run)return;
-  const elapsed=piano.context.currentTime-started;
-  if($('loop').checked&&elapsed>=scheduled*total-.12){schedule(started+scheduled*total);scheduled++;}
-  if(!$('loop').checked&&elapsed>=total){stop();return;}
-  const beat=clip.startBar*4+Math.max(0,(elapsed%total)/seconds),idx=Math.min(bars.length-1,Math.floor(beat/4)),within=beat%4;
-  document.querySelectorAll('.bar').forEach((el,j)=>{el.classList.toggle('playing',j===idx);if(j===idx&&idx!==lastVisible){const grid=$('grid');if(el.offsetLeft<grid.scrollLeft||el.offsetLeft+el.offsetWidth>grid.scrollLeft+grid.clientWidth)grid.scrollTo({left:el.offsetLeft-grid.offsetLeft,behavior:'instant'});}});lastVisible=idx;
-  document.querySelectorAll('.chord-event').forEach(el=>{let at=0;const cs=chordList(bars[+el.dataset.bar]);for(let j=0;j<+el.dataset.chord;j++)at+=cs[j].beats;el.classList.toggle('sounding',+el.dataset.bar===idx&&within>=at&&within<at+cs[+el.dataset.chord].beats);});
-  $('position').textContent=`BAR ${idx+1} / ${bars.length} · ${$('tempo').value} BPM`;timer=setTimeout(tick,25);
+  if(token!==run)return;if(!player.pump()){stop();return;}
+  const localBeat=Math.max(0,player.beatAt())%clip.beats,beat=clip.startBar*4+localBeat,idx=Math.min(bars.length-1,Math.floor(beat/4)),within=beat%4;
+  if(kind!=='scale'){
+   document.querySelectorAll('.bar').forEach((el,j)=>{el.classList.toggle('playing',j===idx);if(j===idx&&idx!==lastVisible){const grid=$('grid');if(el.offsetLeft<grid.scrollLeft||el.offsetLeft+el.offsetWidth>grid.scrollLeft+grid.clientWidth)grid.scrollTo({left:el.offsetLeft-grid.offsetLeft,behavior:'instant'});}});lastVisible=idx;
+   document.querySelectorAll('.chord-event').forEach(el=>{let at=0;const cs=chordList(bars[+el.dataset.bar]);for(let j=0;j<+el.dataset.chord;j++)at+=cs[j].beats;el.classList.toggle('sounding',+el.dataset.bar===idx&&within>=at&&within<at+cs[+el.dataset.chord].beats);});
+  }
+  $('position').textContent=(kind==='scale'?'SCALE':`BAR ${idx+1} / ${bars.length}`)+` · BEAT ${Math.floor(within)+1} · ${player.bpm} BPM`;
+  $('position').dataset.beat=beat.toFixed(3);timer=setTimeout(tick,25);
  }
- tick();status('從 BAR '+(clip.startBar+1)+' 試聽 · '+patterns[$('pattern').value]);
+ tick();status((kind==='scale'?'':('從 BAR '+(clip.startBar+1)+' 試聽 · '))+label);
 }
 function togglePlayback(){if(isPlaying||loading)stop();else play();}
 $('play').onclick=togglePlayback;$('stop').onclick=stop;
-$('loopButton').onclick=()=>{const resume=isPlaying||loading;$('loop').checked=!$('loop').checked;$('loopButton').setAttribute('aria-pressed',String($('loop').checked));if(resume)play();};
+$('loopButton').onclick=()=>{$('loop').checked=!$('loop').checked;$('loopButton').setAttribute('aria-pressed',String($('loop').checked));if(playbackKind!=='scale')player?.setLoop($('loop').checked);};
 document.addEventListener('keydown',e=>{if(spaceToggles(e)&&!$('chordEditor').open){e.preventDefault();togglePlayback();}});
 $('dockMidi').onclick=()=>exportMidi();
 let downloadURL=null;function downloadNotes(notes,suffix){if(downloadURL)URL.revokeObjectURL(downloadURL);downloadURL=URL.createObjectURL(new Blob([midiBytes(notes,bars.length*4)],{type:'audio/midi'}));const a=document.createElement('a');a.href=downloadURL;a.download='KHIMAIRA-'+suffix+'.mid';a.click();status('已下載 '+suffix+' MIDI。');}
 function exportMidi(sustained=false){const notes=events(bars,sustained?'sustain':$('pattern').value,performanceOptions());if(!notes.length){status('尚無可匯出的音符。');return;}if(downloadURL)URL.revokeObjectURL(downloadURL);downloadURL=URL.createObjectURL(new Blob([midiBytes(notes,bars.length*4)],{type:'audio/midi'}));const a=document.createElement('a');a.href=downloadURL;a.download='KHIMAIRA-'+names[+$('key').value]+'-'+bars.length+'bars-'+(sustained?'sustain':$('pattern').value)+'.mid';a.click();status(sustained?'已匯出原樣長音：音符準確填滿每個和弦拍數。':'已匯出目前演奏：音序、音長、力度與試聽使用同一組資料。');}
 $('midi').onclick=()=>exportMidi();$('midiSustain').onclick=()=>exportMidi(true);
-syncStyleMode();syncMethod();populateLibrary();styleInfo();syncInput();render();
+updateTempoHint();syncStyleMode();syncMethod();populateLibrary();styleInfo();syncInput();render();
