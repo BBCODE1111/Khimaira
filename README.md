@@ -2,6 +2,8 @@
 
 **Morph your chords like the legendary monster**
 
+[開啟 KHIMAIRA 網站](https://bbcode1111.github.io/Khimaira/) · 免費使用，不需登入。
+
 KHIMAIRA 是給作曲、編曲與吉他手的和聲探索工具。輸入一條簡單進行，讓它長出不同的和聲色彩、聲部與演奏方式，再把 MIDI 帶進 DAW。
 
 ![KHIMAIRA](docs/screenshots/studio.png)
@@ -114,3 +116,7 @@ npm test
 ## 採樣授權
 
 鋼琴使用 Alexander Holm 的 **Salamander Grand Piano** 採樣，CC BY 3.0，經 Tone.js 公開版本分發。網站保留採樣標示與授權連結，詳見 [About / 採樣授權](dist/research.html)。
+
+## 網站部署
+
+GitHub Pages 發布 `dist/` 的靜態網站。推送至 `main` 時，GitHub Actions 會先驗證和聲與播放測試，再自動部署；也可在 Actions 手動執行 Publish KHIMAIRA。研究與討論紀錄不會上傳到網站。
