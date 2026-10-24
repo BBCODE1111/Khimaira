@@ -6,7 +6,7 @@
 
 KHIMAIRA 是給作曲、編曲與吉他手的和聲探索工具。輸入一條簡單進行，讓它長出不同的和聲色彩、聲部與演奏方式，再把 MIDI 帶進 DAW。
 
-![KHIMAIRA](docs/screenshots/studio.png)
+![KHIMAIRA](docs/screenshots/odyssey-desktop.png)
 
 ## 從四個和弦開始
 
@@ -67,11 +67,11 @@ INSPIRE 先帶你比較四個方向，再交錯探索其餘範例；完整輪過
 
 ## 精簡操作與視覺
 
-主要流程為「輸入／選範例 → 生成 → 試聽／匯出」。進階和聲、演奏細節、吉他工具和 Chord Melody 可各自展開，原有功能完整保留。背景採低對比希臘雕刻器物、月桂與里拉琴，按鈕採象牙白嵌片與古銅細框，搭配 Cinzel 字體；譜面與吉他圖使用乾淨底色。
+主要流程為「輸入／選範例 → 生成 → 試聽／匯出」。進階和聲、演奏細節、吉他工具和 Chord Melody 可各自展開，原有功能完整保留。背景採冷藍色希臘神殿與遠方奇美拉，搭配青銅浮雕 Logo、半透明深藍面板、藍灰按鈕與古銅細框。Cinzel 標題字體保留古典感；和弦符號清楚呈現，吉他圖使用淺藍底色。桌面使用寬版和弦譜；直式手機使用精簡固定和弦列與底部 PLAY／STOP／LOOP／MIDI 控制。
 
 和弦譜位於最上方並保持可見，下面才是 01／02／03 功能。手機直式使用薄和弦列，底部固定 PLAY／STOP／LOOP／MIDI。和弦內音轉位與平行大小調色彩在 02 區；COLOR 保留延伸音及相容低音，特殊結構請用 EDIT 手動處理。
 
-![手機操作](docs/screenshots/mobile.png)
+![手機操作](docs/screenshots/odyssey-mobile.png)
 
 ## 吉他的音位與旋律
 
@@ -79,7 +79,7 @@ INSPIRE 先帶你比較四個方向，再交錯探索其餘範例；完整輪過
 
 例如 C Dorian：`C D Eb F G A Bb`。相容音階和較有張力的色彩音階分開標示。
 
-![五把位音階](docs/screenshots/scales.png)
+![五把位音階](docs/screenshots/odyssey-mobile-guitar.png)
 
 展開 **Chord Melody**，即可為整條進行選擇四音吉他按法，兼顧低音、三七音、把位移動及最高音的旋律方向。再按 Generate 會換一組頂聲部走向。可選指板區域、用鋼琴試聽實際吉他音高，或匯出按法 MIDI。
 
