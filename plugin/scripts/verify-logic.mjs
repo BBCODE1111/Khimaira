@@ -19,8 +19,8 @@ const startCycle=Number(process.argv[3]||0);
 for(let cycle=startCycle;cycle<startCycle+3;cycle++){
  const actual=events.filter(e=>e.beat>=cycle*32&&e.beat<(cycle+1)*32).map(e=>({...e,beat:e.beat-cycle*32})).sort(sort);
  const ref=[...expected].sort(sort);assert.equal(actual.length,ref.length,`cycle ${cycle} count`);
- for(let i=0;i<ref.length;i++){assert.equal(actual[i].note,ref[i].note);assert.equal(actual[i].velocity,Math.round(ref[i].velocity*127));const err=Math.abs(actual[i].beat-ref[i].beat)*480;if(err>1)console.log('over raw tick',cycle,actual[i],ref[i],err);maxError=Math.max(maxError,err);}
+ for(let i=0;i<ref.length;i++){assert.equal(actual[i].note,ref[i].note);assert.equal(actual[i].velocity,Math.round(ref[i].velocity*127));const err=Math.abs(actual[i].beat-ref[i].beat)*480;maxError=Math.max(maxError,err);}
  cycles.push(actual.map(e=>[Math.round(e.beat*ppq),e.note,e.velocity]));
 }
-console.log(JSON.stringify({file,ppq,notesPerCycle:expected.length,maxErrorTicks480:maxError,identicalCycles:JSON.stringify(cycles[0])===JSON.stringify(cycles[1])&&JSON.stringify(cycles[1])===JSON.stringify(cycles[2])},null,2));
-for(let c=1;c<3;c++)for(let i=0;i<cycles[0].length;i++)if(JSON.stringify(cycles[0][i])!==JSON.stringify(cycles[c][i]))console.log('cycle diff',c,i,cycles[0][i],cycles[c][i]);assert.ok(maxError<=1,'Logic recording exceeds 1 tick');assert.deepEqual(cycles[0],cycles[1]);assert.deepEqual(cycles[1],cycles[2]);
+console.log(JSON.stringify({file,ppq,startCycle,notesPerCycle:expected.length,maxErrorTicks480:maxError,identicalCycles:JSON.stringify(cycles[0])===JSON.stringify(cycles[1])&&JSON.stringify(cycles[1])===JSON.stringify(cycles[2])},null,2));
+assert.ok(maxError<=1,'Logic recording exceeds 1 tick');assert.deepEqual(cycles[0],cycles[1]);assert.deepEqual(cycles[1],cycles[2]);

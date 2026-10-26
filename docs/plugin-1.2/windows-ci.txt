@@ -1,0 +1,13 @@
+Commit a5ca8ad469888bf212f5291ab979b944dcef7296
+https://github.com/BBCODE1111/Khimaira/actions/runs/40379697800
+2026-10-26T18:49:06.0341433Z 24 exact web/native fixtures: jazz, pop, rock, ballad, house, arp; 8 bars each.
+2026-10-26T18:49:06.7203194Z PASS: fixed backbone, result isolation, all 48 styles / 382 examples with explicit LOAD, browsing isolation, filled GENERATE ignores examples, blank GENERATE loads examples, explicit KEEP, legacy recall, invalid draft preservation
+2026-10-26T18:49:07.7811440Z     Start 1: pattern_player_test
+2026-10-26T18:49:07.9932951Z 1/2 Test #1: pattern_player_test ..............   Passed    0.21 sec
+2026-10-26T18:49:07.9989140Z     Start 2: processor
+2026-10-26T18:49:16.8247059Z 2/2 Test #2: processor ........................   Passed    8.83 sec
+2026-10-26T18:49:16.8256086Z 100% tests passed, 0 tests failed out of 2
+2026-10-26T18:49:16.8257003Z Total Test time (real) =   9.09 sec
+2026-10-26T18:49:29.9791343Z Successful compile (6.125 sec). Resulting Setup program filename is:
+2026-10-26T18:49:34.2649555Z Artifact windows.zip successfully finalized. Artifact ID 12678078535
+2026-10-26T18:49:34.2650649Z Artifact windows has been successfully uploaded! Final size is 29456013 bytes. Artifact ID is 12678078535
