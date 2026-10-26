@@ -160,4 +160,12 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/plugin-v')
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" "dist-plugin/KHIMAIRA-Plugin-$VERSION.zip" --title "KHIMAIRA Plug-in $VERSION" --notes "Mac (VST3/AU/App) and Windows (VST3/App) installers with install guide." --repo "$GITHUB_REPOSITORY"
+        run: |
+          if ! gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            EXTRA=()
+            [[ "$GITHUB_REF_NAME" == *-beta* || "$GITHUB_REF_NAME" == *-rc* ]] && EXTRA+=(--prerelease)
+            gh release create "$GITHUB_REF_NAME" --title "KHIMAIRA Plug-in $VERSION" \
+              --notes "Mac (VST3/AU/App) and Windows (VST3/App) installers with install guide." \
+              "${EXTRA[@]}" --repo "$GITHUB_REPOSITORY"
+          fi
+          gh release upload "$GITHUB_REF_NAME" "dist-plugin/KHIMAIRA-Plugin-$VERSION.zip" --clobber --repo "$GITHUB_REPOSITORY"

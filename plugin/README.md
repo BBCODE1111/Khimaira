@@ -1,6 +1,6 @@
 # KHIMAIRA 1.1 (VST3 · AU · Standalone)
 
-**Version 1.1.0** — based on Web `web-v1.0.2`. DAW menu, window, header and installed bundles are named **KHIMAIRA 1.1**. The older 0.3 MIDI FX/VST3 files are retained. [Milestone 1 validation](../docs/plugin-development-20261027/REPORT.md): optional host/export CC64, accessible MIDI export controls, macOS arm64 builds, strict auval and Logic Pro 11.2.2 load/tempo/state/export checks. Windows and Universal releases remain pending.
+**Version 1.1.0** — based on Web `web-v1.0.2`. DAW menu, window, header and installed bundles are named **KHIMAIRA 1.1**. The older 0.3 MIDI FX/VST3 files are retained. [Milestone 1 validation](../docs/plugin-development-20261027/REPORT.md): optional host/export CC64, accessible MIDI export controls, macOS arm64 builds, strict auval and Logic Pro 11.2.2 load/tempo/state/export checks. Local Universal binaries and the Mac installer are verified; see the [1.1 validation report](../docs/plugin-1.1/REPORT.md) for platform limitations and current release evidence.
 
 The website in `../dist` running inside a DAW instrument plug-in. The web UI is embedded unchanged;
 a small bridge (`web/`) connects it to native code that plays in sync with the DAW.
@@ -12,7 +12,11 @@ a small bridge (`web/`) connects it to native code that plays in sync with the D
 
 Pro Tools (AAX) is not included: it requires Avid's developer program and PACE signing.
 
-## Get the installers (no Mac/PC toolchain needed)
+## Download KHIMAIRA 1.1
+
+[KHIMAIRA 1.1 testing release](https://github.com/BBCODE1111/Khimaira/releases/tag/plugin-v1.1.0-beta.1): Mac Universal installer, Windows x64 installer, manual VST3 ZIP, and a combined package with the bilingual install guide.
+
+## Build installers on GitHub
 
 1. Push this repository to GitHub (the `plugin/` folder and `.github/workflows/plugin.yml`).
 2. GitHub → **Actions** → **Build KHIMAIRA Plug-in** → **Run workflow**.

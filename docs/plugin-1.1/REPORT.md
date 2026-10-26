@@ -14,9 +14,9 @@
 - 90 web unit tests passed.
 - `tests/browser-plugin.cjs` passed in Chrome: 1.1 branding, split-chord cursor, rests, looping, preroll, audition-to-host handoff and audition after host stop.
 - CTest: scheduler, pedal and processor/export/state all pass. New cases exercise mid-chord start at block sizes 64/512/4096, channel switching, and suppressing preview during host playback.
-- Local Release builds: AU, VST3, Standalone (macOS arm64). Strict `auval` passed under **AudioUnit Name: KHIMAIRA 1.1**, version 1.1.0; see `auval.txt`.
+- Local Release builds: AU, VST3, Standalone (macOS Universal: arm64 + x86_64, confirmed with `lipo -archs`). Strict `auval` passed under **AudioUnit Name: KHIMAIRA 1.1**, version 1.1.0; see `auval.txt`.
 - Standalone WKWebView loaded with 1.1 branding. PLAY advanced bar/beat; STOP returned to READY. Screenshot: `standalone.png`.
-- Local arm64 installer was expanded; all three bundles reported version 1.1.0 and passed `codesign --verify --deep --strict`. Signing is ad-hoc, not Developer ID/notarization.
+- Both arm64 and Universal installers were expanded; all three bundles reported version 1.1.0, Universal payloads contained both architectures, and passed `codesign --verify --deep --strict`. Signing is ad-hoc, not Developer ID/notarization.
 - Earlier Logic Pro 11.2.2 checks covered loading, 96 BPM host sync, looping, state restoration and CC64 MIDI export; see [milestone evidence](../plugin-development-20261027/REPORT.md). The user's active legacy MIDI FX session was left running during this update.
 
 ## Installation on the development Mac
@@ -24,7 +24,7 @@
 - `~/Library/Audio/Plug-Ins/Components/KHIMAIRA 1.1.component`
 - `~/Library/Audio/Plug-Ins/VST3/KHIMAIRA 1.1.vst3`
 - `~/Applications/KHIMAIRA 1.1.app`
-- Installer: `build-plugin/installers/KHIMAIRA-1.1.0-mac-arm64.pkg`.
+- Universal installer: `build-plugin/installers/KHIMAIRA-1.1.0-mac.pkg`. An arm64-only build is also available locally.
 
 The prior development-only `KHIMAIRA.component` is backed up under `build-plugin/previous-au/`. The legacy `KHIMAIRA MIDI FX.component` and `KHIMAIRA.vst3` are retained. Restart/rescan the DAW to see the new version.
 
@@ -32,4 +32,4 @@ The prior development-only `KHIMAIRA.component` is backed up under `build-plugin
 
 GitHub Actions builds Mac Universal and Windows x64 installers. The initial Windows run exposed a missing WebView2 include in the native processor test target; the target now requests the same WebView2 SDK integration as the plugin. Mac CI uses macOS 15 because [GitHub is retiring macOS 14 runners](https://github.com/actions/runner-images/issues/13518).
 
-Windows DAW loading and Intel hardware testing have not been performed locally. Native MIDI tiles export one track; the web MIDI buttons retain optional bass/chord split tracks. CC64 applies to native host playback and native MIDI tiles; web previews/exports retain note-length pedal simulation. AAX is not included.
+Universal native tests pass on arm64; all three test executables also pass under x86_64/Rosetta. Universal AU passes strict auval on arm64. Rosetta auval could not discover the registered AU (`didn’t find the component`), so Intel AU host validation remains unverified. Windows x64 VST3/Standalone compilation, all three native test suites and the EXE/VST3 ZIP packaging succeeded in [GitHub Actions](https://github.com/BBCODE1111/Khimaira/actions/runs/40367925660/job/121730688498). The downloaded artifact matched GitHub’s SHA256 digest. Mac CI remained queued; the delivered Universal installer was built and verified locally. Windows DAW loading and physical Intel hardware testing have not been performed locally. Native MIDI tiles export one track; the web MIDI buttons retain optional bass/chord split tracks. CC64 applies to native host playback and native MIDI tiles; web previews/exports retain note-length pedal simulation. AAX is not included.
