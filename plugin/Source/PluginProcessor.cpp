@@ -54,6 +54,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout KhimairaProcessor::createLay
     layout.add (std::make_unique<AudioParameterChoice> (ParameterID { "source", 1 }, "Play",
                                                         StringArray { "Performance", "Sustain chords" }, 0));
     layout.add (std::make_unique<AudioParameterInt>    (ParameterID { "channel", 1 }, "MIDI Channel", 1, 16, 1));
+    layout.add (std::make_unique<AudioParameterBool> (ParameterID { "pedal", 1 }, "Host Pedal CC64", false));
     return layout;
 }
 
@@ -66,6 +67,7 @@ KhimairaProcessor::KhimairaProcessor()
     volumeParam   = params.getRawParameterValue ("volume");
     sourceParam   = params.getRawParameterValue ("source");
     channelParam  = params.getRawParameterValue ("channel");
+    pedalParam = params.getRawParameterValue ("pedal");
 
     hostPlayer.prepare();
     startTimerHz (10);
@@ -83,6 +85,8 @@ void KhimairaProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     currentBlockSize = juce::jmax (32, samplesPerBlock);
     piano.prepare (sampleRate);
     hostPlayer.reset();
+    pedalPlayer = {};
+    audioPattern = nullptr;
     preview.reset();
     generated.ensureSize (8192);
     gain.reset (sampleRate, 0.03);
@@ -143,10 +147,23 @@ void KhimairaProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
     };
 
     static const kh::Pattern empty;
+    patternReaders.fetch_add (1);
     const auto* pattern = livePattern.load();
     const bool sync = hostSyncParam->load() > 0.5f;
 
-    hostPlayer.process (pattern != nullptr ? *pattern : empty, playing && sync, ppq, bpm, sr, numSamples, emit);
+    auto emitPedal = [&] (const kh::PedalOut& e)
+    { generated.addEvent (juce::MidiMessage::controllerEvent (e.channel, 64, e.value), e.offset); };
+    if (audioPattern != pattern)
+    {
+        pedalPlayer.stop (0, emitPedal);
+        hostPlayer.process (empty, false, ppq, bpm, sr, numSamples, emit);
+        audioPattern = pattern;
+    }
+    const auto& current = pattern != nullptr ? *pattern : empty;
+    pedalPlayer.process (current.pedals, current.lengthBeats, playing && sync && pedalParam->load() > .5f,
+                         ppq, bpm, sr, numSamples, channel, emitPedal);
+    hostPlayer.process (current, playing && sync, ppq, bpm, sr, numSamples, emit);
+    patternReaders.fetch_sub (1);
 
     // Notes from the editor's PLAY button.
     {
@@ -198,14 +215,22 @@ void KhimairaProcessor::publishPattern (const kh::Pattern& p)
     livePattern = copy.get();
     patternHistory.push_back (std::move (copy));
 
-    // The audio thread can only be holding the pointer published a moment ago.
-    while (patternHistory.size() > 8)
+    // Retire snapshots only when no audio callback can still be reading an older one.
+    while (patternReaders.load() == 0 && patternHistory.size() > 1)
         patternHistory.pop_front();
 }
 
 void KhimairaProcessor::setPatterns (kh::Pattern performance, kh::Pattern sustain, const juce::String& name)
 {
     JUCE_ASSERT_MESSAGE_THREAD
+    performance.pedals.clear();
+    for (const auto& n : sustain.notes)
+        if (n.length > 0 && n.beat >= 0 && n.beat < sustain.lengthBeats)
+            performance.pedals.push_back ({ n.beat, std::min (n.length, sustain.lengthBeats - n.beat) });
+    std::sort (performance.pedals.begin(), performance.pedals.end(), [] (auto a, auto b) { return a.beat < b.beat; });
+    performance.pedals.erase (std::unique (performance.pedals.begin(), performance.pedals.end(),
+        [] (auto a, auto b) { return a.beat == b.beat; }), performance.pedals.end());
+    sustain.pedals = performance.pedals;
     performancePattern = std::move (performance);
     sustainPattern = std::move (sustain);
     patternName = juce::File::createLegalFileName (name.isNotEmpty() ? name : juce::String ("KHIMAIRA"));
@@ -348,6 +373,14 @@ juce::File KhimairaProcessor::writeMidiFile (bool sustain) const
         track.addEvent (juce::MidiMessage::noteOff (1, t.note), t.end);
     }
 
+    if (pedalParam->load() > .5f)
+        for (const auto& span : p.pedals)
+        {
+            const auto on = std::lround ((span.beat + std::min (1.0 / 64.0, span.length / 4)) * ppqn);
+            const auto off = std::lround (std::min (p.lengthBeats, span.beat + span.length) * ppqn);
+            track.addEvent (juce::MidiMessage::controllerEvent (1, 64, 127), on);
+            track.addEvent (juce::MidiMessage::controllerEvent (1, 64, 0), off);
+        }
     track.updateMatchedPairs();
     track.addEvent (juce::MidiMessage::endOfTrack(), juce::jmax ((double) track.getEndTime(), p.lengthBeats * ppqn));
 

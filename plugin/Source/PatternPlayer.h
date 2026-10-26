@@ -16,6 +16,7 @@
 #include <cmath>
 #include <cstdint>
 #include <vector>
+#include "PedalPlayer.h"
 
 namespace kh
 {
@@ -32,6 +33,7 @@ struct Pattern
 {
     std::vector<NoteEvent> notes;
     double lengthBeats = 0.0;
+    std::vector<PedalSpan> pedals;
 };
 
 struct MidiOut

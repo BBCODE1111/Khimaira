@@ -31,6 +31,9 @@ public:
     void mouseDown (const juce::MouseEvent&) override;
     void mouseDrag (const juce::MouseEvent&) override;
     void mouseUp (const juce::MouseEvent&) override;
+    bool keyPressed (const juce::KeyPress&) override;
+    std::unique_ptr<juce::AccessibilityHandler> createAccessibilityHandler() override;
+    void saveMidi();
 
     std::function<void (juce::String)> onStatus;
 
@@ -79,18 +82,19 @@ private:
     juce::TextButton syncButton    { "HOST SYNC" };
     juce::TextButton pianoButton   { "PIANO" };
     juce::TextButton sustainButton { "SUSTAIN" };
+    juce::TextButton pedalButton { "PEDAL CC64" };
     juce::Slider volume;
     juce::Label hostLabel, statusLabel;
     MidiDragTile dragPerformance, dragSustain;
 
-    juce::AudioProcessorValueTreeState::ButtonAttachment syncAttachment, pianoAttachment, sustainAttachment;
+    juce::AudioProcessorValueTreeState::ButtonAttachment syncAttachment, pianoAttachment, sustainAttachment, pedalAttachment;
     juce::AudioProcessorValueTreeState::SliderAttachment volumeAttachment;
     juce::TooltipWindow tooltips { this, 500 };
 
     juce::String statusText;
     juce::uint32 statusTime = 0;
 
-    static constexpr int footerHeight = 58;
+    static constexpr int footerHeight = 88;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (KhimairaEditor)
 };

@@ -69,6 +69,9 @@ private:
 
     kh::PianoSampler piano;
     kh::PatternPlayer hostPlayer;
+    kh::PedalPlayer pedalPlayer;
+    const kh::Pattern* audioPattern = nullptr;
+    std::atomic<int> patternReaders { 0 };
     kh::PreviewScheduler preview;
 
     // Patterns are immutable once published; the audio thread reads through an atomic pointer.
@@ -99,6 +102,7 @@ private:
     std::atomic<float>* volumeParam   = nullptr;
     std::atomic<float>* sourceParam   = nullptr;
     std::atomic<float>* channelParam  = nullptr;
+    std::atomic<float>* pedalParam = nullptr;
     bool pianoWasOn = true;
 
     JUCE_DECLARE_WEAK_REFERENCEABLE (KhimairaProcessor)

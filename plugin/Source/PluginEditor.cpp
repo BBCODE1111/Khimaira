@@ -59,6 +59,8 @@ MidiDragTile::MidiDragTile (KhimairaProcessor& p, bool s, juce::String l)
     : processor (p), sustain (s), label (std::move (l))
 {
     setMouseCursor (juce::MouseCursor::DraggingHandCursor);
+    setTitle (label);
+    setWantsKeyboardFocus (true);
     setTooltip (sustain ? "Drag the plain block chords (exact chord lengths) onto a MIDI track. Click to save to Documents/KHIMAIRA MIDI."
                         : "Drag the current performance onto a MIDI track. Click to save to Documents/KHIMAIRA MIDI.");
 }
@@ -123,6 +125,23 @@ void MidiDragTile::mouseUp (const juce::MouseEvent& e)
     if (dragging || e.getDistanceFromDragStart() >= 6)
         return;
 
+    saveMidi();
+}
+
+bool MidiDragTile::keyPressed (const juce::KeyPress& key)
+{
+    if (key == juce::KeyPress::returnKey || key == juce::KeyPress::spaceKey) { saveMidi(); return true; }
+    return false;
+}
+
+std::unique_ptr<juce::AccessibilityHandler> MidiDragTile::createAccessibilityHandler()
+{
+    return std::make_unique<juce::AccessibilityHandler> (*this, juce::AccessibilityRole::button,
+        juce::AccessibilityActions{}.addAction (juce::AccessibilityActionType::press, [this] { saveMidi(); }));
+}
+
+void MidiDragTile::saveMidi()
+{
     const auto file = processor.writeMidiFile (sustain);
 
     if (! file.existsAsFile())
@@ -192,6 +211,7 @@ KhimairaEditor::KhimairaEditor (KhimairaProcessor& p)
       syncAttachment (p.params, "hostSync", syncButton),
       pianoAttachment (p.params, "piano", pianoButton),
       sustainAttachment (p.params, "source", sustainButton),
+      pedalAttachment (p.params, "pedal", pedalButton),
       volumeAttachment (p.params, "volume", volume)
 {
     setLookAndFeel (&lookAndFeel);
@@ -218,7 +238,7 @@ KhimairaEditor::KhimairaEditor (KhimairaProcessor& p)
     web = std::make_unique<KhimairaWebView> (options);
     addAndMakeVisible (*web);
 
-    for (auto* b : { &syncButton, &pianoButton, &sustainButton })
+    for (auto* b : { &syncButton, &pianoButton, &sustainButton, &pedalButton })
     {
         b->setClickingTogglesState (true);
         addAndMakeVisible (*b);
@@ -227,6 +247,8 @@ KhimairaEditor::KhimairaEditor (KhimairaProcessor& p)
     syncButton.setTooltip ("Follow the DAW transport: bar 1 of the chart starts at bar 1 of your project and loops.");
     pianoButton.setTooltip ("Built-in Salamander grand piano. Turn off to drive your own instrument from the MIDI output.");
     sustainButton.setTooltip ("Play plain block chords instead of the selected performance pattern.");
+
+    pedalButton.setTooltip ("Optional CC64 for DAW-synced playback and DRAG MIDI. Lifts at each chord, rest and stop. Web PLAY keeps its note-length pedal simulation.");
 
     volume.setSliderStyle (juce::Slider::LinearHorizontal);
     volume.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
@@ -287,22 +309,15 @@ void KhimairaEditor::resized()
     web->setBounds (r);
 
     footer.removeFromLeft (112);
-    const bool compact = getWidth() < 1000;
-
-    dragSustain.setBounds (footer.removeFromRight (compact ? 118 : 132));
-    footer.removeFromRight (8);
-    dragPerformance.setBounds (footer.removeFromRight (compact ? 108 : 120));
-    footer.removeFromRight (14);
-
-    syncButton.setBounds (footer.removeFromLeft (112));
-    footer.removeFromLeft (6);
-    sustainButton.setBounds (footer.removeFromLeft (98));
-    footer.removeFromLeft (6);
-    pianoButton.setBounds (footer.removeFromLeft (82));
-    footer.removeFromLeft (8);
-    volume.setBounds (footer.removeFromLeft (compact ? 64 : 90));
-    footer.removeFromLeft (14);
-
+    auto controls = footer.removeFromTop (30);
+    syncButton.setBounds (controls.removeFromLeft (98)); controls.removeFromLeft (6);
+    sustainButton.setBounds (controls.removeFromLeft (80)); controls.removeFromLeft (6);
+    pedalButton.setBounds (controls.removeFromLeft (94)); controls.removeFromLeft (6);
+    pianoButton.setBounds (controls.removeFromLeft (70)); controls.removeFromLeft (8);
+    volume.setBounds (controls.removeFromLeft (80));
+    footer.removeFromTop (5);
+    dragSustain.setBounds (footer.removeFromRight (118)); footer.removeFromRight (8);
+    dragPerformance.setBounds (footer.removeFromRight (108)); footer.removeFromRight (12);
     hostLabel.setBounds (footer.removeFromTop (footer.getHeight() / 2 + 2));
     statusLabel.setBounds (footer);
 

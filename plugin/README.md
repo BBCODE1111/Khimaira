@@ -1,5 +1,7 @@
 # KHIMAIRA Plug-in (VST3 · AU · Standalone)
 
+**1.1 development** — based on Web `web-v1.0.2`. [Milestone 1 validation](../docs/plugin-development-20261027/REPORT.md): optional host/export CC64, accessible MIDI export controls, macOS arm64 builds, strict auval and Logic Pro 11.2.2 load/tempo/state/export checks. Windows and Universal releases remain pending.
+
 The website in `../dist` running inside a DAW instrument plug-in. The web UI is embedded unchanged;
 a small bridge (`web/`) connects it to native code that plays in sync with the DAW.
 
@@ -14,9 +16,9 @@ Pro Tools (AAX) is not included: it requires Avid's developer program and PACE s
 
 1. Push this repository to GitHub (the `plugin/` folder and `.github/workflows/plugin.yml`).
 2. GitHub → **Actions** → **Build KHIMAIRA Plug-in** → **Run workflow**.
-3. When it finishes (~15 min), download the artifact **KHIMAIRA-Plugin-1.0.1**. That folder is
+3. When it finishes (~15 min), download the artifact **KHIMAIRA-Plugin-1.1.0**. That folder is
    what you give to people: Mac installer, Windows installer and `安裝說明 Install Guide.txt`.
-4. For a public release, push a tag: `git tag plugin-v1.0.1 && git push --tags`. The zip is then
+4. For a public release, push a tag: `git tag plugin-v1.1.0 && git push --tags`. The zip is then
    attached to a GitHub Release with a download link.
 
 Change the version in `CMakeLists.txt` (`project(... VERSION x.y.z)`) and `VERSION:` in the workflow.
@@ -89,3 +91,7 @@ Integrated from `BETATEST/KHIMAIRA-Plugin-Source` with the 1.0.1 web fixes. Nati
 Local macOS arm64 builds of VST3, AU and Standalone succeeded with JUCE 8.0.15, and the C++ scheduler tests passed. Browser tests cover initial bridge state, empty bars, preview note messages and two-track MIDI downloads. Universal/Windows builds, auval and actual DAW host tests remain unverified. No plug-in was installed into system folders.
 
 The web MIDI buttons support Bass/Chords track splitting. Native DRAG MIDI / DRAG SUSTAIN still export a single track. Local builds are not Developer ID signed or notarized.
+
+## Pedal CC64 (1.1 development)
+
+The native PEDAL CC64 switch is off by default. When enabled, host-synced playback and the native DRAG MIDI / DRAG SUSTAIN tiles include sustain controller messages. Pedal lifts on harmony changes, rests, seeks, stop, and MIDI-channel changes, then repedals after a short gap. It is saved in the DAW project. Web PLAY and the web MIDI buttons keep their existing note-length simulation; use the native tiles for CC64 exports. Clicking a tile, or pressing Enter/Space while it has focus, saves a MIDI file to Documents/KHIMAIRA MIDI.

@@ -1,0 +1,11 @@
+Test project /Users/liuyenhui/Documents/ChatGPT/CHORD SOLUTION/Khimaira/build-plugin
+    Start 1: scheduler
+1/3 Test #1: scheduler ........................   Passed    0.00 sec
+    Start 2: pedal
+2/3 Test #2: pedal ............................   Passed    0.00 sec
+    Start 3: processor
+3/3 Test #3: processor ........................   Passed    0.46 sec
+
+100% tests passed, 0 tests failed out of 3
+
+Total Test time (real) =   0.46 sec

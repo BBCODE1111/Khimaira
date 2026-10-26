@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum macOS version")
-project(KHIMAIRA_PLUGIN VERSION 1.0.1 LANGUAGES C CXX)
+project(KHIMAIRA_PLUGIN VERSION 1.1.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -109,4 +109,18 @@ if(KHIMAIRA_BUILD_TESTS)
     target_include_directories(khimaira_tests PRIVATE Source)
     enable_testing()
     add_test(NAME scheduler COMMAND khimaira_tests)
+endif()
+
+if(KHIMAIRA_BUILD_TESTS)
+    add_executable(khimaira_pedal_tests tests/pedal_player_test.cpp)
+    add_test(NAME pedal COMMAND khimaira_pedal_tests)
+endif()
+
+if(KHIMAIRA_BUILD_TESTS)
+    juce_add_console_app(khimaira_processor_tests PRODUCT_NAME "KHIMAIRA Processor Tests")
+    target_sources(khimaira_processor_tests PRIVATE tests/processor_test.cpp)
+    target_include_directories(khimaira_processor_tests PRIVATE Source "${CMAKE_BINARY_DIR}/Khimaira_artefacts/JuceLibraryCode")
+    target_compile_definitions(khimaira_processor_tests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1 JUCE_WEB_BROWSER=1 JUCE_USE_CURL=0)
+    target_link_libraries(khimaira_processor_tests PRIVATE Khimaira KhimairaData juce::juce_audio_utils juce::juce_gui_extra)
+    add_test(NAME processor COMMAND khimaira_processor_tests)
 endif()
