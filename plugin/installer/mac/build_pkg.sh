@@ -13,6 +13,7 @@ mkdir -p "$OUT"
 
 make_component () { # id  bundle  install-dir  [scripts-dir]
   local id="$1" bundle="$2" dest="$3" scripts="${4:-}"
+  codesign --verify --deep --strict "$bundle"
   local root="$WORK/root-$id"
   mkdir -p "$root$dest"
   ditto "$bundle" "$root$dest/$(basename "$bundle")"

@@ -118,7 +118,7 @@ if(KHIMAIRA_BUILD_TESTS)
 endif()
 
 if(KHIMAIRA_BUILD_TESTS)
-    juce_add_console_app(khimaira_processor_tests PRODUCT_NAME "KHIMAIRA Processor Tests")
+    juce_add_console_app(khimaira_processor_tests PRODUCT_NAME "KHIMAIRA Processor Tests" NEEDS_WEBVIEW2 TRUE)
     target_sources(khimaira_processor_tests PRIVATE tests/processor_test.cpp)
     target_include_directories(khimaira_processor_tests PRIVATE Source "${CMAKE_BINARY_DIR}/Khimaira_artefacts/JuceLibraryCode")
     target_compile_definitions(khimaira_processor_tests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1 JUCE_WEB_BROWSER=1 JUCE_USE_CURL=0)
