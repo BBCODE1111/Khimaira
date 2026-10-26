@@ -101,7 +101,8 @@ public:
         const double ppqEnd = ppqStart + numSamples * ppqPerSample;
 
         // A jump in the timeline (DAW loop, scrubbing, locate) closes everything that sounds.
-        if (wasPlaying && std::abs (ppqStart - expectedPpq) > std::max (0.02, 8.0 * ppqPerSample))
+        const bool chase = ! wasPlaying || std::abs (ppqStart - expectedPpq) > std::max (0.02, 8.0 * ppqPerSample);
+        if (wasPlaying && chase)
             allNotesOff (0, emit);
 
         wasPlaying = true;
@@ -132,15 +133,17 @@ public:
                     if (n.note < 0 || n.note > 127 || n.length <= 0.0 || n.beat >= len)
                         continue;
 
-                    const double start = cycleStart + n.beat;
+                    const double originalStart = cycleStart + n.beat;
+                    const double end = cycleStart + std::min (len, n.beat + n.length);
+                    const double start = chase && originalStart < ppqStart && end > ppqStart
+                                       ? ppqStart : originalStart;
 
-                    if (start < ppqStart || start >= ppqEnd || start < 0.0)
+                    if (originalStart < 0.0 || start < ppqStart || start >= ppqEnd || start < 0.0)
                         continue;
 
                     if (scratch.size() + 2 > scratch.capacity())
                         break; // never allocate on the audio thread
 
-                    const double end = cycleStart + std::min (len, n.beat + n.length);
                     scratch.push_back ({ start, end, n.note, n.velocity });
                 }
             }
@@ -232,6 +235,7 @@ public:
     void reset()
     {
         numPending = 0;
+        stopAllRequested = false;
         sounding.fill (0);
     }
 

@@ -294,8 +294,8 @@ void KhimairaEditor::paint (juce::Graphics& g)
     g.fillRect (footer.removeFromTop (1));
 
     g.setColour (L::ivory);
-    g.setFont (juce::FontOptions (14.0f, juce::Font::bold).withKerningFactor (0.25f));
-    g.drawText ("KHIMAIRA", footer.withX (16).withWidth (110).withTrimmedBottom (14), juce::Justification::centredLeft);
+    g.setFont (juce::FontOptions (11.5f, juce::Font::bold).withKerningFactor (0.25f));
+    g.drawText ("KHIMAIRA 1.1", footer.withX (16).withWidth (110).withTrimmedBottom (14), juce::Justification::centredLeft);
     g.setColour (L::bronze);
     g.setFont (juce::FontOptions (9.5f).withKerningFactor (0.2f));
     g.drawText ("PLUGIN " JucePlugin_VersionString, footer.withX (16).withWidth (110).withTrimmedTop (22),
@@ -351,6 +351,12 @@ void KhimairaEditor::timerCallback()
         text << "Ready - press play in your DAW (" << (int) std::ceil (s.lengthBeats / 4.0) << " bars, loops from bar 1)";
 
     hostLabel.setText (text, juce::dontSendNotification);
+    auto* transport = new juce::DynamicObject();
+    transport->setProperty ("playing", s.playing && sync && s.hasPattern);
+    transport->setProperty ("ppq", s.ppq);
+    transport->setProperty ("bpm", s.bpm);
+    transport->setProperty ("beats", s.lengthBeats);
+    web->emitEventIfBrowserIsVisible ("hostTransport", juce::var (transport));
 
     if (statusText.isNotEmpty() && juce::Time::getMillisecondCounter() - statusTime > 7000)
     {

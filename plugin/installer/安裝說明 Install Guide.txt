@@ -33,12 +33,14 @@ Morph your chords like the legendary monster.
   手動安裝：把 zip 裡的 KHIMAIRA.vst3 整個資料夾複製到 C:\Program Files\Common Files\VST3\
 
 【在 DAW 裡使用】
-  KHIMAIRA 是「樂器」外掛：新增一條樂器／MIDI 軌，載入 KHIMAIRA。
+  KHIMAIRA 是「樂器」外掛：新增一條樂器／MIDI 軌，載入 KHIMAIRA 1.1。
   • 上方是完整的 KHIMAIRA 介面：輸入或生成和弦、選樂風與演奏方式。
   • 按 DAW 的播放鍵：KHIMAIRA 會跟著專案速度與小節播放，從專案第 1 小節開始循環（HOST SYNC）。
-  • 介面裡的 PLAY 是試聽，聲音一樣從這條軌輸出。
+  • DAW 停止時，介面裡的 PLAY 是試聽，STOP 停止；再次 PLAY 從起點重播。
+    DAW 同步播放中，面板會顯示目前和弦，請使用 DAW 的播放／停止控制。
   • 下方工具列：
       HOST SYNC     跟隨 DAW 播放（關掉則只用 PLAY 試聽）
+      PEDAL CC64    輸出真正的延音踏板訊號（預設關閉），DRAG MIDI 匯出也會包含 CC64
       SUSTAIN       改播原樣長音和弦（不套演奏節奏）
       PIANO / 音量  內建鋼琴開關。關掉後只輸出 MIDI，可用來推你自己的音源
       DRAG MIDI     按住拖到 DAW 的軌道上 → 直接變成 MIDI 片段（DRAG SUSTAIN 為長音版本）
@@ -46,7 +48,7 @@ Morph your chords like the legendary monster.
   • 和弦與設定會跟著 DAW 專案一起儲存。
 
   各 DAW 小提示
-  • Logic Pro / GarageBand：在「軟體樂器」插槽選 AU Instruments → KHIMAIRA → KHIMAIRA。
+  • Logic Pro / GarageBand：在「軟體樂器」插槽選 AU Instruments → KHIMAIRA → KHIMAIRA 1.1。
     Logic 不接收 AU 樂器送出的 MIDI，請用內建鋼琴，或用 DRAG MIDI 拖到其他樂器軌。
   • Ableton Live：拖 KHIMAIRA 到 MIDI 軌。想用其他音源：開另一條 MIDI 軌，
     「MIDI From」選 KHIMAIRA 那一軌，並把 KHIMAIRA 的 PIANO 關掉。
@@ -83,9 +85,11 @@ INSTALL ON WINDOWS
   Manual install: copy the KHIMAIRA.vst3 folder from the zip to that folder.
 
 USING IT
-  Load KHIMAIRA as an INSTRUMENT on a MIDI/instrument track.
+  Load KHIMAIRA 1.1 as an INSTRUMENT on a MIDI/instrument track.
   - Build chords in the KHIMAIRA panel. Press play in your DAW: it follows the project tempo,
-    starting at bar 1 and looping (HOST SYNC). The in-panel PLAY button auditions on the same track.
+    starting at bar 1 and looping (HOST SYNC). The in-panel PLAY button auditions on the same track while the DAW is stopped.
+    During host playback, use the DAW transport; the chart follows its position.
+  - PEDAL CC64 adds sustain-pedal messages to host output and native MIDI drag/export (off by default).
   - Footer: HOST SYNC, SUSTAIN (plain block chords), PIANO on/off + volume (turn off to drive
     another instrument from KHIMAIRA's MIDI output), DRAG MIDI / DRAG SUSTAIN (drag onto a
     track to drop a MIDI clip; click to save into Documents/KHIMAIRA MIDI).

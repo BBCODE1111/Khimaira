@@ -1,8 +1,8 @@
 ; KHIMAIRA Windows installer (Inno Setup 6)
-; iscc /DAppVersion=1.0.0 /DBuildDir=<...\Khimaira_artefacts\Release> /DWebView2Setup=<...\MicrosoftEdgeWebview2Setup.exe> /DOutDir=<dir> khimaira.iss
+; iscc /DAppVersion=1.1.0 /DBuildDir=<...\Khimaira_artefacts\Release> /DWebView2Setup=<...\MicrosoftEdgeWebview2Setup.exe> /DOutDir=<dir> khimaira.iss
 
 #ifndef AppVersion
-  #define AppVersion "1.0.0"
+  #define AppVersion "1.1.0"
 #endif
 #ifndef BuildDir
   #define BuildDir "..\..\build\Khimaira_artefacts\Release"

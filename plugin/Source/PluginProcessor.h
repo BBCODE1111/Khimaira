@@ -73,6 +73,7 @@ private:
     const kh::Pattern* audioPattern = nullptr;
     std::atomic<int> patternReaders { 0 };
     kh::PreviewScheduler preview;
+    int activeOutputChannel = 1;
 
     // Patterns are immutable once published; the audio thread reads through an atomic pointer.
     std::deque<std::unique_ptr<kh::Pattern>> patternHistory;

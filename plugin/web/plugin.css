@@ -9,3 +9,5 @@ input, textarea, select, [contenteditable] { -webkit-user-select: text; user-sel
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: #08131f; }
 ::-webkit-scrollbar-thumb { background: #2b4355; border: 2px solid #08131f; }
+
+button:disabled { opacity: .5; cursor: default; }

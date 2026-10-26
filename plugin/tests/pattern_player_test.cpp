@@ -61,14 +61,30 @@ static void testStopAndJump()
     // Locate somewhere else while playing: the held note must be released.
     ev.clear();
     p.process (pat, true, 5.0, 120.0, 48000.0, 512, emit);
-    CHECK (ev.size() == 1 && ! ev[0].on && ev[0].note == 48);
+    CHECK (ev.size() == 2 && ! ev[0].on && ev[0].note == 48 && ev[1].on && ev[1].sample == 0);
 
     // Transport stops.
     ev.clear();
     p.process (pat, true, 0.0, 120.0, 48000.0, 512, emit);
     p.process (pat, false, 0.0, 120.0, 48000.0, 512, emit);
-    CHECK (ev.size() == 2 && ev[0].on && ! ev[1].on);
+    CHECK (ev.size() == 3 && ! ev[0].on && ev[1].on && ! ev[2].on);
     CHECK (! p.hasActiveNotes());
+}
+
+static void testStartInsideChord()
+{
+    for (int block : {64, 512, 4096})
+    {
+        kh::PatternPlayer player; player.prepare();
+        kh::Pattern pat {{{0, 2, 60, .8f}, {2, 2, 65, .8f}}, 4};
+        const auto events = run (player, pat, 1.0, 2.5, 120, 48000, block);
+        CHECK (events.size() == 3);
+        if (events.size() == 3) {
+            CHECK (events[0].on && events[0].note == 60 && events[0].sample == 0);
+            CHECK (!events[1].on && std::llabs(events[1].sample - 24000) <= 1);
+            CHECK (events[2].on && events[2].note == 65);
+        }
+    }
 }
 
 static void testNoDoubleTriggerAtBlockEdge()
@@ -144,6 +160,7 @@ int main()
 {
     testLoopAndTiming();
     testStopAndJump();
+    testStartInsideChord();
     testNoDoubleTriggerAtBlockEdge();
     testOverlapRetrigger();
     testNegativePreroll();

@@ -88,6 +88,7 @@ void KhimairaProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     pedalPlayer = {};
     audioPattern = nullptr;
     preview.reset();
+    activeOutputChannel = juce::jlimit (1, 16, (int) channelParam->load());
     generated.ensureSize (8192);
     gain.reset (sampleRate, 0.03);
     gain.setCurrentAndTargetValue (volumeParam->load());
@@ -141,8 +142,8 @@ void KhimairaProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
     auto emit = [&] (const kh::MidiOut& e)
     {
         const auto vel = (juce::uint8) juce::jlimit (1, 127, (int) std::lround (e.velocity * 127.0f));
-        generated.addEvent (e.on ? juce::MidiMessage::noteOn (channel, e.note, vel)
-                                 : juce::MidiMessage::noteOff (channel, e.note),
+        generated.addEvent (e.on ? juce::MidiMessage::noteOn (activeOutputChannel, e.note, vel)
+                                 : juce::MidiMessage::noteOff (activeOutputChannel, e.note),
                             e.offset);
     };
 
@@ -153,6 +154,21 @@ void KhimairaProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
 
     auto emitPedal = [&] (const kh::PedalOut& e)
     { generated.addEvent (juce::MidiMessage::controllerEvent (e.channel, 64, e.value), e.offset); };
+    // End held notes on their original MIDI channel before switching routes.
+    if (activeOutputChannel != channel)
+    {
+        pedalPlayer.stop (0, emitPedal);
+        hostPlayer.process (empty, false, ppq, bpm, sr, numSamples, emit);
+        preview.push ({ kh::PreviewCommand::stopAll });
+        preview.process (sampleClock.load(), numSamples, emit);
+        activeOutputChannel = channel;
+    }
+    // A synced host owns playback. Stop audition voices before new host notes arrive.
+    if (playing && sync)
+    {
+        preview.push ({ kh::PreviewCommand::stopAll });
+        preview.process (sampleClock.load(), numSamples, emit);
+    }
     if (audioPattern != pattern)
     {
         pedalPlayer.stop (0, emitPedal);
@@ -174,7 +190,8 @@ void KhimairaProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
     }
 
     const auto clock = sampleClock.load();
-    preview.process (clock, numSamples, emit);
+    if (playing && sync) preview.reset(); // discard queued auditions during host playback
+    else preview.process (clock, numSamples, emit);
     sampleClock = clock + numSamples;
 
     // Built-in piano.
