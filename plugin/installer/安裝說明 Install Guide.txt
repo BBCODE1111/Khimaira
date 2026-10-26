@@ -16,7 +16,7 @@ VST3：
 Ableton Live：第二條 MIDI 軌的 MIDI From 選 KHIMAIRA 所在軌，第二個來源選 KHIMAIRA，Monitor 選 In。
 實際完成的 DAW 驗收以 docs/plugin-1.2/README.md 為準。
 
-DRAG MIDI：拖曳底部按鈕到 DAW 軌道；單擊可另存 MIDI。
+DRAG MIDI：拖曳底部按鈕到 DAW 軌道；單擊儲存至「文件/KHIMAIRA MIDI」，底部顯示檔名。
 沒有內建鋼琴。Standalone 用於編輯、產生及匯出 MIDI，不提供內建聲音。
 進階設定按 ADVANCED 展開；主要控制項在預設與最小視窗內完整顯示。
 和弦與設定存在 DAW 專案；播放中修改在下一小節套用。
@@ -33,5 +33,5 @@ Logic: insert KHIMAIRA 1.2 MIDI FX in the MIDI FX slot, then load Serum or a Log
 VST3: load KHIMAIRA 1.2 as an instrument and route its MIDI output to a second instrument track.
 HOST follows the project PPQ/BPM. PLAY auditions using a native audio-callback clock at host tempo;
 STOP stops, then PLAY starts at the beginning. Changes switch at the next bar with note-offs.
-Drag MIDI to a track, or click to save a MIDI file. No piano or other audio engine is included.
+Drag MIDI to a track, or click to save in Documents/KHIMAIRA MIDI. No piano or other audio engine is included.
 Standalone is a MIDI chart editor/exporter. See the validation report for tested host coverage.

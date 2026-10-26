@@ -19,8 +19,15 @@ KhimairaEditor::KhimairaEditor(KhimairaProcessor& p):AudioProcessorEditor(p),pro
    .withUserDataFolder(File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("KHIMAIRA/WebView2")));
  #endif
  browser=std::make_unique<LocalBrowser>(options);addAndMakeVisible(*browser);browser->goToURL(WebBrowserComponent::getResourceProviderRoot());
- addAndMakeVisible(drag);drag.setColour(TextButton::buttonColourId,Colour(0xff2d495f));drag.setColour(TextButton::textColourOffId,Colour(0xffe5ecf1));drag.setTooltip("Drag into a DAW MIDI track. Click to save a MIDI file.");
- drag.onClick=[this]{auto file=processor.midiFile();if(!file.existsAsFile())return;chooser=std::make_unique<FileChooser>("Save KHIMAIRA MIDI",File::getSpecialLocation(File::userDocumentsDirectory).getChildFile("KHIMAIRA.mid"),"*.mid",true,false,this);Component::SafePointer<KhimairaEditor> safe(this);chooser->launchAsync(FileBrowserComponent::saveMode|FileBrowserComponent::canSelectFiles|FileBrowserComponent::warnAboutOverwriting,[safe,file](const FileChooser& c){if(safe){auto dest=c.getResult();if(dest!=File())file.copyFileTo(dest);}});};
+ addAndMakeVisible(drag);drag.setColour(TextButton::buttonColourId,Colour(0xff2d495f));drag.setColour(TextButton::textColourOffId,Colour(0xffe5ecf1));drag.setTooltip("Drag into a DAW MIDI track. Click to save in Documents/KHIMAIRA MIDI.");
+ drag.onClick=[this]{
+  auto file=processor.midiFile();
+  auto dir=File::getSpecialLocation(File::userDocumentsDirectory).getChildFile("KHIMAIRA MIDI");
+  auto destination=dir.getNonexistentChildFile("KHIMAIRA-1.2", ".mid");
+  if(file.existsAsFile() && dir.createDirectory().wasOk() && file.copyFileTo(destination))
+   footer.setText("Saved: Documents/KHIMAIRA MIDI/"+destination.getFileName(),dontSendNotification);
+  else footer.setText("MIDI save failed - check Documents folder access",dontSendNotification);
+ };
  addAndMakeVisible(footer);footer.setText("KHIMAIRA 1.2 / Native MIDI / Host BPM",dontSendNotification);footer.setColour(Label::textColourId,Colour(0xffbdcad5));footer.setFont(FontOptions(12));
  setResizable(true,true);setResizeLimits(760,560,1400,1000);setSize(900,650);startTimerHz(15);
 }

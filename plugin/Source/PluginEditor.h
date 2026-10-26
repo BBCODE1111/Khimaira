@@ -18,7 +18,7 @@ public:KhimairaEditor(KhimairaProcessor&);~KhimairaEditor() override;
  void resized() override;void paint(juce::Graphics&) override;
 private:
  KhimairaProcessor& processor;std::unique_ptr<LocalBrowser> browser;MidiDragButton drag;
- juce::Label footer;std::unique_ptr<juce::FileChooser> chooser;
+ juce::Label footer;
  std::map<juce::String,juce::WebBrowserComponent::Resource> resources;
  void timerCallback() override;
  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(KhimairaEditor)
