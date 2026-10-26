@@ -47,9 +47,9 @@ test('gate shortens rhythmic notes while held voices keep their musical landing 
  else {a.forEach((n,i)=>{if(n.articulation==='held')near(n.duration,b[i].duration);});const rhythmic=a.filter(n=>n.articulation!=='held');if(rhythmic.length)assert.ok(rhythmic.reduce((s,n)=>s+n.duration,0)<b.filter(n=>n.articulation!=='held').reduce((s,n)=>s+n.duration,0)*.6,pattern);}
  }
 });
-test('short-note releases scale with duration instead of a fixed quarter-second tail',()=>{
- near(releaseSeconds(.125),.025);near(releaseSeconds(.5),.275);near(releaseSeconds(4),.35);
- assert.ok(releaseSeconds(.0625)<.0625/4);
+test('piano releases retain an 80ms floor and a 350ms lyrical ceiling',()=>{
+ near(releaseSeconds(.125),.08);near(releaseSeconds(.5),.275);near(releaseSeconds(4),.35);
+ near(releaseSeconds(.0625),.08);
 });
 test('resuming at the current bar retains the original loop start',()=>{
  const piano=fakePiano(),seq=[{note:60,beat:0,duration:4,velocity:.7},{note:65,beat:4,duration:4,velocity:.7}];

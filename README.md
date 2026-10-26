@@ -8,6 +8,8 @@ KHIMAIRA 是給作曲、編曲與吉他手的和聲探索工具。輸入一條�
 
 ![KHIMAIRA](docs/screenshots/odyssey-desktop.png)
 
+目前網頁穩定基準：**1.0.2**（`web-v1.0.2`，2026-10-27）。[修正與驗證紀錄](docs/stable-20261027/REPORT.md)。原生外掛另行開發與驗證。
+
 ## 從四個和弦開始
 
 1. 輸入 `| C | Am | F | G |`，可直接按「GENERATE」。想聽原樣時按「LOAD」；留白則依樂風生成。

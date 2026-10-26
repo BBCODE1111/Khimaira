@@ -1,15 +1,15 @@
-import {arpModes,arpRates,arpPresets} from './arpeggiator.js?v=16';
-import {examplePool,nextExample} from './example-pool.js?v=16';
-import {BeatPlayer,validTempo,clampTempo} from './tempo-player.js?v=16';
-import {insertCadence,invertChord,parallelColor} from './harmony-actions.js?v=16';
-import {playbackSlice,spaceToggles} from './transport.js?v=16';
-import {names,mod,parse,spellPitch,keyName,transposeSymbol,romanNumeral,generate,approach,events,guitarShapes,scales,midiBytes,chordTones} from './music.js?v=16';
-import {parseBar,parseChart,chordList,serialize,solve} from './solutions.js?v=16';
-import {styles,mutate,library,styleLabels,cadenceTo} from './style-engine.js?v=16';
-import {patterns,voicePlan} from './performance.js?v=16';
-import {scaleNotes,scalePositions} from './scale-library.js?v=16';
-import {guitarMelody,melodyShapes,melodyEvents} from './guitar-melody.js?v=16';
-import {Piano} from './piano.js?v=16';
+import {arpModes,arpRates,arpPresets} from './arpeggiator.js?v=17';
+import {examplePool,nextExample} from './example-pool.js?v=17';
+import {BeatPlayer,validTempo,clampTempo} from './tempo-player.js?v=17';
+import {insertCadence,invertChord,parallelColor} from './harmony-actions.js?v=17';
+import {playbackSlice,spaceToggles} from './transport.js?v=17';
+import {names,mod,parse,spellPitch,keyName,transposeSymbol,romanNumeral,generate,approach,events,guitarShapes,scales,midiBytes,chordTones} from './music.js?v=17';
+import {parseBar,parseChart,chordList,serialize,solve} from './solutions.js?v=17';
+import {styles,mutate,library,styleLabels,cadenceTo} from './style-engine.js?v=17';
+import {patterns,voicePlan} from './performance.js?v=17';
+import {scaleNotes,scalePositions} from './scale-library.js?v=17';
+import {guitarMelody,melodyShapes,melodyEvents} from './guitar-melody.js?v=17';
+import {Piano} from './piano.js?v=17';
 const $=id=>document.getElementById(id);let bars=parseChart('| C | Am | F | G |'),source=structuredClone(bars),selected=0,selectedChord=0,tab='scales',audio=null,timer=null,started=0,run=0,activeNodes=[];
 let startBar=0,isPlaying=false,loading=false,player=null,playbackKind='score';
 let variation=0,piano=null,scaleChoice='',lastScaleChord='',positionChoice=0,method='style',currentExampleId=null,melodySeed=0,arrangement=[],history=[];
@@ -155,3 +155,8 @@ $('copyChords').onclick=async()=>{
  try{await navigator.clipboard.writeText(text);status('已複製 '+text);}catch{$('copyOutput').hidden=false;$('copyOutput').value=text;$('copyOutput').select();status('請複製文字欄中的和弦。');}
 };
 updateTempoHint();syncStyleMode();syncMethod();populateLibrary();styleInfo();syncInput();render();
+
+// Collapse only the secondary tools once the mobile score sticks; focus reveals them.
+const score=document.querySelector('.score'),scoreSentinel=document.createElement('div');
+scoreSentinel.setAttribute('aria-hidden','true');score.before(scoreSentinel);
+new IntersectionObserver(([entry])=>score.classList.toggle('compact-tools',!entry.isIntersecting&&entry.boundingClientRect.top<0)).observe(scoreSentinel);

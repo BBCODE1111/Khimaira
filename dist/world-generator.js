@@ -1,6 +1,6 @@
-import {parse,mod,names} from './music.js?v=16';
-import {parseBar,chordList} from './solutions.js?v=16';
-import {worldScales} from './world-styles.js?v=16';
+import {parse,mod,names} from './music.js?v=17';
+import {parseBar,chordList} from './solutions.js?v=17';
+import {worldScales} from './world-styles.js?v=17';
 
 const cycle=(n,size)=>((n%size)+size)%size;
 const shifted=(symbol,key)=>{const c=parse(symbol);return names[mod(c.root+key)]+c.q+(symbol.includes('/')?'/'+names[mod(c.bass+key)]:'');};
@@ -25,7 +25,6 @@ export function worldMutation(source,cfg,{key=0,seed=0,randomness='medium',freed
    const offset=randomness==='high'&&!cfg.pedal?Math.floor(seed/cfg.phrases.length):0;
    cs=parseBar(phrase[cycle(i+offset,phrase.length)]).map(c=>({...c,symbol:shifted(c.symbol,key)}));
   }
-  if(density===1)cs=[{symbol:cs[0].symbol,beats:4}];
   if(!anchored&&randomness==='high'&&density>=2&&cs.length===1&&(seed+i)%3===0){
    const choices=palette.filter(s=>s!==cs[0].symbol);const next=choices[cycle(seed+i,choices.length)];
    if(next)cs=[{symbol:cs[0].symbol,beats:3},{symbol:next,beats:1}];

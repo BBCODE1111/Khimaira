@@ -1,9 +1,9 @@
-import {darkStyles} from './dark-styles.js?v=16';
-import {names,mod,parse,spellPitch,spellChord,spellInterval,transposeSymbol,chordTones} from './music.js?v=16';
-import {parseBar,chordList,parseChart} from './solutions.js?v=16';
-import {songs} from './song-pool.js?v=16';
-import {worldStyles} from './world-styles.js?v=16';
-import {worldMutation} from './world-generator.js?v=16';
+import {darkStyles} from './dark-styles.js?v=17';
+import {names,mod,parse,spellPitch,spellChord,spellInterval,transposeSymbol,chordTones} from './music.js?v=17';
+import {parseBar,chordList,parseChart} from './solutions.js?v=17';
+import {songs} from './song-pool.js?v=17';
+import {worldStyles} from './world-styles.js?v=17';
+import {worldMutation} from './world-generator.js?v=17';
 export const styles={
 Jazz:{description:'功能替代、次屬和弦、ii–V、三全音／backdoor，讓 3rd 與 7th 連接。',pattern:'jazz',voicing:'rootless',phrases:[['Cmaj9 Ebdim7','Dm9 G13','Em7 A7b9','Dm9 Db7#11'],['Em9 A7alt','Dm9 G13','Fm9 Bb13','C69 G7alt'],['C69','F#m7b5 B7b9','Em9 A7alt','Dm9 G13']],T:['Cmaj9','Em9 A7alt','C69 Ebdim7'],R:['Am9','Em7 A7alt','Dm9 G13'],S:['Fmaj9','Fm9 Bb13','Dm9 G13'],D:['G13','Dm9 Db7#11','G7sus4 G7alt']},
 Gospel:{description:'斜線低音、減七經過和弦、IV–iv、sus 解決與 plagal 色彩。',pattern:'gospel',voicing:'open',phrases:[['C69 E7/G#','Am9 C7/G','Fmaj9 Fm6','C/G G7sus4'],['Cmaj9/E','Fmaj9 F#dim7','C/G A7b9','Dm9 G13'],['C69','Bb/C C7','Fmaj9 Fm6','C/G G7']],T:['C69/E','Cmaj9 E7/G#','C/G'],R:['Am9 C7/G','C7/G','Em7 A7b9'],S:['Fmaj9 Fm6','Fmaj9 F#dim7','Dm9/G'],D:['G7sus4 G13','C/G G7','Db9 C69']},
@@ -70,6 +70,7 @@ export const tintTables={
 export function tint(symbol,style,level,random,key=0,mode='major'){
  const c=parse(symbol);if(!c)return symbol;
  const slash=c.bassName?'/'+c.bassName:'';
+ if(style==='American pop'&&mod(c.root-key)===5&&c.q==='sus4')return c.rootName+'sus2'+slash;
  if(styles[style]?.dark){
   let q=c.q;if(styles[style].heavy&&!q.includes('dim'))q='5';
   else if(!['5','sus2','sus4','dim','dim7','m7b5','7b9','add9','madd9'].includes(q)){q=c.minor?'m':c.intervals.includes(10)?'7':'';if(mode==='minor'&&mod(c.root-key)===0&&q==='')q='m';}
@@ -80,6 +81,7 @@ export function tint(symbol,style,level,random,key=0,mode='major'){
  const functional=['Jazz','Gospel','Bossa nova','Classical','Soul','R&B','Neo-soul','Lo-fi hip-hop','Mandopop','K-pop'].includes(style);
  const dominant=!c.minor&&(c.intervals.includes(10)||functional&&mod(c.root-key)===7);
  let options=table[c.minor?1:dominant?2:0];
+ if(style==='American pop'&&mod(c.root-key)===5)options=options.map(q=>q==='sus4'?'sus2':q);
  if(level==='low')options=options.slice(0,2);
  return c.rootName+options[Math.floor(random()*options.length)]+slash;
 }
@@ -152,6 +154,16 @@ export function insertApproach(chords,target,options={}){
  }
  return [{...last,beats:last.beats/2},{symbol:a[0],beats:last.beats/4},{symbol:a[1],beats:last.beats/4}];
 }
+export function reduceDensity(bars,{loop=true}={}){
+ // Work backwards so every dominant resolves to the harmony actually retained next.
+ const out=structuredClone(bars);
+ for(let i=out.length-1;i>=0;i--){const cs=out[i].chords;if(!cs.length)continue;
+  const next=i+1<out.length?out[i+1].chords[0]:loop?out[0].chords[0]:null,target=next&&parse(next.symbol);
+  const dominant=target&&[...cs].reverse().find(c=>{const p=parse(c.symbol);return isDominant(p)&&[7,1].includes(mod(p.root-target.root));});
+  out[i].chords=[{...(dominant||cs[0]),beats:4}];
+ }
+ return out;
+}
 export function mutate(source,{style='Jazz',key=0,mode='major',freedom='free',density=2,seed=0,randomness='medium',method='style',loop=true}={}){
  if(method==='original')return structuredClone(source);
  const cfg=styles[style]||styles.Jazz,styleSeed=[...style].reduce((n,c)=>n+c.charCodeAt(0),0),random=seeded(seed+styleSeed),count=source.length||4,filled=source.some(b=>chordList(b).length),level=randomness;
@@ -163,6 +175,16 @@ export function mutate(source,{style='Jazz',key=0,mode='major',freedom='free',de
   const input=chordList(source[i]||{}),rewrite=!filled||replace||!input.length;
   return {chords:rewrite?parseBar(phrase[i%phrase.length]).map(c=>({...c,symbol:transpose(c.symbol,key)})):structuredClone(input),reason:style+' · '+(rewrite?'句型重構':'保留根音上色')};
  });
+ // Develop repeated dark studies with a style-specific eighth-bar response.
+ if(cfg.dark&&count>=8&&phrase.length<=4&&(!filled||replace)){
+  const endings={ 'Heavy Metal':['Bb5','G5'],'Doom Metal':['Db5','C5'],Grunge:['Bb5','C5'],Alternative:['Fm','C'],Gothic:['Fm','G7'],Requiem:['G7b9','Cm'] };
+  for(let i=7;i<count;i+=8){let ending=endings[style];
+   if(!loop&&i===count-1)ending=[ending[0],cfg.heavy?'C5':'Cm'];
+   const chords=ending.map(symbol=>({symbol:transpose(symbol,key),beats:2}));
+   if(JSON.stringify(chords)===JSON.stringify(result[i].chords)){chords[0].beats=3;chords[1].beats=1;}
+   result[i]={chords,reason:style+' · 八小節收尾'};
+  }
+ }
  const tonal=!cfg.world&&!cfg.dark&&!['Minor blues','Major blues','Neoclassical rock','Dorian folk','Phrygian dominant'].includes(style);
  if(tonal&&count>=8&&phrase.length<=4&&(!filled||replace)){
   // A–A′: half cadence, a new departure, then tonic/turnaround. Long authored blues forms are untouched.
@@ -172,7 +194,7 @@ export function mutate(source,{style='Jazz',key=0,mode='major',freedom='free',de
  if(tonal&&mode==='minor')result=minorizeChart(result,key,{loop});
  if(!cfg.world)result=result.map(b=>({...b,chords:b.chords.map(c=>({...c,symbol:cfg.dark&&(!filled||replace)?c.symbol:tint(c.symbol,style,level,random,key,mode)}))}));
  if(!cfg.world&&!cfg.dark&&method==='style')result=connectBass(result,key);
- if(density===1)result=result.map(b=>({...b,chords:b.chords.length?[{...b.chords[0],beats:4}]:[]}));
+ if(density===1)result=reduceDensity(result,{loop});
  for(let i=0;i<count;i++){
   if(i===count-1&&!loop)continue;
   const target=result[(i+1)%count].chords[0]?.symbol,cs=result[i].chords;

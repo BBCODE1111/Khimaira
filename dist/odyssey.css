@@ -163,3 +163,8 @@ button:not(.chord-event):not(.bar-cue){min-height:44px;font-size:12px}
  .transport #position{display:block;grid-column:1/-1;grid-row:1;margin:0;text-align:center;font-size:11px;color:#d9e5ef}
  main{padding-bottom:calc(125px + env(safe-area-inset-bottom))}#status:not(:empty){bottom:120px}
 }
+
+@media(max-width:600px){
+ .score.compact-tools .chart-tools:not(:focus-within){height:0;min-height:0;padding-block:0;overflow:hidden;opacity:0;pointer-events:none}
+ .score.compact-tools .chart-tools:focus-within{height:auto;opacity:1}
+}
