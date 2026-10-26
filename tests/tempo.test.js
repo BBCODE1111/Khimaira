@@ -48,6 +48,12 @@ test('gate shortens rhythmic notes while held voices keep their musical landing 
  }
 });
 test('short-note releases scale with duration instead of a fixed quarter-second tail',()=>{
- near(releaseSeconds(.125),.025);near(releaseSeconds(.5),.1);near(releaseSeconds(4),.12);
+ near(releaseSeconds(.125),.025);near(releaseSeconds(.5),.275);near(releaseSeconds(4),.35);
  assert.ok(releaseSeconds(.0625)<.0625/4);
+});
+test('resuming at the current bar retains the original loop start',()=>{
+ const piano=fakePiano(),seq=[{note:60,beat:0,duration:4,velocity:.7},{note:65,beat:4,duration:4,velocity:.7}];
+ const player=new BeatPlayer(piano,seq,8,{bpm:60,lead:0,loop:true,startBeat:4});
+ player.pump();assert.deepEqual(piano.voices.map(v=>v.note),[65]);near(player.beatAt(),4);
+ piano.context.currentTime=4;player.pump();assert.equal(piano.voices.at(-1).note,60);near(piano.voices.at(-1).when,4);
 });

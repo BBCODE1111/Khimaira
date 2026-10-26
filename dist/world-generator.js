@@ -1,6 +1,6 @@
-import {parse,mod,names} from './music.js?v=14';
-import {parseBar,chordList} from './solutions.js?v=14';
-import {worldScales} from './world-styles.js?v=14';
+import {parse,mod,names} from './music.js?v=16';
+import {parseBar,chordList} from './solutions.js?v=16';
+import {worldScales} from './world-styles.js?v=16';
 
 const cycle=(n,size)=>((n%size)+size)%size;
 const shifted=(symbol,key)=>{const c=parse(symbol);return names[mod(c.root+key)]+c.q+(symbol.includes('/')?'/'+names[mod(c.bass+key)]:'');};

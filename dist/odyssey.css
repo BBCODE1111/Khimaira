@@ -152,3 +152,14 @@ button:not(.chord-event):not(.bar-cue){min-height:44px;font-size:12px}
  .score-actions button:not(.chord-event){min-height:44px;font-size:10px}
  .chord-lane{height:58px}.chart-tools label{margin-left:0;flex:1}
 }
+
+/* Review 2: keep complete symbols and chart tools visible at narrow widths. */
+.chord-event strong{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;line-height:1.2}
+.chart-tools{padding:8px 18px 12px;display:grid;grid-template-columns:auto auto minmax(110px,1fr) auto;align-items:end}
+.chart-tools label{margin:0;min-width:0}.chart-tools select{width:100%;min-width:0}.chart-tools button:not(.chord-event){padding:10px 12px;white-space:nowrap}.chart-tools input{grid-column:1/-1}
+@media(max-width:600px){
+ .chart-tools{padding:6px 12px 10px;gap:5px;grid-template-columns:60px 60px minmax(90px,1fr) 60px}
+ .chart-tools button:not(.chord-event){padding:8px 3px;font-size:10px;letter-spacing:.5px}.chart-tools label{font-size:10px}.chart-tools select{font-size:12px;padding:8px 4px}
+ .transport #position{display:block;grid-column:1/-1;grid-row:1;margin:0;text-align:center;font-size:11px;color:#d9e5ef}
+ main{padding-bottom:calc(125px + env(safe-area-inset-bottom))}#status:not(:empty){bottom:120px}
+}

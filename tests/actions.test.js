@@ -28,7 +28,7 @@ test('parallel color keeps 11/13, explicit tensions and compatible bass; special
 test('inversion only uses structural chord tones and returns to root',()=>{
  let s='Cmaj13';const bass=[];for(let i=0;i<4;i++){s=invertChord(s);bass.push(parse(s).bass);}assert.deepEqual(bass,[4,7,11,0]);
  assert.equal(invertChord('C/Gb'),'C');assert.equal(invertChord('Cdim7/Gb'),'Cdim7/Bbb');
- assert.deepEqual(cadenceTo('Cm7(b5)'),['Dm7b5','G7b9']);
+ assert.equal(cadenceTo('Cm7(b5)'),null);
 });
 test('seek clips notes at selected bar, rebases time and never exceeds the segment',()=>{
  const out=playbackSlice([{note:60,beat:0,duration:6},{note:64,beat:5,duration:4},{note:67,beat:0,duration:1}],1,2);

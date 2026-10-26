@@ -1,4 +1,4 @@
-import {voicingCandidates} from './voicing.js?v=14';
+import {voicingCandidates} from './voicing.js?v=16';
 export const names=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
 export const mod=n=>((n%12)+12)%12;
 const pc=s=>mod(({C:0,D:2,E:4,F:5,G:7,A:9,B:11})[s[0]]+[...s.slice(1)].reduce((n,a)=>n+(a==='#'?1:a==='b'?-1:0),0));
@@ -16,10 +16,10 @@ export function pianoVoicing(symbol,previous=[]){
  return candidates.sort((a,b)=>cost(a)-cost(b))[0]||[];
  function cost(v){return v.slice(1).reduce((s,n,i)=>s+Math.abs(n-(previous[i+1]??(57+i*4))),0);}
 }
-export {performance as events} from './performance.js?v=14';
+export {performance as events} from './performance.js?v=16';
 const tuning=[40,45,50,55,59,64];
 export function guitarShapes(symbol){const c=parse(symbol);if(!c)return [];let all=[];for(let start=0;start<=12;start++){const opts=tuning.map(t=>[-1,...Array.from({length:5},(_,i)=>start+i).filter(f=>f<=15&&c.pcs.includes(mod(t+f)))]);const walk=(arr,s)=>{if(s===6){const notes=arr.flatMap((f,i)=>f<0?[]:[tuning[i]+f]);if(notes.length<3||mod(notes[0])!==c.bass)return;const set=new Set(notes.map(mod));const required=c.intervals.length>4?c.intervals.filter(n=>n!==7&&n!==0&&!(n===17&&c.intervals.includes(21))):c.intervals;if(required.some(n=>!set.has(mod(c.root+n))))return;const fretted=arr.filter(f=>f>0);if(fretted.length>4&&new Set(fretted).size>3)return;const span=Math.max(...fretted)-Math.min(...fretted);if(span>3)return;all.push({frets:arr,omitted:chordTones(symbol).filter((_,i)=>!set.has(mod(c.root+c.intervals[i]))),score:span*3+arr.filter(f=>f<0).length+start*.15});return;}for(const f of opts[s])walk([...arr,f],s+1);};walk([],0);}const seen=new Set;return all.sort((a,b)=>a.score-b.score).filter(x=>{const k=x.frets.join();if(seen.has(k))return false;seen.add(k);return true;}).filter((x,i,a)=>i===0||Math.abs(Math.max(...x.frets)-Math.max(...a[0].frets))>=3).slice(0,3);}
-export {scaleOptions as scales} from './scale-library.js?v=14';
+export {scaleOptions as scales} from './scale-library.js?v=16';
 export function midiBytes(notes,totalBeats,{split=false}={}){
  if(split){
   const chunks=['bass','upper'].map(part=>{
@@ -56,13 +56,16 @@ export function spellPitch(pitch,key=0,mode='major'){
  const sharp=(mode==='minor'?[1,4,6,8,11]:[2,4,6,7,9,11]).includes(mod(key));
  return (sharp?['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']:names)[mod(pitch)];
 }
-export function spellChord(symbol,key=0,mode='major'){
- const c=parse(symbol);if(!c)return symbol;
- return spellPitch(c.root,key,mode)+c.q+(c.bass!==c.root?'/'+spellPitch(c.bass,key,mode):'');
+export function spellChord(symbol){
+ // Authored accidentals encode function: F# in D7/F# must not become Gb.
+ const c=parse(symbol);return c?c.rootName+c.q+(c.bassName?'/'+c.bassName:''):symbol;
 }
 export function transposeSymbol(symbol,semitones,key=0,mode='major'){
  const c=parse(symbol);if(!c)return symbol;
- return spellPitch(c.root+semitones,key,mode)+c.q+(c.bass!==c.root?'/'+spellPitch(c.bass+semitones,key,mode):'');
+ if(mod(semitones)===0)return spellChord(symbol);
+ const from=keyName(key-semitones,mode),to=keyName(key,mode);
+ const steps=(letters.indexOf(to[0])-letters.indexOf(from[0])+7)%7;
+ return spellInterval(c.rootName,semitones,steps)+c.q+(c.bassName?'/'+spellInterval(c.bassName,semitones,steps):'');
 }
 export function romanNumeral(symbol,key=0,mode='major'){
  const c=parse(symbol);if(!c)return '';

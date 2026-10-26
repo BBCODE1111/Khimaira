@@ -1,5 +1,6 @@
-import {parse,names,mod,spellInterval} from './music.js?v=14';
-import {chordList} from './solutions.js?v=14';
+import {parse,names,mod,spellInterval} from './music.js?v=16';
+import {chordList} from './solutions.js?v=16';
+import {insertApproach} from './style-engine.js?v=16';
 
 // Resolve to the next sounding event. Never skip a rest or overwrite a target.
 export function insertCadence(bars,barIndex,chordIndex,{loop=false}={}){
@@ -8,11 +9,10 @@ export function insertCadence(bars,barIndex,chordIndex,{loop=false}={}){
  const next=list[chordIndex+1]||(barIndex+1<bars.length?chordList(bars[barIndex+1])[0]:loop?chordList(bars[0])[0]:null);
  if(!next)throw Error('後方沒有相鄰和弦可解決；最後一小節可開啟 LOOP 連回開頭。');
  const target=parse(next.symbol);
- if(!target||target.intervals.includes(8)||!target.intervals.some(n=>n===3||n===4))throw Error('下一個和弦沒有明確的大／小三和弦核心，請改用手動編輯安排接近。');
+ if(!target||target.intervals.includes(6)||target.intervals.includes(8)||!target.intervals.some(n=>n===3||n===4))throw Error('下一個和弦沒有明確的大／小三和弦核心，請改用手動編輯安排接近。');
  if(list.length>2||current.beats<2)throw Error('這段沒有足夠空間放入 ii–V；請先合併和弦或留至少兩拍。');
- const out=structuredClone(bars),slice=current.beats/4;
- const ii=spellInterval(target.rootName,2,1)+(target.minor?'m7b5':'m7'),v=spellInterval(target.rootName,7,4)+(target.minor?'7b9':'7');
- out[barIndex].chords.splice(chordIndex,1,{...current,beats:slice*2},{symbol:ii,beats:slice},{symbol:v,beats:slice});
+ const out=structuredClone(bars);
+ out[barIndex].chords.splice(chordIndex,1,...insertApproach([current],next.symbol));
  out[barIndex].reason=`ii–V → ${next.symbol}`;
  return {bars:out,target:next.symbol};
 }

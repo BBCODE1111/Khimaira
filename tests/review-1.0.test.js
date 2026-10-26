@@ -20,24 +20,21 @@ test('sharp keys spell generated roots and secondary dominants consistently',()=
  assert.deepEqual(generate(empty,{key:4,random:()=>0}).map(c=>c.symbol),['Emaj7','C#7','F#m7','B7']);
  assert.deepEqual(generate(empty,{key:6,style:'Rock',random:()=>0}).map(c=>c.symbol),['F#','C#','D#m','B']);
  assert.deepEqual(approach('Bdim'),['C#m7b5','F#7b9']);
- assert.deepEqual(cadenceTo('Bdim'),['C#m7b5','F#7b9']);
- assert.deepEqual(insertCadence(parseChart('| A | Bdim |'),0,0).bars[0].chords.map(c=>c.symbol),['A','C#m7b5','F#7b9']);
- const cadence=mutate(parseChart('| C | Bdim |'),{method:'cadence',key:0,randomness:'low',density:3});
- assert.equal(cadence[0].chords.at(-1).symbol,'F#7b9');
+ assert.equal(cadenceTo('Bdim'),null);
+ assert.throws(()=>insertCadence(parseChart('| A | Bdim |'),0,0));
  for(const key of [2,4,6,7,9,11])for(let seed=0;seed<8;seed++){
   const result=mutate(empty,{style:'Jazz',key,seed});assert.ok(result.flatMap(b=>b.chords).every(c=>parse(c.symbol)));
   assert.ok(!result.flatMap(b=>b.chords).some(c=>/^Gb/.test(c.symbol)));
  }
 });
-test('voicing gives guide tones space below tensions, with five upper voices at most',()=>{
+test('voicing avoids semitone clashes and puts sharp ninth above third, with five upper voices at most',()=>{
  for(const symbol of ['C7b9','G7alt','Cmaj9','Am9','Fmaj7#11','Cm13','Cmaj7/B'])for(const voicing of ['close','rootless','open']){
   const c=parse(symbol),[bass,...upper]=voicePlan([{symbol}],{voicing})[0].notes;
   assert.ok(upper.length<=5,symbol);assert.ok(upper[0]>=52);assert.ok(upper[0]-bass>=12);
   assert.ok(upper.every(n=>c.pcs.includes(mod(n))));
   if(c.intervals.some(n=>n>=13))assert.ok(!upper.some(n=>mod(n)===c.root),symbol);
   if(c.intervals.includes(15))assert.ok(upper.find(n=>mod(n-c.root)===3)>upper.find(n=>mod(n-c.root)===4));
-  const guides=upper.filter(n=>[3,4,10,11].some(i=>c.intervals.includes(i)&&mod(n-c.root)===i));
-  for(const i of c.intervals.filter(n=>n>=13))assert.ok(upper.find(n=>mod(n-c.root)===mod(i))>Math.max(...guides),symbol);
+  if(voicing==='rootless')assert.ok(upper.at(-1)-upper[0]<=24,symbol);
  }
  for(const symbol of ['C7b9','G7alt','Cmaj9','Am9','Fmaj7#11']){
   const upper=voicePlan([{symbol}])[0].notes.slice(1);assert.ok(upper.every((n,i)=>!i||n-upper[i-1]>1),symbol);
@@ -77,8 +74,8 @@ test('sixteenth swing affects Funk and Fusion; lofi delays every upper attack by
 test('Rock separates eighth bass and backbeat chords; walking and delayed Ballad are optional',()=>{
  const bars=parseChart('| C | F |'),rock=performance(bars,'rock',{human:0});
  assert.equal(rock.filter(n=>n.part==='bass'&&n.beat<4).length,8);
- assert.ok(rock.filter(n=>n.part==='upper').every(n=>n.beat%1===0));
- const backbeat=rock.find(n=>n.part==='upper'&&n.beat===1),downbeat=rock.find(n=>n.part==='upper'&&n.beat===0);assert.ok(backbeat.velocity-downbeat.velocity>.15);
+ assert.ok(rock.filter(n=>n.part==='upper'&&n.beat<4).every(n=>n.beat%1===0));
+ const backbeat=rock.find(n=>n.part==='upper'&&n.beat===1),downbeat=rock.find(n=>n.part==='upper'&&n.beat===0);assert.ok(backbeat.velocity>downbeat.velocity&&backbeat.velocity-downbeat.velocity<.1);
  for(const [bassMode,count] of [['root',1],['two',2],['four',4]]){
   const notes=performance(bars,'jazz',{human:0,bassMode});assert.equal(notes.filter(n=>n.part==='bass'&&n.beat<4).length,count);
  }

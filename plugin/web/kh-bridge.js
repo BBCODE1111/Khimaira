@@ -28,7 +28,7 @@
     const { performance, keyName } = await modules;
     if (!state || !Array.isArray(state.bars) || !state.bars.length) return;
     const options = {
-      bpm: +state.tempo || 92, bassMode: state.bassMode, balladEntry: state.balladEntry, loop: true, voicing: state.voicing, rate: +state.rate, gate: +state.gate / 100, swing: +state.swing / 100,
+      arpFoundation: state.arpFoundation, bpm: +state.tempo || 92, bassMode: state.bassMode, balladEntry: state.balladEntry, loop: true, voicing: state.voicing, rate: +state.rate, gate: +state.gate / 100, swing: +state.swing / 100,
       human: +state.human / 100, seed: 42, arpMode: state.arpMode, arpRate: state.arpRate,
       arpOctaves: +state.arpOctaves, arpPhase: state.arpPhase, arpAccent: state.arpAccent, arpSeed: +state.arpSeed
     };
@@ -36,7 +36,7 @@
     const notes = performance(state.bars, pattern, options);
     const sustain = performance(state.bars, 'sustain', options);
     const name = ['KHIMAIRA', keyName(+state.key || 0, state.mode), state.bars.length + 'bars', pattern].join('-');
-    send({ type: 'sequence', beats: state.bars.length * 4, notes: flat(notes), sustain: flat(sustain), name, bpm: +state.tempo || 0 });
+    send({ type: 'sequence', beats: state.bars.length * 4, notes: flat(notes), sustain: flat(sustain), name, arpFoundation: state.arpFoundation, bpm: +state.tempo || 0 });
   }
 
   let timer = null, seen = false;
@@ -65,7 +65,7 @@
     const cells = [...document.querySelectorAll('.bar-edit')].map(i => i.value.trim());
     if (!cells.length) return;
     const state = { bars: parseChart('| ' + cells.join(' | ') + ' |') };
-    for (const id of ['key', 'mode', 'style', 'freedom', 'density', 'randomness', 'tempo', 'bassMode', 'balladEntry', 'midiSplit', 'pattern', 'voicing', 'rate', 'gate', 'swing', 'human', 'arpMode', 'arpRate', 'arpOctaves', 'arpPhase', 'arpAccent', 'arpSeed']) {
+    for (const id of ['key', 'mode', 'style', 'freedom', 'density', 'randomness', 'tempo', 'bassMode', 'balladEntry', 'arpFoundation', 'midiSplit', 'pattern', 'voicing', 'rate', 'gate', 'swing', 'human', 'arpMode', 'arpRate', 'arpOctaves', 'arpPhase', 'arpAccent', 'arpSeed']) {
       const el = document.getElementById(id); if (el) state[id] = el.value;
     }
     state.source = structuredClone(state.bars);
