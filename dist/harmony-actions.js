@@ -1,5 +1,5 @@
-import {parse,names,mod} from './music.js?v=12';
-import {chordList} from './solutions.js?v=12';
+import {parse,names,mod,spellInterval} from './music.js?v=14';
+import {chordList} from './solutions.js?v=14';
 
 // Resolve to the next sounding event. Never skip a rest or overwrite a target.
 export function insertCadence(bars,barIndex,chordIndex,{loop=false}={}){
@@ -8,10 +8,10 @@ export function insertCadence(bars,barIndex,chordIndex,{loop=false}={}){
  const next=list[chordIndex+1]||(barIndex+1<bars.length?chordList(bars[barIndex+1])[0]:loop?chordList(bars[0])[0]:null);
  if(!next)throw Error('後方沒有相鄰和弦可解決；最後一小節可開啟 LOOP 連回開頭。');
  const target=parse(next.symbol);
- if(!target||target.intervals.includes(6)||target.intervals.includes(8)||!target.intervals.some(n=>n===3||n===4))throw Error('下一個和弦沒有明確的大／小三和弦核心，請改用手動編輯安排接近。');
+ if(!target||target.intervals.includes(8)||!target.intervals.some(n=>n===3||n===4))throw Error('下一個和弦沒有明確的大／小三和弦核心，請改用手動編輯安排接近。');
  if(list.length>2||current.beats<2)throw Error('這段沒有足夠空間放入 ii–V；請先合併和弦或留至少兩拍。');
  const out=structuredClone(bars),slice=current.beats/4;
- const ii=names[mod(target.root+2)]+(target.minor?'m7b5':'m7'),v=names[mod(target.root+7)]+'7';
+ const ii=spellInterval(target.rootName,2,1)+(target.minor?'m7b5':'m7'),v=spellInterval(target.rootName,7,4)+(target.minor?'7b9':'7');
  out[barIndex].chords.splice(chordIndex,1,{...current,beats:slice*2},{symbol:ii,beats:slice},{symbol:v,beats:slice});
  out[barIndex].reason=`ii–V → ${next.symbol}`;
  return {bars:out,target:next.symbol};
@@ -21,7 +21,7 @@ export function invertChord(symbol){
  // Extensions are not traditional inversion bass notes. Includes altered fifths and diminished seventh.
  const core=c.intervals.filter(n=>n<12&&(n!==9||c.q.startsWith('dim7'))),index=core.findIndex(n=>mod(c.root+n)===c.bass);
  const bass=mod(c.root+core[(index+1)%core.length]);
- return c.rootName+c.q+(bass===c.root?'':'/'+names[bass]);
+ return c.rootName+c.q+(bass===c.root?'':'/'+spellInterval(c.rootName,core[(index+1)%core.length],({0:0,3:2,4:2,5:3,6:4,7:4,8:4,9:6,10:6,11:6})[core[(index+1)%core.length]]));
 }
 export function parallelColor(symbol){
  const c=parse(symbol);if(!c)throw Error('請先選擇和弦。');
@@ -30,5 +30,5 @@ export function parallelColor(symbol){
  if(q===undefined)throw Error('此和弦含特殊結構，請用 EDIT 選擇色彩，避免丟失重要和弦音。');
  const result=c.rootName+q+(match[2]||''),changed=parse(result);
  // Keep an existing slash bass only if it remains a chord tone after the change.
- return result+(c.bass!==c.root&&changed.pcs.includes(c.bass)?'/'+names[c.bass]:'');
+ return result+(c.bass!==c.root&&changed.pcs.includes(c.bass)?'/'+c.bassName:'');
 }

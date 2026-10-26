@@ -1,9 +1,9 @@
-import {darkStyles} from './dark-styles.js?v=12';
-import {names,mod,parse} from './music.js?v=12';
-import {parseBar,chordList,parseChart} from './solutions.js?v=12';
-import {songs} from './song-pool.js?v=12';
-import {worldStyles} from './world-styles.js?v=12';
-import {worldMutation} from './world-generator.js?v=12';
+import {darkStyles} from './dark-styles.js?v=14';
+import {names,mod,parse,spellPitch,spellChord,spellInterval,transposeSymbol} from './music.js?v=14';
+import {parseBar,chordList,parseChart} from './solutions.js?v=14';
+import {songs} from './song-pool.js?v=14';
+import {worldStyles} from './world-styles.js?v=14';
+import {worldMutation} from './world-generator.js?v=14';
 export const styles={
 Jazz:{description:'功能替代、次屬和弦、ii–V、三全音／backdoor，讓 3rd 與 7th 連接。',pattern:'jazz',voicing:'rootless',phrases:[['Cmaj9 Ebdim7','Dm9 G13','Em7 A7b9','Dm9 Db7#11'],['Em9 A7alt','Dm9 G13','Fm9 Bb13','C69 G7alt'],['C69','F#m7b5 B7b9','Em9 A7alt','Dm9 G13']],T:['Cmaj9','Em9 A7alt','C69 Ebdim7'],R:['Am9','Em7 A7alt','Dm9 G13'],S:['Fmaj9','Fm9 Bb13','Dm9 G13'],D:['G13','Dm9 Db7#11','G7sus4 G7alt']},
 Gospel:{description:'斜線低音、減七經過和弦、IV–iv、sus 解決與 plagal 色彩。',pattern:'gospel',voicing:'open',phrases:[['C69 E7/G#','Am9 C7/G','Fmaj9 Fm6','C/G G7sus4'],['Cmaj9/E','Fmaj9 F#dim7','C/G A7b9','Dm9 G13'],['C69','Bb/C C7','Fmaj9 Fm6','C/G G7']],T:['C69/E','Cmaj9 E7/G#','C/G'],R:['Am9 C7/G','C7/G','Em7 A7b9'],S:['Fmaj9 Fm6','Fmaj9 F#dim7','Dm9/G'],D:['G7sus4 G13','C/G G7','Db9 C69']},
@@ -16,7 +16,7 @@ Classical:{description:'三和弦轉位、級進低音、次屬和弦與終止�
 'Phrygian dominant':{description:'1 ♭2 3 4 5 ♭6 ♭7；主大三和弦、♭II 與小 iv。具體調式，非泛稱民族音樂。',pattern:'ostinato',voicing:'open',phrases:[['C','Db','Fm','C'],['C Db/C','C','Bbm','C'],['C7b9','Dbmaj7','Fm/C','C']],T:['C','C7b9','Db/C'],R:['Ab','Bbm','Ab/C'],S:['Fm','Db','Fm/C'],D:['Db/C','Bbm C','C7b9']},
 'Dorian folk':{description:'小調主音配大六度；i–IV 的 Dorian 色彩、持續低音與開放弦感。',pattern:'folk',voicing:'open',phrases:[['Cm','F','Bb','Cm'],['Cm9','F/C','Dm7','Cm6'],['Cm','Bb/C','F','Cm']],T:['Cm','Cm6','Cm9'],R:['Am7b5','Cm/A','Cm6'],S:['F','F/C','Dm7'],D:['Gm7','Bb','F/C']}
 };
-const transpose=(symbol,key)=>{const c=parse(symbol);if(!c)throw Error('Invalid style chord '+symbol);return names[mod(c.root+key)]+c.q+(symbol.includes('/')&&!symbol.includes('6/9')?'/'+names[mod(c.bass+key)]:'');};
+const transpose=(symbol,key)=>transposeSymbol(symbol,key,key);
 function preset(description,pattern,voicing,phrases){return {description,pattern,voicing,phrases};}
 Object.assign(styles,{
 'Soul':preset('大六／九和弦、IV–iv 與柔和次屬；有呼吸的切分和聲。','soul','open',[['Fmaj9','Fm6','C/E','A7 Dm7'],['C69','Em7 A7','Dm9','G13'],['Am9','D9','Fmaj9','C69']]),
@@ -45,10 +45,10 @@ if(styles[style]?.dark){
  let q=c.q;if(styles[style].heavy&&!q.includes('dim'))q='5';
  else if(!['5','sus2','sus4','dim','dim7','m7b5','7b9','add9','madd9'].includes(q)){q=c.minor?'m':c.intervals.includes(10)?'7':'';if(mode==='minor'&&mod(c.root-key)===0&&q==='')q='m';}
  const base=c.rootName+q;return base+(symbol.includes('/')?'/'+names[c.bass]:'');
-}const simple=['Rock','Japanese rock','Classical','American pop','Mandopop','EDM','Neoclassical rock'].includes(style);if(c.symbol.includes('/')&&!c.pcs.includes(c.bass)||/[b#]/.test(c.q)||c.q==='m6'||c.q.includes('dim')||c.q.includes('m7b5')||c.q.includes('sus')||c.q==='5'||c.q.includes('alt')||c.q.includes('Maj'))return symbol;const tonal=!['House','Fusion','Chill','Ambient','Dorian folk','Phrygian dominant'].includes(style);const isDom=c.intervals.includes(10)||(tonal&&mod(c.root-key)===7&&['','6','add9'].includes(c.q));let options=c.minor?(simple?['m','m7','madd9']:['m7','m9','m11']):isDom?(simple?['7','9']:['7','9','13']):(simple?['','add9','6']:['maj7','maj9','69']);if(level==='low')options=options.slice(0,2);if(level==='high'&&!simple)options=c.minor?['m9','m11','m13']:isDom?['9','13','7#11','7b13']:['maj9','maj7#11','maj13'];if(style==='Fusion'&&!c.minor&&!c.intervals.includes(10))options=['maj7#11','maj9#11'];if(style==='Neoclassical rock')options=c.minor?['m','madd9','m']:isDom?['','7','7b9']:['','add9'];const q=options[Math.floor(random()*options.length)];return c.rootName+q+(symbol.includes('/')?'/'+names[c.bass]:'');}
+}const simple=['Rock','Japanese rock','Classical','American pop','Mandopop','EDM','Neoclassical rock'].includes(style);if(c.symbol.includes('/')&&!c.pcs.includes(c.bass)||/[b#]/.test(c.q)||c.q==='m6'||c.q.includes('dim')||c.q.includes('m7b5')||c.q.includes('sus')||c.q==='5'||c.q.includes('alt')||c.q.includes('Maj'))return symbol;const tonal=!['House','Fusion','Chill','Ambient','Dorian folk','Phrygian dominant'].includes(style);const isDom=c.intervals.includes(10)||(tonal&&mod(c.root-key)===7&&['','6','add9'].includes(c.q));let options=c.minor?(simple?['m','m7','madd9']:['m7','m9','m11']):isDom?(simple?['7','9']:['7','9','13']):(simple?['','add9','6']:['maj7','maj9','69']);if(level==='low')options=options.slice(0,2);if(level==='high'&&!simple)options=c.minor?['m9','m11','m13']:isDom?['9','13','7#11','7b13']:['maj9','maj7#11','maj13'];if(style==='Funk')options=c.minor?['m7','m9','m11']:['9','13'];if(style==='Fusion'&&!c.minor&&!c.intervals.includes(10))options=['maj7#11','maj9#11'];if(style==='Neoclassical rock')options=c.minor?['m','madd9','m']:isDom?['','7','7b9']:['','add9'];const q=options[Math.floor(random()*options.length)];return c.rootName+q+(symbol.includes('/')?'/'+names[c.bass]:'');}
 function minorize(symbol,key){const c=parse(symbol),d=mod(c.root-key);if(c.intervals.includes(10)&&!c.minor&&d!==7)return symbol;const mapped={0:[0,'m9'],2:[2,'m7b5'],4:[3,'maj9'],5:[5,'m9'],7:[7,'7b9'],9:[8,'maj9'],11:[10,'7']};if(!mapped[d])return symbol;const [root,q]=mapped[d];return names[mod(key+root)]+q;}
 function inversion(symbol,random){const c=parse(symbol);if(!c||symbol.includes('/')||c.q.includes('dim')||c.q==='5')return symbol;const structural=c.intervals.filter(n=>[0,3,4,7].includes(n));const bass=structural[Math.floor(random()*structural.length)];return c.rootName+c.q+(bass?'/'+names[mod(c.root+bass)]:'');}
-export function cadenceTo(target,{tritone=false,rich=false}={}){const c=parse(target);if(!c||c.intervals.includes(6)||c.intervals.includes(8)||!c.intervals.some(n=>n===3||n===4))return null;return [names[mod(c.root+2)]+(c.minor?'m7b5':rich?'m9':'m7'),names[mod(c.root+(tritone?1:7))]+(tritone?(rich?'7#11':'7'):c.minor?'7b9':rich?'13':'7')];}
+export function cadenceTo(target,{tritone=false,rich=false}={}){const c=parse(target);if(!c||c.intervals.includes(8)||!c.intervals.some(n=>n===3||n===4))return null;return [spellInterval(c.rootName,2,1)+(c.minor?'m7b5':rich?'m9':'m7'),spellInterval(c.rootName,tritone?1:7,tritone?1:4)+(tritone?(rich?'7#11':'7'):c.minor?'7b9':rich?'13':'7')];}
 export function mutate(source,{style='Jazz',key=0,mode='major',freedom='free',density=2,seed=0,randomness='medium',method='style',loop=true}={}){
 if(method==='original')return structuredClone(source);
 const cfg=styles[style]||styles.Jazz,random=seeded(seed),count=source.length||4,filled=source.some(b=>chordList(b).length),level=randomness;
@@ -61,6 +61,7 @@ if(!(cfg.dark&&(!filled||replace||!input.length)))cs=cs.map(c=>({...c,symbol:tin
 if(!cfg.dark&&method==='style'&&random()<(level==='low'?.12:.35)&&!['Major blues','Minor blues'].includes(style))cs[0].symbol=inversion(cs[0].symbol,random);
 if(density===1)cs=[{...cs[0],beats:4}];
 return {chords:cs,reason:style+' · '+(replace?'句型重構':filled?'聲部色彩':'風格句型')};});
+result=result.map(b=>({...b,chords:b.chords.map(c=>({...c,symbol:spellChord(c.symbol,key,mode)}))}));
 // A lead-in is derived from its actual next target, never an unrelated random diminished chord.
 for(let i=0;i<count;i++){if(i===count-1&&!loop)continue;const target=result[(i+1)%count].chords[0]?.symbol,cs=result[i].chords;const useSub=method==='tritone'||method==='style'&&level==='high'&&random()<.25;const a=cadenceTo(target,{tritone:useSub,rich:level!=='low'&&random()<.6});if(!a)continue;
 const requested=['cadence','tritone'].includes(method),jazzy=['Jazz','Gospel','Bossa nova','R&B','Neo-soul','Lo-fi hip-hop'].includes(style);

@@ -48,7 +48,7 @@ test('every ARP mode/rate/range/phase survives dense harmony, swing, humanizatio
  for(const arpMode of Object.keys(arpModes))for(const arpRate of Object.keys(arpRates))for(const arpOctaves of [1,2,3,4])for(const arpPhase of ['chord','flow'])for(const gate of [.1,1]){
   const ns=performance(bars,'arp',{arpMode,arpRate,arpOctaves,arpPhase,gate,swing:.32,human:1,arpSeed:51}),midi=readMidi(midiBytes(ns,16));
   assert.equal(midi.tick,7680);assert.equal(midi.notes.length,ns.length);
-  const actual=midi.notes.sort((a,b)=>a.start-b.start||a.note-b.note),expected=ns.map(n=>({note:n.note,start:Math.round(n.beat*480),end:Math.round((n.beat+n.duration)*480),velocity:Math.round(n.velocity*100)})).sort((a,b)=>a.start-b.start||a.note-b.note);
+  const actual=midi.notes.sort((a,b)=>a.start-b.start||a.note-b.note),expected=ns.map(n=>({note:n.note,start:Math.round(n.beat*480),end:Math.round((n.beat+n.duration)*480),velocity:Math.round(n.velocity*127)})).sort((a,b)=>a.start-b.start||a.note-b.note);
   assert.deepEqual(actual,expected,arpMode+' '+arpRate);
   for(const n of ns){assert.ok(n.note>=21&&n.note<=108);const s=ss.find(s=>n.beat>=s.beat&&n.beat<s.beat+s.beats);assert.ok(s);assert.ok(n.beat+n.duration<=s.beat+s.beats+1e-8);assert.ok(parse(s.symbol).pcs.includes(n.note%12));}
  }

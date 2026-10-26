@@ -5,7 +5,7 @@
   --bronze:#a18a66; --field:#294459; --glass:#071927df;
 }
 body {background:var(--bg);color:var(--paper);font-family:'DM Sans',sans-serif}
-body::before {background:url('temple-blue.png') center top / cover no-repeat;opacity:1}
+body::before {background:url('temple-blue.webp') center top / cover no-repeat;opacity:1}
 header {
   height:clamp(150px,16vw,215px);max-width:1360px;margin:auto;
   align-items:flex-end;padding:24px 32px;background:transparent;border:0;
@@ -129,4 +129,26 @@ footer,footer a {color:#bbcbd7}
 }
 @media(prefers-reduced-transparency:reduce){
   .panel,.score,.transport{background:#102639;backdrop-filter:none;-webkit-backdrop-filter:none}
+}
+
+/* 1.0 review fixes: state, touch targets, readable degrees and continuous backdrop. */
+body::before{background-image:linear-gradient(transparent 45%,#07131f 100%),url('temple-blue.webp');background-size:100% 100%,cover;background-attachment:fixed}
+.header-note{opacity:.8;letter-spacing:1.5px}
+#loopButton[aria-pressed=false]{background:#23394a;color:#b9c9d5;box-shadow:none}
+#loopButton[aria-pressed=true],#play[aria-pressed=true]{background:#bca274;color:#102335!important;border-color:#e0cba5;box-shadow:inset 0 0 0 2px #c8b18d}
+#loopButton::before{content:'○';margin-right:6px}
+#loopButton[aria-pressed=true]::before{content:'●'}
+.chord-event.chosen{box-shadow:inset 0 0 0 2px #bca274;background:#3d56666b}
+.chord-event .degree{display:block;color:#cbd8e1;font:500 11px 'DM Sans',sans-serif;margin-top:3px}
+.chord-event.sounding .degree{color:#102335}
+.chord-lane{height:60px}
+.chart-tools{display:flex;flex-wrap:wrap;align-items:end;gap:8px;padding:12px 0}
+.chart-tools label{margin-left:auto}.chart-tools input{flex-basis:100%}
+.chart-tools button{font-size:12px;min-height:44px}
+button.bar-cue{min-height:44px;min-width:70px;font-size:11px}
+button:not(.chord-event):not(.bar-cue){min-height:44px;font-size:12px}
+@media(max-width:600px){
+ body::before{background-size:100% 560px,auto 560px;background-position:85% top;background-attachment:scroll}
+ .score-actions button:not(.chord-event){min-height:44px;font-size:10px}
+ .chord-lane{height:58px}.chart-tools label{margin-left:0;flex:1}
 }

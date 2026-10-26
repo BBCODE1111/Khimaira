@@ -1,0 +1,162 @@
+name: Build KHIMAIRA Plug-in
+
+# Run manually (Actions > Build KHIMAIRA Plug-in > Run workflow) or push a tag like "plugin-v1.0.0".
+# Result: one artifact "KHIMAIRA-Plugin-<version>" containing the Mac .pkg, the Windows setup .exe
+# and the install guide. Tag builds also attach the zip to a GitHub Release.
+on:
+  workflow_dispatch:
+  push:
+    tags: ["plugin-v*"]
+
+permissions:
+  contents: write
+
+env:
+  VERSION: "1.0.1"
+
+jobs:
+  verify-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/*.test.js
+  mac:
+    needs: verify-web
+    runs-on: macos-14
+    env:
+      # Optional. Without these the build is ad-hoc signed (users confirm "Open Anyway" once).
+      MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Configure (Universal: Apple Silicon + Intel)"
+        run: cmake -S plugin -B build -G Xcode -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+
+      - name: Build
+        run: cmake --build build --config Release --parallel -- -quiet
+
+      - name: Scheduler tests
+        run: ctest --test-dir build -C Release --output-on-failure
+
+      - name: Import signing certificate (only if secrets are set)
+        if: ${{ env.MACOS_CERTIFICATE != '' }}
+        env:
+          MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+        run: |
+          echo "$MACOS_CERTIFICATE" | base64 --decode > cert.p12
+          security create-keychain -p ci build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p ci build.keychain
+          security import cert.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign -T /usr/bin/productbuild
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k ci build.keychain
+          rm cert.p12
+
+      - name: Code sign
+        env:
+          MACOS_DEV_ID_APP: ${{ secrets.MACOS_DEV_ID_APP }}
+        run: |
+          ART=build/Khimaira_artefacts/Release
+          IDENTITY="${MACOS_DEV_ID_APP:--}"   # "-" = ad-hoc signature when no Developer ID is configured
+          for b in "$ART/VST3/KHIMAIRA.vst3" "$ART/AU/KHIMAIRA.component" "$ART/Standalone/KHIMAIRA.app"; do
+            codesign --force --deep --timestamp --options runtime --sign "$IDENTITY" "$b" || \
+            codesign --force --deep --sign - "$b"
+            codesign --verify --deep --strict "$b"
+          done
+
+      - name: Validate Audio Unit
+        run: |
+          mkdir -p ~/Library/Audio/Plug-Ins/Components
+          cp -R build/Khimaira_artefacts/Release/AU/KHIMAIRA.component ~/Library/Audio/Plug-Ins/Components/
+          killall -9 AudioComponentRegistrar || true
+          sleep 2
+          auval -a | grep -i khim || true
+          auval -strict -v aumu Khm1 Khmr
+
+      - name: Build installer
+        env:
+          MACOS_DEV_ID_INSTALLER: ${{ secrets.MACOS_DEV_ID_INSTALLER }}
+        run: plugin/installer/mac/build_pkg.sh "$VERSION" build/Khimaira_artefacts/Release out/Mac
+
+      - name: Notarize (only if Apple ID secrets are set)
+        if: ${{ env.APPLE_ID != '' }}
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+        run: |
+          xcrun notarytool submit "out/Mac/KHIMAIRA-$VERSION-mac.pkg" --apple-id "$APPLE_ID" \
+            --team-id "$APPLE_TEAM_ID" --password "$APPLE_APP_PASSWORD" --wait
+          xcrun stapler staple "out/Mac/KHIMAIRA-$VERSION-mac.pkg"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac
+          path: out/Mac
+
+  windows:
+    needs: verify-web
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: WebView2 SDK (static loader) and runtime bootstrapper
+        shell: pwsh
+        run: |
+          nuget install Microsoft.Web.WebView2 -Version 1.0.3485.44 -OutputDirectory C:\webview2 -NonInteractive
+          Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile "$env:RUNNER_TEMP\MicrosoftEdgeWebview2Setup.exe"
+
+      - name: Configure
+        run: cmake -S plugin -B build -G "Visual Studio 17 2022" -A x64 -DJUCE_WEBVIEW2_PACKAGE_LOCATION=C:/webview2
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Scheduler tests
+        run: ctest --test-dir build -C Release --output-on-failure
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          choco install innosetup --no-progress -y
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          & $iscc "/DAppVersion=$env:VERSION" "/DBuildDir=$pwd\build\Khimaira_artefacts\Release" `
+                  "/DWebView2Setup=$env:RUNNER_TEMP\MicrosoftEdgeWebview2Setup.exe" "/DOutDir=$pwd\out\Windows" `
+                  plugin\installer\windows\khimaira.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Compress-Archive -Path build\Khimaira_artefacts\Release\VST3\KHIMAIRA.vst3 `
+                           -DestinationPath "out\Windows\KHIMAIRA-$env:VERSION-windows-vst3.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: out/Windows
+
+  package:
+    needs: [mac, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: mac, path: "dist-plugin/KHIMAIRA-Plugin-${{ env.VERSION }}/Mac" }
+      - uses: actions/download-artifact@v4
+        with: { name: windows, path: "dist-plugin/KHIMAIRA-Plugin-${{ env.VERSION }}/Windows" }
+
+      - name: Add install guide
+        run: |
+          DIR="dist-plugin/KHIMAIRA-Plugin-$VERSION"
+          sed "s/__VERSION__/$VERSION/g" "plugin/installer/安裝說明 Install Guide.txt" > "$DIR/安裝說明 Install Guide.txt"
+          cd dist-plugin && zip -r "KHIMAIRA-Plugin-$VERSION.zip" "KHIMAIRA-Plugin-$VERSION" && ls -R
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: KHIMAIRA-Plugin-${{ env.VERSION }}
+          path: dist-plugin/KHIMAIRA-Plugin-${{ env.VERSION }}
+
+      - name: Attach to GitHub Release (tag builds)
+        if: startsWith(github.ref, 'refs/tags/plugin-v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "dist-plugin/KHIMAIRA-Plugin-$VERSION.zip" --title "KHIMAIRA Plug-in $VERSION" --notes "Mac (VST3/AU/App) and Windows (VST3/App) installers with install guide." --repo "$GITHUB_REPOSITORY"

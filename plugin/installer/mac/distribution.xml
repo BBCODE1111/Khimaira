@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="2">
+    <title>KHIMAIRA __VERSION__</title>
+    <welcome file="welcome.html" mime-type="text/html"/>
+    <conclusion file="conclusion.html" mime-type="text/html"/>
+    <options customize="allow" require-scripts="false" hostArchitectures="arm64,x86_64"/>
+    <domains enable_localSystem="true"/>
+    <choices-outline>
+        <line choice="vst3"/>
+        <line choice="au"/>
+        <line choice="app"/>
+    </choices-outline>
+    <choice id="vst3" title="VST3 plug-in" description="Ableton Live, Cubase, Studio One, FL Studio, Bitwig, Reaper…">
+        <pkg-ref id="com.khimaira.plugin.vst3"/>
+    </choice>
+    <choice id="au" title="Audio Unit (AU)" description="Logic Pro, GarageBand, MainStage">
+        <pkg-ref id="com.khimaira.plugin.au"/>
+    </choice>
+    <choice id="app" title="Standalone app" description="KHIMAIRA without a DAW, in /Applications">
+        <pkg-ref id="com.khimaira.plugin.app"/>
+    </choice>
+    <pkg-ref id="com.khimaira.plugin.vst3" version="__VERSION__">khimaira-vst3.pkg</pkg-ref>
+    <pkg-ref id="com.khimaira.plugin.au" version="__VERSION__">khimaira-au.pkg</pkg-ref>
+    <pkg-ref id="com.khimaira.plugin.app" version="__VERSION__">khimaira-app.pkg</pkg-ref>
+</installer-gui-script>

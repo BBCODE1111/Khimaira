@@ -1,7 +1,7 @@
 /* Quiet Greek objects: bronze fittings, ivory relief, clear musical surfaces. */
 :root{--bg:#0d1619;--panel:#172023;--line:#3d4440;--accent:#d8b57b;--muted:#b4bdb7;--paper:#eee8dc}
 body{background:var(--bg);isolation:isolate}
-body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(#0d16194d,#0d1619c9 85%),url('greek-relics.png') center top/cover no-repeat;opacity:.58}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(#0d16194d,#0d1619c9 85%),url('greek-relics.webp') center top/cover no-repeat;opacity:.58}
 header{background:#0e171be8;padding:14px 4%;border-bottom:1px solid #7d6b494f}
 .brand{font-family:Georgia,serif;font-weight:400;letter-spacing:4px}.brand small{color:#bead90}.brand img{width:46px;height:46px}
 main{max-width:1440px;padding-top:28px}.intro{padding:0 18px 22px;min-height:0;gap:20px}.intro h1{font-family:Georgia,serif;font-size:28px;line-height:1.2;letter-spacing:-.5px;margin:10px 0}.intro h1 em{font-size:34px;color:#d7bd8e}.intro p{margin:8px 0;font-size:12px}.eyebrow{letter-spacing:2.5px;font-size:9px}.seal{width:135px;margin-right:4%}.seal span{display:none}

@@ -1,0 +1,11 @@
+/* KHIMAIRA plugin build only. Fonts are bundled when available so the UI keeps its look offline. */
+@font-face { font-family: 'Cinzel'; src: url('fonts/Cinzel.ttf') format('truetype'); font-weight: 400 900; font-display: swap; }
+@font-face { font-family: 'DM Sans'; src: url('fonts/DMSans.ttf') format('truetype'); font-weight: 100 1000; font-display: swap; }
+
+/* Inside a DAW window the page should feel like an instrument panel, not a web page. */
+html { scrollbar-gutter: stable; }
+body { -webkit-user-select: none; user-select: none; }
+input, textarea, select, [contenteditable] { -webkit-user-select: text; user-select: text; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #08131f; }
+::-webkit-scrollbar-thumb { background: #2b4355; border: 2px solid #08131f; }

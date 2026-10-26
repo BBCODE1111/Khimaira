@@ -1,0 +1,4 @@
+#!/bin/sh
+# Make Logic / GarageBand rescan Audio Units so KHIMAIRA shows up immediately.
+killall -9 AudioComponentRegistrar >/dev/null 2>&1 || true
+exit 0

@@ -7,7 +7,7 @@ import {mutate,cadenceTo} from '../dist/style-engine.js';
 
 test('local ii V preserves C and resolves to the next Am, keeping source and target immutable',()=>{
  const input=parseChart('| C | Am |'),before=serialize(input),r=insertCadence(input,0,0);
- assert.deepEqual(r.bars[0].chords,[{symbol:'C',beats:2},{symbol:'Bm7b5',beats:1},{symbol:'E7',beats:1}]);
+ assert.deepEqual(r.bars[0].chords,[{symbol:'C',beats:2},{symbol:'Bm7b5',beats:1},{symbol:'E7b9',beats:1}]);
  assert.deepEqual(r.bars[1],input[1]);assert.equal(serialize(input),before);
 });
 test('intrabar targets, slash root, four beats and surrounding events are preserved',()=>{
@@ -18,7 +18,7 @@ test('intrabar targets, slash root, four beats and surrounding events are preser
 });
 test('last bar wraps only when looping and invalid or crowded targets do not destroy chords',()=>{
  const b=parseChart('| C | Am |');assert.throws(()=>insertCadence(b,1,0));assert.equal(insertCadence(b,1,0,{loop:true}).target,'C');
- for(const chart of ['| C | | Am |','| C | Bm7b5 |','| C | Cdim7 |','| C | Csus4 |','| C:2 Dm7:1 G7:1 | Am |'])assert.throws(()=>insertCadence(parseChart(chart),0,0));
+ for(const chart of ['| C | | Am |','| C | Csus4 |','| C:2 Dm7:1 G7:1 | Am |'])assert.throws(()=>insertCadence(parseChart(chart),0,0));
 });
 test('parallel color keeps 11/13, explicit tensions and compatible bass; special chords reject',()=>{
  assert.equal(parallelColor('Cmaj13/E'),'Cm13');assert.equal(parallelColor('Cm11/G'),'Cmaj11/G');
@@ -27,8 +27,8 @@ test('parallel color keeps 11/13, explicit tensions and compatible bass; special
 });
 test('inversion only uses structural chord tones and returns to root',()=>{
  let s='Cmaj13';const bass=[];for(let i=0;i<4;i++){s=invertChord(s);bass.push(parse(s).bass);}assert.deepEqual(bass,[4,7,11,0]);
- assert.equal(invertChord('C/Gb'),'C');assert.equal(invertChord('Cdim7/Gb'),'Cdim7/A');
- assert.equal(cadenceTo('Cm7(b5)'),null);
+ assert.equal(invertChord('C/Gb'),'C');assert.equal(invertChord('Cdim7/Gb'),'Cdim7/Bbb');
+ assert.deepEqual(cadenceTo('Cm7(b5)'),['Dm7b5','G7b9']);
 });
 test('seek clips notes at selected bar, rebases time and never exceeds the segment',()=>{
  const out=playbackSlice([{note:60,beat:0,duration:6},{note:64,beat:5,duration:4},{note:67,beat:0,duration:1}],1,2);

@@ -1,0 +1,96 @@
+KHIMAIRA 奇美拉 · 和弦怪物 — Plug-in __VERSION__
+Morph your chords like the legendary monster.
+
+====================================================================
+中文
+====================================================================
+
+【這個資料夾裡有什麼】
+  Mac/      KHIMAIRA-__VERSION__-mac.pkg            → Mac 安裝程式（VST3 + AU + 獨立 App）
+  Windows/  KHIMAIRA-__VERSION__-windows-setup.exe  → Windows 安裝程式（VST3 + 獨立 App）
+  Windows/  KHIMAIRA-__VERSION__-windows-vst3.zip   → 不想跑安裝程式時，手動放入 VST3 用
+
+【系統需求】
+  Mac：macOS 10.15 以上，Apple Silicon 與 Intel 都可（Universal）
+  Windows：Windows 10 / 11（64 位元）。介面需要 Microsoft WebView2，Windows 11 已內建；
+           若電腦沒有，安裝程式會自動安裝。
+
+【Mac 安裝】
+  1. 雙擊 KHIMAIRA-__VERSION__-mac.pkg，照步驟按「繼續」→「安裝」。
+     「自訂」可只選 VST3、AU 或獨立 App。
+  2. 若出現「無法打開，因為無法驗證開發者」：
+     到「系統設定 → 隱私權與安全性」，往下找到 KHIMAIRA，按「強制打開／仍要打開」。
+     （或在 pkg 上按右鍵 →「打開」。）
+  3. 重新開啟 DAW。安裝位置：
+     VST3 → /Library/Audio/Plug-Ins/VST3/KHIMAIRA.vst3
+     AU   → /Library/Audio/Plug-Ins/Components/KHIMAIRA.component
+     App  → /Applications/KHIMAIRA.app
+
+【Windows 安裝】
+  1. 雙擊 KHIMAIRA-__VERSION__-windows-setup.exe。
+  2. 若出現 SmartScreen「Windows 已保護您的電腦」：按「其他資訊」→「仍要執行」。
+  3. VST3 會裝到 C:\Program Files\Common Files\VST3\KHIMAIRA.vst3
+  手動安裝：把 zip 裡的 KHIMAIRA.vst3 整個資料夾複製到 C:\Program Files\Common Files\VST3\
+
+【在 DAW 裡使用】
+  KHIMAIRA 是「樂器」外掛：新增一條樂器／MIDI 軌，載入 KHIMAIRA。
+  • 上方是完整的 KHIMAIRA 介面：輸入或生成和弦、選樂風與演奏方式。
+  • 按 DAW 的播放鍵：KHIMAIRA 會跟著專案速度與小節播放，從專案第 1 小節開始循環（HOST SYNC）。
+  • 介面裡的 PLAY 是試聽，聲音一樣從這條軌輸出。
+  • 下方工具列：
+      HOST SYNC     跟隨 DAW 播放（關掉則只用 PLAY 試聽）
+      SUSTAIN       改播原樣長音和弦（不套演奏節奏）
+      PIANO / 音量  內建鋼琴開關。關掉後只輸出 MIDI，可用來推你自己的音源
+      DRAG MIDI     按住拖到 DAW 的軌道上 → 直接變成 MIDI 片段（DRAG SUSTAIN 為長音版本）
+                    單擊則存到「文件/KHIMAIRA MIDI」資料夾
+  • 和弦與設定會跟著 DAW 專案一起儲存。
+
+  各 DAW 小提示
+  • Logic Pro / GarageBand：在「軟體樂器」插槽選 AU Instruments → KHIMAIRA → KHIMAIRA。
+    Logic 不接收 AU 樂器送出的 MIDI，請用內建鋼琴，或用 DRAG MIDI 拖到其他樂器軌。
+  • Ableton Live：拖 KHIMAIRA 到 MIDI 軌。想用其他音源：開另一條 MIDI 軌，
+    「MIDI From」選 KHIMAIRA 那一軌，並把 KHIMAIRA 的 PIANO 關掉。
+  • FL Studio：Channel rack 加入 KHIMAIRA；外部音源可在外掛設定的 MIDI output port 對應。
+  • Cubase / Studio One / Reaper / Bitwig：當作樂器載入；MIDI 輸出可在各 DAW 的路由中接到其他樂器。
+  • Pro Tools 需要 AAX 格式（需 Avid 認證），本版本不含。可先用獨立 App 或 DRAG MIDI 匯出後拖進 Pro Tools。
+
+【解除安裝】
+  Mac：刪除上面三個位置的 KHIMAIRA 檔案即可。
+  Windows：設定 → 應用程式 → KHIMAIRA → 解除安裝。
+
+====================================================================
+English
+====================================================================
+
+WHAT'S IN THIS FOLDER
+  Mac/      KHIMAIRA-__VERSION__-mac.pkg            macOS installer (VST3 + AU + standalone app)
+  Windows/  KHIMAIRA-__VERSION__-windows-setup.exe  Windows installer (VST3 + standalone app)
+  Windows/  KHIMAIRA-__VERSION__-windows-vst3.zip   VST3 only, for manual installs
+
+REQUIREMENTS
+  macOS 10.15 or later, Apple Silicon or Intel (Universal binary).
+  Windows 10/11 64-bit. The interface uses Microsoft WebView2 (built into Windows 11; the
+  installer adds it automatically if it is missing).
+
+INSTALL ON MAC
+  Double-click the .pkg and follow the steps (use "Customize" to choose formats).
+  If macOS says the developer cannot be verified: System Settings > Privacy & Security >
+  scroll down > "Open Anyway" (or right-click the .pkg > Open). Then restart your DAW.
+
+INSTALL ON WINDOWS
+  Run the setup .exe. If SmartScreen appears: "More info" > "Run anyway".
+  VST3 goes to C:\Program Files\Common Files\VST3\KHIMAIRA.vst3
+  Manual install: copy the KHIMAIRA.vst3 folder from the zip to that folder.
+
+USING IT
+  Load KHIMAIRA as an INSTRUMENT on a MIDI/instrument track.
+  - Build chords in the KHIMAIRA panel. Press play in your DAW: it follows the project tempo,
+    starting at bar 1 and looping (HOST SYNC). The in-panel PLAY button auditions on the same track.
+  - Footer: HOST SYNC, SUSTAIN (plain block chords), PIANO on/off + volume (turn off to drive
+    another instrument from KHIMAIRA's MIDI output), DRAG MIDI / DRAG SUSTAIN (drag onto a
+    track to drop a MIDI clip; click to save into Documents/KHIMAIRA MIDI).
+  - Your chart and settings are saved with the DAW project.
+  - Logic Pro does not route MIDI out of AU instruments: use the built-in piano or DRAG MIDI.
+  - Pro Tools needs AAX (requires Avid signing) and is not included in this version.
+
+Piano samples: Salamander Grand Piano by Alexander Holm, CC BY 3.0.

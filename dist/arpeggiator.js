@@ -71,7 +71,7 @@ export function arpeggiate(plan,options={}){
   const beatAccent=Math.abs(beat-Math.round(beat))<1e-8;
   const accent=options.arpAccent==='none'?0:options.arpAccent==='offbeat'?(tick%2?.13:0):(beatAccent?.13:0);
   const velocity=Math.max(.25,Math.min(.96,.62+accent+(random()-.5)*.1*human));
-  for(const note of selected)out.push({note,beat:onset,duration,velocity,articulation:'rhythmic'});
+  for(const note of selected)out.push({note,part:'upper',beat:onset,duration,velocity,articulation:'rhythmic'});
   orderStep++;
  }
  return out.sort((a,b)=>a.beat-b.beat||a.note-b.note);
