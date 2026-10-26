@@ -1,0 +1,29 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'"><title>KHIMAIRA 1.2 · MIDI FX</title><link rel="stylesheet" href="plugin.css"></head><body>
+<header><img src="khimaira.png" alt=""><div><h1>KHIMAIRA 1.2</h1><p>MORPH YOUR CHORDS <em>like the legendary monster</em></p></div><span class="badge" id="version">MIDI FX / 1.2.0</span></header>
+<section class="score"><div class="section-label"><span>MORPH / 播放譜 <small id="selectedLabel">BAR 1</small></span><div><button id="prevPage" aria-label="前四小節">‹</button><button id="nextPage" aria-label="後四小節">›</button><button id="undo">UNDO</button><button id="edit">EDIT</button><button id="invert">INVERT</button><button id="cadence">ii–V → NEXT</button></div></div><div id="chart" aria-label="和弦譜"></div></section>
+<nav class="transport"><div><button id="host" aria-pressed="true">HOST</button><button id="play" class="primary">PLAY</button><button id="stop">STOP</button><button id="loop" aria-pressed="true">LOOP</button></div><span id="clock">Ready</span><label class="tempo">BPM <input id="bpm" type="number" min="30" max="300" value="120"></label></nav>
+<main><div class="backbone-label"><span>BACKBONE / 原始骨幹</span><small>GENERATE 只改上方 · KEEP 將結果設為新骨幹</small></div><div class="seed"><input id="input" aria-label="原始骨幹和弦" placeholder="留白可從 EXAMPLES 開始" value="| C | Am | F | G |"><button id="load" title="把原始骨幹還原到上方播放譜">RESET</button><button id="keep" title="把上方播放譜設為新的原始骨幹">KEEP</button></div>
+<div class="direction"><label>STYLE<select id="style"></select></label><label>BARS<select id="bars"><option>4</option><option>8</option><option>12</option><option>16</option></select></label><label>KEY<select id="key"></select></label><label>MODE<select id="mode"><option value="major">Major</option><option value="minor">Minor</option><option value="modal">Modal</option></select></label><label>MUTATION<select id="randomness"><option value="low">Low · 穩定</option><option value="medium" selected>Medium · 探索</option><option value="high">High · 奔放</option></select></label><button id="generate" class="primary">GENERATE</button></div>
+<div class="examples"><label for="example">EXAMPLES</label><select id="example" aria-label="樂風範例"></select><button id="inspire" title="挑選下一個範例，不改變播放譜">INSPIRE</button><button id="loadExample" title="將選中的範例載入上方播放譜，保留原始骨幹">LOAD</button></div>
+<p id="mood">輸入骨幹後 GENERATE；範例需按 LOAD 才載入。</p>
+<div class="performance"><label>PERFORM<select id="pattern"></select></label><label>VOICING<select id="voicing"><option value="close">Close</option><option value="open">Open</option><option value="rootless">Rootless + Bass</option></select></label><label>GATE <span id="gateText">82%</span><input id="gate" type="range" min="10" max="100" value="82"></label><label>HUMAN <span id="humanText">20%</span><input id="human" type="range" min="0" max="100" value="20"></label></div>
+<div class="bottom-line"><span id="noteCount">0 notes</span><span id="message" role="status">Ready</span></div>
+<div class="extra-row"><button id="advancedToggle" aria-expanded="false">ADVANCED / 進階</button><span>HOST 跟隨 DAW · PLAY 原生試聽 · DRAG MIDI 拖入軌道</span></div></main>
+<dialog id="editor"><form method="dialog"><h2>Shape this chord</h2><div class="edit-controls"><label>ROOT<select id="root"></select></label><label>QUALITY<select id="quality"></select></label><label>BASS<select id="bass"><option value="">Root</option></select></label></div><label>SYMBOL<input id="symbol"></label><p>可自行加入延伸音，例如 Cmaj7(9,#11) / Am7/G。</p><div class="dialog-actions"><button value="cancel">CANCEL</button><button type="button" id="applyEdit" class="primary">APPLY</button></div></form></dialog>
+<dialog id="advanced"><h2>ADVANCED / 進階</h2><div class="advanced-grid">
+<label>SWING %<input id="swing" type="number" min="0" max="32" value="16"></label>
+<label>JAZZ BASS<select id="bassMode"><option value="root">Root</option><option value="two">2-feel</option><option value="four">Walking / 4-feel</option></select></label>
+<label>BALLAD ENTRY<select id="balladEntry"><option value="together">Together</option><option value="delayed">Bass first</option></select></label>
+<label>RATE<select id="rate"><option value="1">1/4</option><option value="0.5" selected>1/8</option><option value="0.25">1/16</option></select></label>
+<label>ARP MODE<select id="arpMode"></select></label><label>ARP RATE<select id="arpRate"></select></label>
+<label>OCTAVES<select id="arpOctaves"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></label>
+<label>PHASE<select id="arpPhase"><option value="flow">Flow</option><option value="chord">Restart / chord</option></select></label>
+<label>ACCENT<select id="arpAccent"><option value="beat">Beat</option><option value="none">Even</option><option value="offbeat">Offbeat</option></select></label>
+<label>FOUNDATION<select id="arpFoundation"><option value="off">Off</option><option value="bass">Bass</option><option value="pad">Bass + Pad</option></select></label>
+<label>PERFORMANCE SEED<input id="seed" type="number" min="0" max="4294967295" value="42"></label>
+<label>ARP SEED<input id="arpSeed" type="number" min="0" max="4294967295" value="1"></label>
+<label>HARMONY DENSITY<select id="density"><option>1</option><option>2</option><option selected>3</option></select></label>
+<label>FREEDOM<select id="freedom"><option value="color">Color</option><option value="free">Free</option></select></label>
+<button id="variate">ARP VARIATE</button><button id="advancedClose">CLOSE</button>
+</div><p>新設定在下一小節生效。試聽使用 DAW BPM；MIDI FX 不產生音色，請在後方接樂器。</p></dialog>
+<script type="module" src="plugin.js"></script></body></html>

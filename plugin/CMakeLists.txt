@@ -1,127 +1,68 @@
 cmake_minimum_required(VERSION 3.22)
-
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum macOS version")
-project(KHIMAIRA_PLUGIN VERSION 1.1.0 LANGUAGES C CXX)
-
+set(CMAKE_OSX_DEPLOYMENT_TARGET "12.3" CACHE STRING "Minimum macOS version")
+project(KhimairaPlugin VERSION 1.2.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# ---- JUCE ------------------------------------------------------------------
-# Pass -DJUCE_DIR=/path/to/JUCE to use a local checkout; otherwise it is downloaded.
-set(JUCE_DIR "" CACHE PATH "Local JUCE checkout (optional)")
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+set(JUCE_DIR "" CACHE PATH "Existing JUCE checkout")
 if(JUCE_DIR)
-    add_subdirectory("${JUCE_DIR}" "${CMAKE_BINARY_DIR}/JUCE")
+ add_subdirectory("${JUCE_DIR}" juce)
 else()
-    include(FetchContent)
-    FetchContent_Declare(JUCE
-        GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
-        GIT_TAG 8.0.15
-        GIT_SHALLOW TRUE)
-    FetchContent_MakeAvailable(JUCE)
+ include(FetchContent)
+ FetchContent_Declare(JUCE GIT_REPOSITORY https://github.com/juce-framework/JUCE.git GIT_TAG 8.0.15 GIT_SHALLOW TRUE)
+ FetchContent_MakeAvailable(JUCE)
 endif()
-
-# ---- Plugin ------------------------------------------------------------------
-set(KHIMAIRA_FORMATS VST3 Standalone)
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+file(GLOB_RECURSE ui_assets CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/web/*" "${CMAKE_CURRENT_SOURCE_DIR}/../dist/*.js")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${ui_assets} scripts/pack.py)
+execute_process(COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/pack.py"
+ "${CMAKE_CURRENT_BINARY_DIR}/webstage" "${CMAKE_CURRENT_BINARY_DIR}/resources/ui.zip" COMMAND_ERROR_IS_FATAL ANY)
+juce_add_binary_data(KhimairaResources SOURCES "${CMAKE_CURRENT_BINARY_DIR}/resources/ui.zip")
+function(khimaira_target target isMidi formats code name bundle)
+ set(browser_options NEEDS_WEB_BROWSER TRUE)
+ if(WIN32)
+  list(APPEND browser_options NEEDS_WEBVIEW2 TRUE)
+ endif()
+ if(isMidi)
+  set(synth FALSE)
+ else()
+  set(synth TRUE)
+ endif()
+ juce_add_plugin(${target} ${browser_options}
+  COMPANY_NAME "KHIMAIRA" BUNDLE_ID "${bundle}" VERSION ${PROJECT_VERSION}
+  IS_SYNTH ${synth} IS_MIDI_EFFECT ${isMidi} NEEDS_MIDI_INPUT TRUE NEEDS_MIDI_OUTPUT TRUE
+  EDITOR_WANTS_KEYBOARD_FOCUS TRUE COPY_PLUGIN_AFTER_BUILD FALSE
+  PLUGIN_MANUFACTURER_CODE Khmr PLUGIN_CODE ${code}
+  VST3_CATEGORIES Instrument Generator AU_MAIN_TYPE kAudioUnitType_MIDIProcessor
+  FORMATS ${formats} PRODUCT_NAME "${name}")
+ target_sources(${target} PRIVATE Source/PluginProcessor.cpp Source/PluginEditor.cpp)
+ target_compile_definitions(${target} PUBLIC JUCE_WEB_BROWSER=1 JUCE_USE_CURL=0 JUCE_VST3_CAN_REPLACE_VST2=0 JUCE_DISPLAY_SPLASH_SCREEN=0 KHIMAIRA_MIDI_FX=$<BOOL:${isMidi}>)
+ if(WIN32)
+  target_compile_definitions(${target} PUBLIC JUCE_USE_WIN_WEBVIEW2_WITH_STATIC_LINKING=1)
+ endif()
+ target_link_libraries(${target} PRIVATE KhimairaResources juce::juce_audio_utils juce::juce_gui_extra PUBLIC juce::juce_recommended_config_flags)
+endfunction()
+# New identities intentionally do not replace 1.1 or the legacy 0.3 instances.
+khimaira_target(Khimaira FALSE "VST3;Standalone" Kh12 "KHIMAIRA 1.2" "music.khimaira.v12.instrument")
 if(APPLE)
-    list(APPEND KHIMAIRA_FORMATS AU)
+ khimaira_target(KhimairaMidiFX TRUE AU Km12 "KHIMAIRA 1.2 MIDI FX" "music.khimaira.v12.midifx")
 endif()
-
-juce_add_plugin(Khimaira
-    COMPANY_NAME "KHIMAIRA"
-    COMPANY_WEBSITE "https://bbcode1111.github.io/Khimaira/"
-    PRODUCT_NAME "KHIMAIRA 1.1"
-    PLUGIN_NAME "KHIMAIRA 1.1"
-    BUNDLE_ID "com.khimaira.plugin"
-    VERSION ${PROJECT_VERSION}
-    DESCRIPTION "Morph your chords like the legendary monster"
-    PLUGIN_MANUFACTURER_CODE Khmr
-    PLUGIN_CODE Khm1
-    FORMATS ${KHIMAIRA_FORMATS}
-    IS_SYNTH TRUE
-    NEEDS_MIDI_INPUT TRUE
-    NEEDS_MIDI_OUTPUT TRUE
-    IS_MIDI_EFFECT FALSE
-    EDITOR_WANTS_KEYBOARD_FOCUS TRUE
-    VST3_CATEGORIES Instrument Generator
-    AU_MAIN_TYPE kAudioUnitType_MusicDevice
-    HARDENED_RUNTIME_ENABLED TRUE
-    NEEDS_WEBVIEW2 TRUE
-    COPY_PLUGIN_AFTER_BUILD FALSE)
-
-juce_generate_juce_header(Khimaira)
-
-target_sources(Khimaira PRIVATE
-    Source/PluginProcessor.cpp
-    Source/PluginEditor.cpp
-    Source/PianoSampler.cpp)
-
-# ---- Embedded website + piano samples ---------------------------------------
-set(KHIMAIRA_DIST "${CMAKE_CURRENT_SOURCE_DIR}/../dist" CACHE PATH "Website folder")
-set(KHIMAIRA_FONTS "${KHIMAIRA_DIST}/fonts" CACHE PATH "Optional folder with Cinzel.ttf / DMSans.ttf")
-set(WEB_STAGE "${CMAKE_BINARY_DIR}/webstage")
-set(WEB_ZIP "${CMAKE_BINARY_DIR}/web.zip")
-
-file(GLOB_RECURSE KHIMAIRA_WEB_INPUTS CONFIGURE_DEPENDS
-    "${KHIMAIRA_DIST}/*.html" "${KHIMAIRA_DIST}/*.js" "${KHIMAIRA_DIST}/*.css"
-    "${KHIMAIRA_DIST}/*.webp" "${KHIMAIRA_DIST}/*.ttf" "${KHIMAIRA_DIST}/*.txt" "${KHIMAIRA_DIST}/*.png" "${KHIMAIRA_DIST}/*.svg" "${CMAKE_CURRENT_SOURCE_DIR}/web/*")
-file(GLOB KHIMAIRA_SAMPLES CONFIGURE_DEPENDS "${KHIMAIRA_DIST}/audio/*.mp3")
-
-if(NOT KHIMAIRA_SAMPLES)
-    message(FATAL_ERROR "Piano samples not found in ${KHIMAIRA_DIST}/audio")
-endif()
-
-add_custom_command(OUTPUT "${WEB_ZIP}"
-    COMMAND "${CMAKE_COMMAND}"
-        -DDIST=${KHIMAIRA_DIST}
-        -DBRIDGE=${CMAKE_CURRENT_SOURCE_DIR}/web
-        -DFONTS=${KHIMAIRA_FONTS}
-        -DSTAGE=${WEB_STAGE}
-        -DOUT=${WEB_ZIP}
-        -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/StageWeb.cmake"
-    DEPENDS ${KHIMAIRA_WEB_INPUTS} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/StageWeb.cmake"
-    COMMENT "Packing KHIMAIRA web UI")
-
-juce_add_binary_data(KhimairaData SOURCES "${WEB_ZIP}" ${KHIMAIRA_SAMPLES})
-
-target_compile_definitions(Khimaira PUBLIC
-    JUCE_WEB_BROWSER=1
-    JUCE_USE_CURL=0
-    JUCE_USE_MP3AUDIOFORMAT=1
-    JUCE_USE_WIN_WEBVIEW2_WITH_STATIC_LINKING=1
-    JUCE_VST3_CAN_REPLACE_VST2=0
-    JUCE_DISPLAY_SPLASH_SCREEN=0
-    JUCE_REPORT_APP_USAGE=0)
-
-target_link_libraries(Khimaira
-    PRIVATE
-        KhimairaData
-        juce::juce_audio_utils
-        juce::juce_audio_formats
-        juce::juce_gui_extra
-    PUBLIC
-        juce::juce_recommended_config_flags
-        juce::juce_recommended_lto_flags
-        juce::juce_recommended_warning_flags)
-
-# ---- Tests (pure C++ scheduler, no JUCE) --------------------------------------
-option(KHIMAIRA_BUILD_TESTS "Build scheduler unit tests" ON)
-if(KHIMAIRA_BUILD_TESTS)
-    add_executable(khimaira_tests tests/pattern_player_test.cpp)
-    target_include_directories(khimaira_tests PRIVATE Source)
-    enable_testing()
-    add_test(NAME scheduler COMMAND khimaira_tests)
-endif()
-
-if(KHIMAIRA_BUILD_TESTS)
-    add_executable(khimaira_pedal_tests tests/pedal_player_test.cpp)
-    add_test(NAME pedal COMMAND khimaira_pedal_tests)
-endif()
-
-if(KHIMAIRA_BUILD_TESTS)
-    juce_add_console_app(khimaira_processor_tests PRODUCT_NAME "KHIMAIRA Processor Tests" NEEDS_WEBVIEW2 TRUE)
-    target_sources(khimaira_processor_tests PRIVATE tests/processor_test.cpp)
-    target_include_directories(khimaira_processor_tests PRIVATE Source "${CMAKE_BINARY_DIR}/Khimaira_artefacts/JuceLibraryCode")
-    target_compile_definitions(khimaira_processor_tests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1 JUCE_WEB_BROWSER=1 JUCE_USE_CURL=0)
-    target_link_libraries(khimaira_processor_tests PRIVATE Khimaira KhimairaData juce::juce_audio_utils juce::juce_gui_extra)
-    add_test(NAME processor COMMAND khimaira_processor_tests)
+include(CTest)
+if(BUILD_TESTING)
+ add_executable(pattern_player_test tests/SchedulerTests.cpp)
+ add_test(NAME pattern_player_test COMMAND pattern_player_test)
+ juce_add_console_app(khimaira_host_smoke PRODUCT_NAME "KHIMAIRA Host Smoke" NEEDS_WEBVIEW2 TRUE)
+ target_sources(khimaira_host_smoke PRIVATE tests/HostSmoke.cpp)
+ target_link_libraries(khimaira_host_smoke PRIVATE Khimaira juce::juce_audio_utils juce::juce_gui_extra)
+ add_test(NAME processor COMMAND khimaira_host_smoke "${CMAKE_BINARY_DIR}/fixtures.json")
+ if(APPLE)
+  juce_add_console_app(khimaira_midifx_smoke PRODUCT_NAME "KHIMAIRA MIDI FX Smoke")
+  target_sources(khimaira_midifx_smoke PRIVATE tests/HostSmoke.cpp)
+  target_link_libraries(khimaira_midifx_smoke PRIVATE KhimairaMidiFX juce::juce_audio_utils juce::juce_gui_extra)
+  add_test(NAME midi_fx_processor COMMAND khimaira_midifx_smoke "${CMAKE_BINARY_DIR}/fixtures.json")
+ endif()
+ juce_add_console_app(khimaira_vst3_smoke PRODUCT_NAME "KHIMAIRA VST3 Smoke")
+ target_sources(khimaira_vst3_smoke PRIVATE tests/Vst3Smoke.cpp)
+ target_compile_definitions(khimaira_vst3_smoke PRIVATE JUCE_PLUGINHOST_VST3=1 JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0)
+ target_link_libraries(khimaira_vst3_smoke PRIVATE juce::juce_audio_utils juce::juce_gui_extra)
 endif()

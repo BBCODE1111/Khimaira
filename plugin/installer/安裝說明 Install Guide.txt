@@ -1,100 +1,37 @@
-KHIMAIRA 奇美拉 · 和弦怪物 — Plug-in __VERSION__
-Morph your chords like the legendary monster.
+KHIMAIRA __VERSION__ / Native MIDI Generator
 
-====================================================================
-中文
-====================================================================
+Mac: macOS 12.3+。AU MIDI FX / VST3 / Standalone。
+Windows: Windows 10/11 x64。VST3 / Standalone；介面需要 WebView2。
 
-【這個資料夾裡有什麼】
-  Mac/      KHIMAIRA-__VERSION__-mac.pkg            → Mac 安裝程式（VST3 + AU + 獨立 App）
-  Windows/  KHIMAIRA-__VERSION__-windows-setup.exe  → Windows 安裝程式（VST3 + 獨立 App）
-  Windows/  KHIMAIRA-__VERSION__-windows-vst3.zip   → 不想跑安裝程式時，手動放入 VST3 用
+Logic Pro：
+1. 在軟體樂器軌的 MIDI FX 槽選 Audio Units > KHIMAIRA > KHIMAIRA 1.2 MIDI FX。
+2. 後面的 Instrument 槽載入 Serum 或任何 Logic 音源。
+3. HOST 開啟時跟隨 DAW PPQ/BPM，從專案第 1 小節對齊並循環。
+4. DAW 停止時按 PLAY 原生試聽；STOP 停止，再 PLAY 從頭。外掛 BPM 由 DAW 決定。
+5. 要錄下輸出，在外掛下方 MIDI FX 槽選 Record MIDI to Track Here，再錄音。
 
-【系統需求】
-  Mac：macOS 10.15 以上，Apple Silicon 與 Intel 都可（Universal）
-  Windows：Windows 10 / 11（64 位元）。介面需要 Microsoft WebView2，Windows 11 已內建；
-           若電腦沒有，安裝程式會自動安裝。
+VST3：
+以樂器載入 KHIMAIRA 1.2；它只產生 MIDI，音訊輸出為靜音。
+在另一條樂器軌接收此軌的 MIDI，載入音源並開啟監聽。
+Ableton Live：第二條 MIDI 軌的 MIDI From 選 KHIMAIRA 所在軌，第二個來源選 KHIMAIRA，Monitor 選 In。
+實際完成的 DAW 驗收以 docs/plugin-1.2/README.md 為準。
 
-【Mac 安裝】
-  1. 雙擊 KHIMAIRA-__VERSION__-mac.pkg，照步驟按「繼續」→「安裝」。
-     「自訂」可只選 VST3、AU 或獨立 App。
-  2. 若出現「無法打開，因為無法驗證開發者」：
-     到「系統設定 → 隱私權與安全性」，往下找到 KHIMAIRA，按「強制打開／仍要打開」。
-     （或在 pkg 上按右鍵 →「打開」。）
-  3. 重新開啟 DAW。安裝位置：
-     VST3 → /Library/Audio/Plug-Ins/VST3/KHIMAIRA 1.1.vst3
-     AU   → /Library/Audio/Plug-Ins/Components/KHIMAIRA 1.1.component
-     App  → /Applications/KHIMAIRA 1.1.app
+DRAG MIDI：拖曳底部按鈕到 DAW 軌道；單擊可另存 MIDI。
+沒有內建鋼琴。Standalone 用於編輯、產生及匯出 MIDI，不提供內建聲音。
+進階設定按 ADVANCED 展開；主要控制項在預設與最小視窗內完整顯示。
+和弦與設定存在 DAW 專案；播放中修改在下一小節套用。
 
-【Windows 安裝】
-  1. 雙擊 KHIMAIRA-__VERSION__-windows-setup.exe。
-  2. 若出現 SmartScreen「Windows 已保護您的電腦」：按「其他資訊」→「仍要執行」。
-  3. VST3 會裝到 C:\Program Files\Common Files\VST3\KHIMAIRA 1.1.vst3
-  手動安裝：把 zip 裡的 KHIMAIRA 1.1.vst3 整個資料夾複製到 C:\Program Files\Common Files\VST3\
+安裝位置：
+AU: /Library/Audio/Plug-Ins/Components/KHIMAIRA 1.2 MIDI FX.component
+VST3 Mac: /Library/Audio/Plug-Ins/VST3/KHIMAIRA 1.2.vst3
+App: /Applications/KHIMAIRA 1.2.app
+VST3 Windows: C:\Program Files\Common Files\VST3\KHIMAIRA 1.2.vst3
+1.2 使用新的識別碼，不覆蓋 0.3 / 1.1 的專案實例。
 
-【在 DAW 裡使用】
-  KHIMAIRA 是「樂器」外掛：新增一條樂器／MIDI 軌，載入 KHIMAIRA 1.1。
-  • 上方是完整的 KHIMAIRA 介面：輸入或生成和弦、選樂風與演奏方式。
-  • 按 DAW 的播放鍵：KHIMAIRA 會跟著專案速度與小節播放，從專案第 1 小節開始循環（HOST SYNC）。
-  • DAW 停止時，介面裡的 PLAY 是試聽，STOP 停止；再次 PLAY 從起點重播。
-    DAW 同步播放中，面板會顯示目前和弦，請使用 DAW 的播放／停止控制。
-  • 下方工具列：
-      HOST SYNC     跟隨 DAW 播放（關掉則只用 PLAY 試聽）
-      PEDAL CC64    輸出真正的延音踏板訊號（預設關閉），DRAG MIDI 匯出也會包含 CC64
-      SUSTAIN       改播原樣長音和弦（不套演奏節奏）
-      PIANO / 音量  內建鋼琴開關。關掉後只輸出 MIDI，可用來推你自己的音源
-      DRAG MIDI     按住拖到 DAW 的軌道上 → 直接變成 MIDI 片段（DRAG SUSTAIN 為長音版本）
-                    單擊則存到「文件/KHIMAIRA MIDI」資料夾
-  • 和弦與設定會跟著 DAW 專案一起儲存。
-
-  各 DAW 小提示
-  • Logic Pro / GarageBand：在「軟體樂器」插槽選 AU Instruments → KHIMAIRA → KHIMAIRA 1.1。
-    Logic 不接收 AU 樂器送出的 MIDI，請用內建鋼琴，或用 DRAG MIDI 拖到其他樂器軌。
-  • Ableton Live：拖 KHIMAIRA 到 MIDI 軌。想用其他音源：開另一條 MIDI 軌，
-    「MIDI From」選 KHIMAIRA 那一軌，並把 KHIMAIRA 的 PIANO 關掉。
-  • FL Studio：Channel rack 加入 KHIMAIRA；外部音源可在外掛設定的 MIDI output port 對應。
-  • Cubase / Studio One / Reaper / Bitwig：當作樂器載入；MIDI 輸出可在各 DAW 的路由中接到其他樂器。
-  • Pro Tools 需要 AAX 格式（需 Avid 認證），本版本不含。可先用獨立 App 或 DRAG MIDI 匯出後拖進 Pro Tools。
-
-【解除安裝】
-  Mac：刪除上面三個位置的 KHIMAIRA 檔案即可。
-  Windows：設定 → 應用程式 → KHIMAIRA → 解除安裝。
-
-====================================================================
 English
-====================================================================
-
-WHAT'S IN THIS FOLDER
-  Mac/      KHIMAIRA-__VERSION__-mac.pkg            macOS installer (VST3 + AU + standalone app)
-  Windows/  KHIMAIRA-__VERSION__-windows-setup.exe  Windows installer (VST3 + standalone app)
-  Windows/  KHIMAIRA-__VERSION__-windows-vst3.zip   VST3 only, for manual installs
-
-REQUIREMENTS
-  macOS 10.15 or later, Apple Silicon or Intel (Universal binary).
-  Windows 10/11 64-bit. The interface uses Microsoft WebView2 (built into Windows 11; the
-  installer adds it automatically if it is missing).
-
-INSTALL ON MAC
-  Double-click the .pkg and follow the steps (use "Customize" to choose formats).
-  If macOS says the developer cannot be verified: System Settings > Privacy & Security >
-  scroll down > "Open Anyway" (or right-click the .pkg > Open). Then restart your DAW.
-
-INSTALL ON WINDOWS
-  Run the setup .exe. If SmartScreen appears: "More info" > "Run anyway".
-  VST3 goes to C:\Program Files\Common Files\VST3\KHIMAIRA 1.1.vst3
-  Manual install: copy the KHIMAIRA 1.1.vst3 folder from the zip to that folder.
-
-USING IT
-  Load KHIMAIRA 1.1 as an INSTRUMENT on a MIDI/instrument track.
-  - Build chords in the KHIMAIRA panel. Press play in your DAW: it follows the project tempo,
-    starting at bar 1 and looping (HOST SYNC). The in-panel PLAY button auditions on the same track while the DAW is stopped.
-    During host playback, use the DAW transport; the chart follows its position.
-  - PEDAL CC64 adds sustain-pedal messages to host output and native MIDI drag/export (off by default).
-  - Footer: HOST SYNC, SUSTAIN (plain block chords), PIANO on/off + volume (turn off to drive
-    another instrument from KHIMAIRA's MIDI output), DRAG MIDI / DRAG SUSTAIN (drag onto a
-    track to drop a MIDI clip; click to save into Documents/KHIMAIRA MIDI).
-  - Your chart and settings are saved with the DAW project.
-  - Logic Pro does not route MIDI out of AU instruments: use the built-in piano or DRAG MIDI.
-  - Pro Tools needs AAX (requires Avid signing) and is not included in this version.
-
-Piano samples: Salamander Grand Piano by Alexander Holm, CC BY 3.0.
+Logic: insert KHIMAIRA 1.2 MIDI FX in the MIDI FX slot, then load Serum or a Logic instrument below it.
+VST3: load KHIMAIRA 1.2 as an instrument and route its MIDI output to a second instrument track.
+HOST follows the project PPQ/BPM. PLAY auditions using a native audio-callback clock at host tempo;
+STOP stops, then PLAY starts at the beginning. Changes switch at the next bar with note-offs.
+Drag MIDI to a track, or click to save a MIDI file. No piano or other audio engine is included.
+Standalone is a MIDI chart editor/exporter. See the validation report for tested host coverage.

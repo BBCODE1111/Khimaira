@@ -1,487 +1,114 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-
-namespace
-{
-    const juce::String stateTag     = "KHIMAIRA";
-    const juce::String webTag       = "WEB";
-    const juce::String perfTag      = "PERFORMANCE";
-    const juce::String sustainTag   = "SUSTAIN";
-    const juce::String paramsTag    = "PARAMS";
-
-    juce::String patternToString (const kh::Pattern& p)
-    {
-        juce::String s;
-        s.preallocateBytes ((size_t) p.notes.size() * 24);
-        s << juce::String (p.lengthBeats, 6) << "|";
-
-        for (const auto& n : p.notes)
-            s << juce::String (n.beat, 5) << "," << juce::String (n.length, 5) << ","
-              << n.note << "," << juce::String (n.velocity, 4) << ";";
-
-        return s;
-    }
-
-    kh::Pattern patternFromString (const juce::String& text)
-    {
-        kh::Pattern p;
-        p.lengthBeats = juce::jmax (0.0, text.upToFirstOccurrenceOf ("|", false, false).getDoubleValue());
-
-        for (const auto& item : juce::StringArray::fromTokens (text.fromFirstOccurrenceOf ("|", false, false), ";", ""))
-        {
-            const auto f = juce::StringArray::fromTokens (item, ",", "");
-
-            if (f.size() == 4)
-                p.notes.push_back ({ f[0].getDoubleValue(), f[1].getDoubleValue(),
-                                     juce::jlimit (0, 127, f[2].getIntValue()),
-                                     (float) juce::jlimit (0.0, 1.0, f[3].getDoubleValue()) });
-        }
-
-        return p;
-    }
+using namespace juce;
+KhimairaProcessor::KhimairaProcessor():AudioProcessor(
+#if KHIMAIRA_MIDI_FX
+ BusesProperties()
+#else
+ BusesProperties().withOutput("Output",AudioChannelSet::stereo(),true)
+#endif
+){
+ followHost.store(!JUCEApplicationBase::isStandaloneApp());armed.store(!JUCEApplicationBase::isStandaloneApp());
+ // A useful restored-free default, available even before the editor is opened.
+ auto object=new DynamicObject;object->setProperty("schema",1);object->setProperty("length",16);
+ Array<var> notes;for(int bar=0;bar<4;bar++){int roots[]={48,45,53,55};for(int interval:{0,bar==1?3:4,7}){auto n=new DynamicObject;n->setProperty("beat",bar*4.0);n->setProperty("duration",4.0);n->setProperty("note",roots[bar]+interval);n->setProperty("velocity",.72);notes.add(var(n));}}
+ object->setProperty("notes",notes);object->setProperty("ui",var(new DynamicObject));update(var(object));
 }
-
-//==============================================================================
-juce::AudioProcessorValueTreeState::ParameterLayout KhimairaProcessor::createLayout()
-{
-    using namespace juce;
-    AudioProcessorValueTreeState::ParameterLayout layout;
-
-    layout.add (std::make_unique<AudioParameterBool>   (ParameterID { "hostSync", 1 }, "Host Sync", true));
-    layout.add (std::make_unique<AudioParameterBool>   (ParameterID { "piano", 1 }, "Built-in Piano", true));
-    layout.add (std::make_unique<AudioParameterFloat>  (ParameterID { "volume", 1 }, "Piano Volume",
-                                                        NormalisableRange<float> (0.0f, 1.0f), 0.75f));
-    layout.add (std::make_unique<AudioParameterChoice> (ParameterID { "source", 1 }, "Play",
-                                                        StringArray { "Performance", "Sustain chords" }, 0));
-    layout.add (std::make_unique<AudioParameterInt>    (ParameterID { "channel", 1 }, "MIDI Channel", 1, 16, 1));
-    layout.add (std::make_unique<AudioParameterBool> (ParameterID { "pedal", 1 }, "Host Pedal CC64", false));
-    return layout;
+void KhimairaProcessor::prepareToPlay(double sr,int){sampleRateHz=sr;manualBeat=0;restart.fetch_add(1);wasRunning=wasHostMode=wasHostPlaying=false;}
+bool KhimairaProcessor::isBusesLayoutSupported(const BusesLayout& l) const{
+#if KHIMAIRA_MIDI_FX
+ return l.inputBuses.isEmpty() && l.outputBuses.isEmpty();
+#else
+ return l.getMainOutputChannelSet()==AudioChannelSet::stereo()||l.getMainOutputChannelSet()==AudioChannelSet::mono();
+#endif
 }
-
-KhimairaProcessor::KhimairaProcessor()
-    : AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
-      params (*this, nullptr, "PARAMS", createLayout())
-{
-    hostSyncParam = params.getRawParameterValue ("hostSync");
-    pianoParam    = params.getRawParameterValue ("piano");
-    volumeParam   = params.getRawParameterValue ("volume");
-    sourceParam   = params.getRawParameterValue ("source");
-    channelParam  = params.getRawParameterValue ("channel");
-    pedalParam = params.getRawParameterValue ("pedal");
-
-    hostPlayer.prepare();
-    startTimerHz (10);
+void KhimairaProcessor::processBlock(AudioBuffer<float>& audio,MidiBuffer& midi){
+ ScopedNoDenormals noDenormals;
+ audio.clear(); // AU MIDI FX has no audio buses; VST3 exposes a silent instrument bus.
+ const int samples=audio.getNumSamples();
+ if(samples<=0 || sampleRateHz<=0)return;
+ double tempo=hostTempo.load(),hostBeat=0;
+ bool hostRunning=false,found=false;
+ if(auto* ph=getPlayHead())if(auto pos=ph->getPosition()){
+  if(auto t=pos->getBpm())if(std::isfinite(*t)&&*t>0)tempo=*t;
+  if(auto q=pos->getPpqPosition())if(std::isfinite(*q)){hostBeat=*q;found=true;hostRunning=pos->getIsPlaying();}
+ }
+ if(isStandalone())tempo=bpm.load();
+ hasHost.store(found);hostTempo.store(tempo);
+ const bool follow=followHost.load();
+ if(follow && hostRunning && !wasHostPlaying)armed.store(true);
+ wasHostPlaying=hostRunning;
+ const bool hostMode=follow && hostRunning;
+ if(hostMode)previewRequested.store(false);
+ bool run=armed.load() && (hostMode||previewRequested.load());
+ double at=hostMode?hostBeat:manualBeat;
+ bool changed=hostMode!=wasHostMode;
+ wasHostMode=hostMode;
+ const int reset=restart.load();
+ if(reset!=lastRestart){lastRestart=reset;manualBeat=0;if(!hostMode)at=0;changed=true;}
+ const double bps=tempo/(60*sampleRateHz);
+ auto* seq=mailbox.getCurrent();
+ if(!seq || !run || !wasRunning || changed){bool swapped=false;seq=mailbox.consume(swapped);changed=changed||swapped;}
+ if(!loop.load()&&seq&&at>=seq->length){run=false;previewRequested.store(false);}
+ if(run)midi.clear(); // Same channel-1 generator behavior as 0.3.
+ int base=0;
+ auto emit=[&](int pitch,double velocity,int offset){
+  const auto value=(uint8)jlimit(1,127,roundToInt(velocity*127));
+  midi.addEvent(velocity>0?MidiMessage::noteOn(1,pitch,value):MidiMessage::noteOff(1,pitch),base+offset);
+ };
+ // A pending chart becomes active at the next 4/4 bar boundary, even when that
+ // boundary falls inside the current host block. No waits, locks or allocations.
+ while(base<samples){
+  double start=at+base*bps;
+  if(mailbox.hasPending() && (std::abs(start/4-std::round(start/4))<bps/4 || !run)){
+   bool swapped=false;seq=mailbox.consume(swapped);changed=changed||swapped;
+  }
+  int count=samples-base;
+  if(mailbox.hasPending() && run){
+   double boundary=(std::floor(start/4)+1)*4;
+   count=std::min(count,std::max(1,(int)std::ceil((boundary-start)/bps-1e-8)));
+  }
+  scheduler.render(seq,start,bps,count,run,loop.load(),changed,emit);
+  changed=false;base+=count;
+  // Rounding a boundary to a sample may land just after the exact beat.
+  if(base<samples && mailbox.hasPending()){
+   bool swapped=false;seq=mailbox.consume(swapped);changed=swapped;
+  }
+ }
+ position.store(seq&&loop.load()?std::fmod(std::max(0.0,at),seq->length):at);playing.store(run);wasRunning=run;
+ if(!hostMode&&run)manualBeat=at+samples*bps;
 }
-
-KhimairaProcessor::~KhimairaProcessor()
-{
-    stopTimer();
+var KhimairaProcessor::update(const var& data){
+ auto fail=[](String msg){auto d=new DynamicObject;d->setProperty("ok",false);d->setProperty("message",msg);return var(d);};
+ if(!data.isObject()||!data["notes"].isArray())return fail("Invalid sequence");
+ auto seq=std::make_unique<khimaira::Sequence>();std::vector<khimaira::Note> notes;
+ const auto* array=data["notes"].getArray();if(array->size()>khimaira::Sequence::maxNotes)return fail("Too many notes");
+ for(const auto& v:*array){double velocity=(double)v["velocity"],pitch=(double)v["note"];if(!v.hasProperty("note")||!v.hasProperty("beat")||!v.hasProperty("duration")||!std::isfinite(pitch)||pitch!=std::floor(pitch)||pitch<0||pitch>127||!std::isfinite(velocity)||velocity<=0||velocity>1)return fail("Invalid velocity");notes.push_back({(double)v["beat"],(double)v["duration"],(int)v["note"],velocity});}
+ if(!seq->assign(notes,(double)data["length"]))return fail("Invalid or overlapping notes");
+ const ScopedLock lock(stateLock);if(!mailbox.publish(*seq))return fail("Sequence busy; retry");saved=data.clone();
+ auto d=new DynamicObject;d->setProperty("ok",true);d->setProperty("count",seq->noteCount);return var(d);
 }
-
-//==============================================================================
-void KhimairaProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
-{
-    currentSampleRate = sampleRate;
-    currentBlockSize = juce::jmax (32, samplesPerBlock);
-    piano.prepare (sampleRate);
-    hostPlayer.reset();
-    pedalPlayer = {};
-    audioPattern = nullptr;
-    preview.reset();
-    activeOutputChannel = juce::jlimit (1, 16, (int) channelParam->load());
-    generated.ensureSize (8192);
-    gain.reset (sampleRate, 0.03);
-    gain.setCurrentAndTargetValue (volumeParam->load());
+void KhimairaProcessor::saveUi(const var& ui){if(!ui.isObject())return;const ScopedLock lock(stateLock);saved.getDynamicObject()->setProperty("ui",ui.clone());}
+var KhimairaProcessor::snapshot(){const ScopedLock lock(stateLock);return saved.clone();}
+var KhimairaProcessor::status(){auto d=new DynamicObject;d->setProperty("playing",playing.load());d->setProperty("armed",armed.load());d->setProperty("host",followHost.load());d->setProperty("hostAvailable",hasHost.load());d->setProperty("bpm",hostTempo.load());d->setProperty("beat",position.load());d->setProperty("standalone",isStandalone());d->setProperty("preview",previewRequested.load());d->setProperty("pending",mailbox.hasPending());return var(d);}
+void KhimairaProcessor::transport(const var& v){
+ if(v.hasProperty("host")){followHost.store((bool)v["host"]);previewRequested.store(false);armed.store(true);restart.fetch_add(1);}
+ if(v.hasProperty("loop"))loop.store((bool)v["loop"]);
+ // Plugin audition always uses the most recently supplied host BPM.
+ if(v.hasProperty("bpm")&&isStandalone()){double t=(double)v["bpm"];if(std::isfinite(t))bpm.store(jlimit(30.,300.,t));}
+ if(v.hasProperty("play")){bool play=(bool)v["play"];armed.store(play);previewRequested.store(play);if(play)restart.fetch_add(1);}
 }
-
-void KhimairaProcessor::releaseResources()
-{
-    piano.allNotesOff();
+void KhimairaProcessor::getStateInformation(MemoryBlock& dest){auto data=snapshot();data.getDynamicObject()->setProperty("transportHost",followHost.load());data.getDynamicObject()->setProperty("transportLoop",loop.load());data.getDynamicObject()->setProperty("transportBpm",bpm.load());auto s=JSON::toString(data);dest.replaceAll(s.toRawUTF8(),s.getNumBytesAsUTF8());}
+void KhimairaProcessor::setStateInformation(const void* data,int bytes){if(bytes<=0||bytes>8*1024*1024)return;auto v=JSON::parse(String::fromUTF8((const char*)data,bytes));if((bool)update(v)["ok"]){if(v.hasProperty("transportHost"))followHost.store((bool)v["transportHost"]);if(v.hasProperty("transportLoop"))loop.store((bool)v["transportLoop"]);if(v.hasProperty("transportBpm")){double t=(double)v["transportBpm"];if(std::isfinite(t))bpm.store(jlimit(30.,300.,t));}armed.store(followHost.load());restart.fetch_add(1);}}
+File KhimairaProcessor::midiFile(){
+ const auto data=snapshot();MidiMessageSequence track;constexpr int ppq=480;
+ std::vector<khimaira::Note> notes;for(const auto& n:*data["notes"].getArray())notes.push_back({(double)n["beat"],(double)n["duration"],(int)n["note"],(double)n["velocity"]});
+ auto sequence=std::make_unique<khimaira::Sequence>();if(!sequence->assign(notes,(double)data["length"]))return {};
+ for(int i=0;i<sequence->eventCount;i++){auto e=sequence->events[i];auto m=e.on?MidiMessage::noteOn(1,e.pitch,(uint8)jlimit(1,127,roundToInt(e.velocity*127))):MidiMessage::noteOff(1,e.pitch);m.setTimeStamp(std::round(e.beat*ppq));track.addEvent(m);}
+ track.sort();auto end=MidiMessage::endOfTrack();end.setTimeStamp((double)data["length"]*ppq);track.addEvent(end);
+ MidiFile midi;midi.setTicksPerQuarterNote(ppq);midi.addTrack(track);
+ auto dir=File::getSpecialLocation(File::tempDirectory).getChildFile("KHIMAIRA-MIDI");dir.createDirectory();auto file=dir.getChildFile("KHIMAIRA-"+instance+"-"+String(++exportVersion)+".mid");
+ FileOutputStream stream(file);if(!stream.openedOk()||!midi.writeTo(stream,0))return {};return file;
 }
-
-bool KhimairaProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
-{
-    const auto out = layouts.getMainOutputChannelSet();
-    return out == juce::AudioChannelSet::mono() || out == juce::AudioChannelSet::stereo();
-}
-
-void KhimairaProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi)
-{
-    juce::ScopedNoDenormals noDenormals;
-    const int numSamples = buffer.getNumSamples();
-    const double sr = getSampleRate() > 0.0 ? getSampleRate() : currentSampleRate.load();
-    const int channel = juce::jlimit (1, 16, (int) channelParam->load());
-
-    buffer.clear();
-    generated.clear();
-    generated.addEvents (midi, 0, numSamples, 0); // keyboard input still plays the piano and passes through
-
-    bool playing = false;
-    double ppq = 0.0, bpm = 120.0;
-
-    if (auto* ph = getPlayHead())
-    {
-        if (const auto pos = ph->getPosition())
-        {
-            playing = pos->getIsPlaying();
-
-            if (const auto p = pos->getPpqPosition())
-                ppq = *p;
-            else
-                playing = false;
-
-            if (const auto b = pos->getBpm())
-                bpm = *b;
-        }
-    }
-
-    hostPlaying = playing;
-    hostPpq = ppq;
-    hostBpm = bpm;
-
-    auto emit = [&] (const kh::MidiOut& e)
-    {
-        const auto vel = (juce::uint8) juce::jlimit (1, 127, (int) std::lround (e.velocity * 127.0f));
-        generated.addEvent (e.on ? juce::MidiMessage::noteOn (activeOutputChannel, e.note, vel)
-                                 : juce::MidiMessage::noteOff (activeOutputChannel, e.note),
-                            e.offset);
-    };
-
-    static const kh::Pattern empty;
-    patternReaders.fetch_add (1);
-    const auto* pattern = livePattern.load();
-    const bool sync = hostSyncParam->load() > 0.5f;
-
-    auto emitPedal = [&] (const kh::PedalOut& e)
-    { generated.addEvent (juce::MidiMessage::controllerEvent (e.channel, 64, e.value), e.offset); };
-    // End held notes on their original MIDI channel before switching routes.
-    if (activeOutputChannel != channel)
-    {
-        pedalPlayer.stop (0, emitPedal);
-        hostPlayer.process (empty, false, ppq, bpm, sr, numSamples, emit);
-        preview.push ({ kh::PreviewCommand::stopAll });
-        preview.process (sampleClock.load(), numSamples, emit);
-        activeOutputChannel = channel;
-    }
-    // A synced host owns playback. Stop audition voices before new host notes arrive.
-    if (playing && sync)
-    {
-        preview.push ({ kh::PreviewCommand::stopAll });
-        preview.process (sampleClock.load(), numSamples, emit);
-    }
-    if (audioPattern != pattern)
-    {
-        pedalPlayer.stop (0, emitPedal);
-        hostPlayer.process (empty, false, ppq, bpm, sr, numSamples, emit);
-        audioPattern = pattern;
-    }
-    const auto& current = pattern != nullptr ? *pattern : empty;
-    pedalPlayer.process (current.pedals, current.lengthBeats, playing && sync && pedalParam->load() > .5f,
-                         ppq, bpm, sr, numSamples, channel, emitPedal);
-    hostPlayer.process (current, playing && sync, ppq, bpm, sr, numSamples, emit);
-    patternReaders.fetch_sub (1);
-
-    // Notes from the editor's PLAY button.
-    {
-        const auto scope = previewFifo.read (previewFifo.getNumReady());
-
-        for (int i = 0; i < scope.blockSize1; ++i) preview.push (previewBuffer[(size_t) (scope.startIndex1 + i)]);
-        for (int i = 0; i < scope.blockSize2; ++i) preview.push (previewBuffer[(size_t) (scope.startIndex2 + i)]);
-    }
-
-    const auto clock = sampleClock.load();
-    if (playing && sync) preview.reset(); // discard queued auditions during host playback
-    else preview.process (clock, numSamples, emit);
-    sampleClock = clock + numSamples;
-
-    // Built-in piano.
-    const bool pianoOn = pianoParam->load() > 0.5f;
-
-    if (pianoOn)
-    {
-        piano.render (buffer, generated, numSamples);
-        gain.setTargetValue (volumeParam->load() * 0.9f);
-        gain.applyGain (buffer, numSamples);
-    }
-    else if (pianoWasOn)
-    {
-        piano.allNotesOff();
-    }
-
-    pianoWasOn = pianoOn;
-    midi.swapWith (generated);
-}
-
-//==============================================================================
-void KhimairaProcessor::timerCallback()
-{
-    piano.attachSoundsIfReady();
-
-    const bool wantSustain = sourceParam->load() > 0.5f;
-
-    if (wantSustain != sustainSourceActive)
-    {
-        sustainSourceActive = wantSustain;
-        publishPattern (wantSustain ? sustainPattern : performancePattern);
-    }
-}
-
-void KhimairaProcessor::publishPattern (const kh::Pattern& p)
-{
-    auto copy = std::make_unique<kh::Pattern> (p);
-    livePattern = copy.get();
-    patternHistory.push_back (std::move (copy));
-
-    // Retire snapshots only when no audio callback can still be reading an older one.
-    while (patternReaders.load() == 0 && patternHistory.size() > 1)
-        patternHistory.pop_front();
-}
-
-void KhimairaProcessor::setPatterns (kh::Pattern performance, kh::Pattern sustain, const juce::String& name)
-{
-    JUCE_ASSERT_MESSAGE_THREAD
-    performance.pedals.clear();
-    for (const auto& n : sustain.notes)
-        if (n.length > 0 && n.beat >= 0 && n.beat < sustain.lengthBeats)
-            performance.pedals.push_back ({ n.beat, std::min (n.length, sustain.lengthBeats - n.beat) });
-    std::sort (performance.pedals.begin(), performance.pedals.end(), [] (auto a, auto b) { return a.beat < b.beat; });
-    performance.pedals.erase (std::unique (performance.pedals.begin(), performance.pedals.end(),
-        [] (auto a, auto b) { return a.beat == b.beat; }), performance.pedals.end());
-    sustain.pedals = performance.pedals;
-    performancePattern = std::move (performance);
-    sustainPattern = std::move (sustain);
-    patternName = juce::File::createLegalFileName (name.isNotEmpty() ? name : juce::String ("KHIMAIRA"));
-    sustainSourceActive = sourceParam->load() > 0.5f;
-    publishPattern (sustainSourceActive ? sustainPattern : performancePattern);
-}
-
-void KhimairaProcessor::setWebState (const juce::String& json)
-{
-    const juce::ScopedLock sl (stateLock);
-    webState = json;
-}
-
-juce::String KhimairaProcessor::getWebState() const
-{
-    const juce::ScopedLock sl (stateLock);
-    return webState;
-}
-
-KhimairaProcessor::HostStatus KhimairaProcessor::getHostStatus() const
-{
-    const auto* p = livePattern.load();
-    return { hostPlaying.load(), hostPpq.load(), hostBpm.load(),
-             p != nullptr && ! p->notes.empty(), p != nullptr ? p->lengthBeats : 0.0 };
-}
-
-//==============================================================================
-int64_t KhimairaProcessor::secondsToClock (double seconds) const
-{
-    // Two blocks of safety so a note sent "now" is never placed in a block already rendered.
-    return sampleClock.load() + 2 * currentBlockSize.load()
-         + (int64_t) std::llround (juce::jmax (0.0, seconds) * currentSampleRate.load());
-}
-
-void KhimairaProcessor::queuePreview (const kh::PreviewCommand& c)
-{
-    const auto scope = previewFifo.write (1);
-
-    if (scope.blockSize1 > 0)      previewBuffer[(size_t) scope.startIndex1] = c;
-    else if (scope.blockSize2 > 0) previewBuffer[(size_t) scope.startIndex2] = c;
-}
-
-void KhimairaProcessor::previewNoteOn (int id, int note, float velocity, double delaySeconds, double durationSeconds)
-{
-    if (id <= 0 || note < 0 || note > 127)
-        return;
-
-    kh::PreviewCommand c;
-    c.type = kh::PreviewCommand::noteOn;
-    c.id = id;
-    c.note = note;
-    c.velocity = juce::jlimit (0.05f, 1.0f, velocity);
-    c.startSample = secondsToClock (delaySeconds);
-    c.endSample = c.startSample + (int64_t) std::llround (juce::jmax (0.01, durationSeconds) * currentSampleRate.load());
-    queuePreview (c);
-}
-
-void KhimairaProcessor::previewRetime (int id, double endDelaySeconds)
-{
-    kh::PreviewCommand c;
-    c.type = kh::PreviewCommand::retime;
-    c.id = id;
-    c.endSample = secondsToClock (endDelaySeconds);
-    queuePreview (c);
-}
-
-void KhimairaProcessor::previewCancel (int id)
-{
-    kh::PreviewCommand c;
-    c.type = kh::PreviewCommand::cancel;
-    c.id = id;
-    c.endSample = secondsToClock (0.0);
-    queuePreview (c);
-}
-
-void KhimairaProcessor::previewStopAll()
-{
-    kh::PreviewCommand c;
-    c.type = kh::PreviewCommand::stopAll;
-    queuePreview (c);
-}
-
-//==============================================================================
-juce::String KhimairaProcessor::getExportBaseName() const
-{
-    return patternName;
-}
-
-juce::File KhimairaProcessor::getExportFolder() const
-{
-    auto folder = juce::File::getSpecialLocation (juce::File::userDocumentsDirectory).getChildFile ("KHIMAIRA MIDI");
-    folder.createDirectory();
-    return folder;
-}
-
-juce::File KhimairaProcessor::writeMidiFile (bool sustain) const
-{
-    const auto& p = sustain ? sustainPattern : performancePattern;
-
-    if (p.notes.empty())
-        return {};
-
-    constexpr int ppqn = 480;
-    juce::MidiMessageSequence track;
-    track.addEvent (juce::MidiMessage::textMetaEvent (3, patternName), 0.0);
-
-    auto sorted = p.notes;
-    std::sort (sorted.begin(), sorted.end(), [] (const auto& a, const auto& b)
-               { return a.beat < b.beat || (a.beat == b.beat && a.note < b.note); });
-
-    std::array<double, 128> lastEnd {};
-    lastEnd.fill (-1.0);
-    std::array<int, 128> lastIndex {};
-
-    struct Tick { int note, start, end, vel; };
-    std::vector<Tick> ticks;
-
-    for (const auto& n : sorted)
-    {
-        const int start = (int) std::lround (n.beat * ppqn);
-        const int end = juce::jmax (start + 1, (int) std::lround ((n.beat + n.length) * ppqn));
-        const int vel = juce::jlimit (1, 127, (int) std::lround (n.velocity * 127.0f));
-
-        if (lastEnd[(size_t) n.note] >= 0.0)
-        {
-            auto& prev = ticks[(size_t) lastIndex[(size_t) n.note]];
-
-            if (prev.start == start) { prev.end = juce::jmax (prev.end, end); prev.vel = juce::jmax (prev.vel, vel); continue; }
-            if (prev.end > start)    prev.end = start;
-        }
-
-        lastIndex[(size_t) n.note] = (int) ticks.size();
-        lastEnd[(size_t) n.note] = end;
-        ticks.push_back ({ n.note, start, end, vel });
-    }
-
-    for (const auto& t : ticks)
-    {
-        track.addEvent (juce::MidiMessage::noteOn (1, t.note, (juce::uint8) t.vel), t.start);
-        track.addEvent (juce::MidiMessage::noteOff (1, t.note), t.end);
-    }
-
-    if (pedalParam->load() > .5f)
-        for (const auto& span : p.pedals)
-        {
-            const auto on = std::lround ((span.beat + std::min (1.0 / 64.0, span.length / 4)) * ppqn);
-            const auto off = std::lround (std::min (p.lengthBeats, span.beat + span.length) * ppqn);
-            track.addEvent (juce::MidiMessage::controllerEvent (1, 64, 127), on);
-            track.addEvent (juce::MidiMessage::controllerEvent (1, 64, 0), off);
-        }
-    track.updateMatchedPairs();
-    track.addEvent (juce::MidiMessage::endOfTrack(), juce::jmax ((double) track.getEndTime(), p.lengthBeats * ppqn));
-
-    juce::MidiFile file;
-    file.setTicksPerQuarterNote (ppqn);
-    file.addTrack (track);
-
-    auto dir = juce::File::getSpecialLocation (juce::File::tempDirectory).getChildFile ("KHIMAIRA");
-    dir.createDirectory();
-    auto out = dir.getChildFile (patternName + (sustain ? "-sustain" : "") + ".mid");
-    out.deleteFile();
-
-    if (auto stream = out.createOutputStream())
-    {
-        file.writeTo (*stream, 1);
-        stream->flush();
-        return out;
-    }
-
-    return {};
-}
-
-//==============================================================================
-void KhimairaProcessor::getStateInformation (juce::MemoryBlock& destData)
-{
-    juce::XmlElement root (stateTag);
-    root.setAttribute ("version", 1);
-    root.setAttribute ("name", patternName);
-    root.setAttribute ("editorW", editorSize.x);
-    root.setAttribute ("editorH", editorSize.y);
-
-    if (auto p = params.copyState().createXml())
-    {
-        p->setTagName (paramsTag);
-        root.addChildElement (p.release());
-    }
-
-    root.createNewChildElement (webTag)->addTextElement (getWebState());
-    root.createNewChildElement (perfTag)->addTextElement (patternToString (performancePattern));
-    root.createNewChildElement (sustainTag)->addTextElement (patternToString (sustainPattern));
-
-    copyXmlToBinary (root, destData);
-}
-
-void KhimairaProcessor::setStateInformation (const void* data, int sizeInBytes)
-{
-    const auto xml = getXmlFromBinary (data, sizeInBytes);
-
-    if (xml == nullptr || ! xml->hasTagName (stateTag))
-        return;
-
-    editorSize = { xml->getIntAttribute ("editorW", 1180), xml->getIntAttribute ("editorH", 820) };
-
-    if (auto* p = xml->getChildByName (paramsTag))
-    {
-        auto copy = std::make_unique<juce::XmlElement> (*p);
-        copy->setTagName (params.state.getType().toString());
-        params.replaceState (juce::ValueTree::fromXml (*copy));
-    }
-
-    if (auto* w = xml->getChildByName (webTag))
-        setWebState (w->getAllSubText());
-
-    kh::Pattern perf, sus;
-
-    if (auto* e = xml->getChildByName (perfTag))    perf = patternFromString (e->getAllSubText());
-    if (auto* e = xml->getChildByName (sustainTag)) sus  = patternFromString (e->getAllSubText());
-
-    const auto name = xml->getStringAttribute ("name", "KHIMAIRA");
-
-    juce::MessageManager::callAsync ([safe = juce::WeakReference<KhimairaProcessor> (this), perf, sus, name]() mutable
-    {
-        if (auto* self = safe.get())
-            self->setPatterns (std::move (perf), std::move (sus), name);
-    });
-}
-
-//==============================================================================
-juce::AudioProcessorEditor* KhimairaProcessor::createEditor()
-{
-    return new KhimairaEditor (*this);
-}
-
-juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
-{
-    return new KhimairaProcessor();
-}
+AudioProcessorEditor* KhimairaProcessor::createEditor(){return new KhimairaEditor(*this);}
+AudioProcessor* JUCE_CALLTYPE createPluginFilter(){return new KhimairaProcessor;}

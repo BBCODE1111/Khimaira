@@ -7,6 +7,7 @@ set -euo pipefail
 VERSION="$1"
 ART="$2"
 OUT="$3"
+MIDI_ART="${4:?Pass the KhimairaMidiFX_artefacts/Release directory}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 WORK="$(mktemp -d)"
 mkdir -p "$OUT"
@@ -22,15 +23,15 @@ make_component () { # id  bundle  install-dir  [scripts-dir]
   pkgbuild --analyze --root "$root" "$WORK/$id.plist"
   /usr/libexec/PlistBuddy -c "Set :0:BundleIsRelocatable false" "$WORK/$id.plist" || true
 
-  local args=(--root "$root" --component-plist "$WORK/$id.plist" --identifier "com.khimaira.plugin.$id"
+  local args=(--root "$root" --component-plist "$WORK/$id.plist" --identifier "music.khimaira.v12.$id"
               --version "$VERSION" --install-location "/")
   [[ -n "$scripts" ]] && args+=(--scripts "$scripts")
   pkgbuild "${args[@]}" "$WORK/khimaira-$id.pkg"
 }
 
-make_component vst3 "$ART/VST3/KHIMAIRA 1.1.vst3" "/Library/Audio/Plug-Ins/VST3"
-make_component au   "$ART/AU/KHIMAIRA 1.1.component" "/Library/Audio/Plug-Ins/Components" "$HERE/scripts-au"
-make_component app  "$ART/Standalone/KHIMAIRA 1.1.app" "/Applications"
+make_component vst3 "$ART/VST3/KHIMAIRA 1.2.vst3" "/Library/Audio/Plug-Ins/VST3"
+make_component au   "$MIDI_ART/AU/KHIMAIRA 1.2 MIDI FX.component" "/Library/Audio/Plug-Ins/Components" "$HERE/scripts-au"
+make_component app  "$ART/Standalone/KHIMAIRA 1.2.app" "/Applications"
 
 sed "s/__VERSION__/$VERSION/g" "$HERE/distribution.xml" > "$WORK/distribution.xml"
 

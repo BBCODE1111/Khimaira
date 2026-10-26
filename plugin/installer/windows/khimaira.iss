@@ -1,8 +1,8 @@
 ; KHIMAIRA Windows installer (Inno Setup 6)
-; iscc /DAppVersion=1.1.0 /DBuildDir=<...\Khimaira_artefacts\Release> /DWebView2Setup=<...\MicrosoftEdgeWebview2Setup.exe> /DOutDir=<dir> khimaira.iss
+; iscc /DAppVersion=1.2.0 /DBuildDir=<...\Khimaira_artefacts\Release> /DWebView2Setup=<...\MicrosoftEdgeWebview2Setup.exe> /DOutDir=<dir> khimaira.iss
 
 #ifndef AppVersion
-  #define AppVersion "1.1.0"
+  #define AppVersion "1.2.0"
 #endif
 #ifndef BuildDir
   #define BuildDir "..\..\build\Khimaira_artefacts\Release"
@@ -12,13 +12,13 @@
 #endif
 
 [Setup]
-AppId={{7A0E4C6B-3F4B-4E77-9C41-6B1C2D7E9A11}
+AppId={{83129EDD-0CC0-4F44-9DFA-48BA2F0BEA12}
 AppName=KHIMAIRA
 AppVersion={#AppVersion}
 AppVerName=KHIMAIRA {#AppVersion}
 AppPublisher=KHIMAIRA
 AppPublisherURL=https://bbcode1111.github.io/Khimaira/
-DefaultDirName={autopf}\KHIMAIRA
+DefaultDirName={autopf}\KHIMAIRA 1.2
 DefaultGroupName=KHIMAIRA
 DisableProgramGroupPage=yes
 ArchitecturesAllowed=x64compatible
@@ -40,21 +40,21 @@ Name: "vst3"; Description: "VST3 plug-in (C:\Program Files\Common Files\VST3)"; 
 Name: "standalone"; Description: "Standalone app"; Types: full
 
 [Files]
-Source: "{#BuildDir}\VST3\KHIMAIRA 1.1.vst3\*"; DestDir: "{commoncf64}\VST3\KHIMAIRA 1.1.vst3"; Components: vst3; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#BuildDir}\Standalone\KHIMAIRA 1.1.exe"; DestDir: "{app}"; Components: standalone; Flags: ignoreversion
+Source: "{#BuildDir}\VST3\KHIMAIRA 1.2.vst3\*"; DestDir: "{commoncf64}\VST3\KHIMAIRA 1.2.vst3"; Components: vst3; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#BuildDir}\Standalone\KHIMAIRA 1.2.exe"; DestDir: "{app}"; Components: standalone; Flags: ignoreversion
 #ifdef WebView2Setup
 Source: "{#WebView2Setup}"; DestDir: "{tmp}"; DestName: "MicrosoftEdgeWebview2Setup.exe"; Flags: deleteafterinstall; Check: NeedsWebView2
 #endif
 
 [Icons]
-Name: "{group}\KHIMAIRA"; Filename: "{app}\KHIMAIRA 1.1.exe"; Components: standalone
+Name: "{group}\KHIMAIRA"; Filename: "{app}\KHIMAIRA 1.2.exe"; Components: standalone
 Name: "{group}\Uninstall KHIMAIRA"; Filename: "{uninstallexe}"
 
 [Run]
 #ifdef WebView2Setup
 Filename: "{tmp}\MicrosoftEdgeWebview2Setup.exe"; Parameters: "/silent /install"; StatusMsg: "Installing Microsoft WebView2 Runtime (needed for the KHIMAIRA interface)..."; Check: NeedsWebView2; Flags: waituntilterminated
 #endif
-Filename: "{app}\KHIMAIRA 1.1.exe"; Description: "Open KHIMAIRA standalone"; Components: standalone; Flags: nowait postinstall skipifsilent unchecked
+Filename: "{app}\KHIMAIRA 1.2.exe"; Description: "Open KHIMAIRA standalone"; Components: standalone; Flags: nowait postinstall skipifsilent unchecked
 
 [Code]
 const

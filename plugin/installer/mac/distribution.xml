@@ -11,15 +11,15 @@
         <line choice="app"/>
     </choices-outline>
     <choice id="vst3" title="VST3 plug-in" description="Ableton Live, Cubase, Studio One, FL Studio, Bitwig, Reaper…">
-        <pkg-ref id="com.khimaira.plugin.vst3"/>
+        <pkg-ref id="music.khimaira.v12.vst3"/>
     </choice>
-    <choice id="au" title="Audio Unit (AU)" description="Logic Pro, GarageBand, MainStage">
-        <pkg-ref id="com.khimaira.plugin.au"/>
+    <choice id="au" title="AU MIDI FX" description="Logic Pro MIDI FX slot, before a software instrument">
+        <pkg-ref id="music.khimaira.v12.au"/>
     </choice>
-    <choice id="app" title="Standalone app" description="KHIMAIRA without a DAW, in /Applications">
-        <pkg-ref id="com.khimaira.plugin.app"/>
+    <choice id="app" title="Standalone app" description="MIDI chart editor and export; no built-in sound">
+        <pkg-ref id="music.khimaira.v12.app"/>
     </choice>
-    <pkg-ref id="com.khimaira.plugin.vst3" version="__VERSION__">khimaira-vst3.pkg</pkg-ref>
-    <pkg-ref id="com.khimaira.plugin.au" version="__VERSION__">khimaira-au.pkg</pkg-ref>
-    <pkg-ref id="com.khimaira.plugin.app" version="__VERSION__">khimaira-app.pkg</pkg-ref>
+    <pkg-ref id="music.khimaira.v12.vst3" version="__VERSION__">khimaira-vst3.pkg</pkg-ref>
+    <pkg-ref id="music.khimaira.v12.au" version="__VERSION__">khimaira-au.pkg</pkg-ref>
+    <pkg-ref id="music.khimaira.v12.app" version="__VERSION__">khimaira-app.pkg</pkg-ref>
 </installer-gui-script>
