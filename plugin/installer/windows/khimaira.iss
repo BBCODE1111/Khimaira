@@ -40,21 +40,21 @@ Name: "vst3"; Description: "VST3 plug-in (C:\Program Files\Common Files\VST3)"; 
 Name: "standalone"; Description: "Standalone app"; Types: full
 
 [Files]
-Source: "{#BuildDir}\VST3\KHIMAIRA.vst3\*"; DestDir: "{commoncf64}\VST3\KHIMAIRA.vst3"; Components: vst3; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#BuildDir}\Standalone\KHIMAIRA.exe"; DestDir: "{app}"; Components: standalone; Flags: ignoreversion
+Source: "{#BuildDir}\VST3\KHIMAIRA 1.1.vst3\*"; DestDir: "{commoncf64}\VST3\KHIMAIRA 1.1.vst3"; Components: vst3; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#BuildDir}\Standalone\KHIMAIRA 1.1.exe"; DestDir: "{app}"; Components: standalone; Flags: ignoreversion
 #ifdef WebView2Setup
 Source: "{#WebView2Setup}"; DestDir: "{tmp}"; DestName: "MicrosoftEdgeWebview2Setup.exe"; Flags: deleteafterinstall; Check: NeedsWebView2
 #endif
 
 [Icons]
-Name: "{group}\KHIMAIRA"; Filename: "{app}\KHIMAIRA.exe"; Components: standalone
+Name: "{group}\KHIMAIRA"; Filename: "{app}\KHIMAIRA 1.1.exe"; Components: standalone
 Name: "{group}\Uninstall KHIMAIRA"; Filename: "{uninstallexe}"
 
 [Run]
 #ifdef WebView2Setup
 Filename: "{tmp}\MicrosoftEdgeWebview2Setup.exe"; Parameters: "/silent /install"; StatusMsg: "Installing Microsoft WebView2 Runtime (needed for the KHIMAIRA interface)..."; Check: NeedsWebView2; Flags: waituntilterminated
 #endif
-Filename: "{app}\KHIMAIRA.exe"; Description: "Open KHIMAIRA standalone"; Components: standalone; Flags: nowait postinstall skipifsilent unchecked
+Filename: "{app}\KHIMAIRA 1.1.exe"; Description: "Open KHIMAIRA standalone"; Components: standalone; Flags: nowait postinstall skipifsilent unchecked
 
 [Code]
 const

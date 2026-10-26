@@ -22,15 +22,15 @@ Morph your chords like the legendary monster.
      到「系統設定 → 隱私權與安全性」，往下找到 KHIMAIRA，按「強制打開／仍要打開」。
      （或在 pkg 上按右鍵 →「打開」。）
   3. 重新開啟 DAW。安裝位置：
-     VST3 → /Library/Audio/Plug-Ins/VST3/KHIMAIRA.vst3
-     AU   → /Library/Audio/Plug-Ins/Components/KHIMAIRA.component
-     App  → /Applications/KHIMAIRA.app
+     VST3 → /Library/Audio/Plug-Ins/VST3/KHIMAIRA 1.1.vst3
+     AU   → /Library/Audio/Plug-Ins/Components/KHIMAIRA 1.1.component
+     App  → /Applications/KHIMAIRA 1.1.app
 
 【Windows 安裝】
   1. 雙擊 KHIMAIRA-__VERSION__-windows-setup.exe。
   2. 若出現 SmartScreen「Windows 已保護您的電腦」：按「其他資訊」→「仍要執行」。
-  3. VST3 會裝到 C:\Program Files\Common Files\VST3\KHIMAIRA.vst3
-  手動安裝：把 zip 裡的 KHIMAIRA.vst3 整個資料夾複製到 C:\Program Files\Common Files\VST3\
+  3. VST3 會裝到 C:\Program Files\Common Files\VST3\KHIMAIRA 1.1.vst3
+  手動安裝：把 zip 裡的 KHIMAIRA 1.1.vst3 整個資料夾複製到 C:\Program Files\Common Files\VST3\
 
 【在 DAW 裡使用】
   KHIMAIRA 是「樂器」外掛：新增一條樂器／MIDI 軌，載入 KHIMAIRA 1.1。
@@ -81,8 +81,8 @@ INSTALL ON MAC
 
 INSTALL ON WINDOWS
   Run the setup .exe. If SmartScreen appears: "More info" > "Run anyway".
-  VST3 goes to C:\Program Files\Common Files\VST3\KHIMAIRA.vst3
-  Manual install: copy the KHIMAIRA.vst3 folder from the zip to that folder.
+  VST3 goes to C:\Program Files\Common Files\VST3\KHIMAIRA 1.1.vst3
+  Manual install: copy the KHIMAIRA 1.1.vst3 folder from the zip to that folder.
 
 USING IT
   Load KHIMAIRA 1.1 as an INSTRUMENT on a MIDI/instrument track.

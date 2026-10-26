@@ -1,6 +1,6 @@
-# KHIMAIRA Plug-in (VST3 · AU · Standalone)
+# KHIMAIRA 1.1 (VST3 · AU · Standalone)
 
-**1.1 development** — based on Web `web-v1.0.2`. [Milestone 1 validation](../docs/plugin-development-20261027/REPORT.md): optional host/export CC64, accessible MIDI export controls, macOS arm64 builds, strict auval and Logic Pro 11.2.2 load/tempo/state/export checks. Windows and Universal releases remain pending.
+**Version 1.1.0** — based on Web `web-v1.0.2`. DAW menu, window, header and installed bundles are named **KHIMAIRA 1.1**. The older 0.3 MIDI FX/VST3 files are retained. [Milestone 1 validation](../docs/plugin-development-20261027/REPORT.md): optional host/export CC64, accessible MIDI export controls, macOS arm64 builds, strict auval and Logic Pro 11.2.2 load/tempo/state/export checks. Windows and Universal releases remain pending.
 
 The website in `../dist` running inside a DAW instrument plug-in. The web UI is embedded unchanged;
 a small bridge (`web/`) connects it to native code that plays in sync with the DAW.
@@ -32,7 +32,8 @@ Change the version in `CMakeLists.txt` (`project(... VERSION x.y.z)`) and `VERSI
  DAW transport (PPQ, BPM) ─────────────────────────────────▶ PatternPlayer ────────┘
 ```
 
-- **Host sync**: bar 1 of the chart = bar 1 of the project, looping every N bars, at the DAW tempo.
+- **Host sync**: bar 1 of the chart = bar 1 of the project, looping every N bars, at the DAW tempo. The chart follows host playback, including split chords, rests and preroll. Starting or seeking into a held chord chases its remaining notes.
+- **Transport ownership**: while HOST SYNC is playing, DAW transport controls playback and web audition is disabled. Once stopped, PLAY/STOP/Space audition works again. Changing MIDI channels releases the original route first.
 - **Built-in piano**: the same Salamander samples, decoded natively (shared by all instances).
 - **MIDI out**: every note also goes to the plug-in's MIDI output (Live, Bitwig, Reaper, FL, Cubase…).
 - **Drag MIDI**: the footer tiles create a .mid on the fly and start an OS drag onto a DAW track.
@@ -88,7 +89,7 @@ SmartScreen shows "More info → Run anyway". To remove those prompts:
 
 Integrated from `BETATEST/KHIMAIRA-Plugin-Source` with the 1.0.1 web fixes. Native MIDI velocity now matches the web exporter (127 scale); the bridge includes walking bass, Ballad entry and BPM options, persists the initial state, and retains empty bars. Fonts are sourced from `../dist/fonts` and WebP/font changes trigger web repacking.
 
-Local macOS arm64 builds of VST3, AU and Standalone succeeded with JUCE 8.0.15, and the C++ scheduler tests passed. Browser tests cover initial bridge state, empty bars, preview note messages and two-track MIDI downloads. Universal/Windows builds, auval and actual DAW host tests remain unverified. No plug-in was installed into system folders.
+At that initial milestone, local macOS arm64 builds of VST3, AU and Standalone succeeded with JUCE 8.0.15, and the C++ scheduler tests passed. Browser tests cover initial bridge state, empty bars, preview note messages and two-track MIDI downloads. At that initial milestone, Universal/Windows builds, auval and DAW host tests were unverified. See the newer [1.1 validation](../docs/plugin-1.1/REPORT.md) for current evidence.
 
 The web MIDI buttons support Bass/Chords track splitting. Native DRAG MIDI / DRAG SUSTAIN still export a single track. Local builds are not Developer ID signed or notarized.
 

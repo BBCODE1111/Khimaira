@@ -27,9 +27,9 @@ make_component () { # id  bundle  install-dir  [scripts-dir]
   pkgbuild "${args[@]}" "$WORK/khimaira-$id.pkg"
 }
 
-make_component vst3 "$ART/VST3/KHIMAIRA.vst3" "/Library/Audio/Plug-Ins/VST3"
-make_component au   "$ART/AU/KHIMAIRA.component" "/Library/Audio/Plug-Ins/Components" "$HERE/scripts-au"
-make_component app  "$ART/Standalone/KHIMAIRA.app" "/Applications"
+make_component vst3 "$ART/VST3/KHIMAIRA 1.1.vst3" "/Library/Audio/Plug-Ins/VST3"
+make_component au   "$ART/AU/KHIMAIRA 1.1.component" "/Library/Audio/Plug-Ins/Components" "$HERE/scripts-au"
+make_component app  "$ART/Standalone/KHIMAIRA 1.1.app" "/Applications"
 
 sed "s/__VERSION__/$VERSION/g" "$HERE/distribution.xml" > "$WORK/distribution.xml"
 

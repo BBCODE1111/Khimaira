@@ -29,7 +29,7 @@ endif()
 juce_add_plugin(Khimaira
     COMPANY_NAME "KHIMAIRA"
     COMPANY_WEBSITE "https://bbcode1111.github.io/Khimaira/"
-    PRODUCT_NAME "KHIMAIRA"
+    PRODUCT_NAME "KHIMAIRA 1.1"
     PLUGIN_NAME "KHIMAIRA 1.1"
     BUNDLE_ID "com.khimaira.plugin"
     VERSION ${PROJECT_VERSION}

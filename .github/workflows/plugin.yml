@@ -1,6 +1,6 @@
 name: Build KHIMAIRA Plug-in
 
-# Run manually (Actions > Build KHIMAIRA Plug-in > Run workflow) or push a tag like "plugin-v1.0.0".
+# Run manually (Actions > Build KHIMAIRA Plug-in > Run workflow) or push a tag like "plugin-v1.1.0".
 # Result: one artifact "KHIMAIRA-Plugin-<version>" containing the Mac .pkg, the Windows setup .exe
 # and the install guide. Tag builds also attach the zip to a GitHub Release.
 on:
@@ -26,7 +26,7 @@ jobs:
       - run: node --test tests/*.test.js
   mac:
     needs: verify-web
-    runs-on: macos-14
+    runs-on: macos-15
     env:
       # Optional. Without these the build is ad-hoc signed (users confirm "Open Anyway" once).
       MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
@@ -62,7 +62,7 @@ jobs:
         run: |
           ART=build/Khimaira_artefacts/Release
           IDENTITY="${MACOS_DEV_ID_APP:--}"   # "-" = ad-hoc signature when no Developer ID is configured
-          for b in "$ART/VST3/KHIMAIRA.vst3" "$ART/AU/KHIMAIRA.component" "$ART/Standalone/KHIMAIRA.app"; do
+          for b in "$ART/VST3/KHIMAIRA 1.1.vst3" "$ART/AU/KHIMAIRA 1.1.component" "$ART/Standalone/KHIMAIRA 1.1.app"; do
             codesign --force --deep --timestamp --options runtime --sign "$IDENTITY" "$b" || \
             codesign --force --deep --sign - "$b"
             codesign --verify --deep --strict "$b"
@@ -71,7 +71,7 @@ jobs:
       - name: Validate Audio Unit
         run: |
           mkdir -p ~/Library/Audio/Plug-Ins/Components
-          cp -R build/Khimaira_artefacts/Release/AU/KHIMAIRA.component ~/Library/Audio/Plug-Ins/Components/
+          cp -R "build/Khimaira_artefacts/Release/AU/KHIMAIRA 1.1.component" ~/Library/Audio/Plug-Ins/Components/
           killall -9 AudioComponentRegistrar || true
           sleep 2
           auval -a | grep -i khim || true
@@ -127,7 +127,7 @@ jobs:
                   "/DWebView2Setup=$env:RUNNER_TEMP\MicrosoftEdgeWebview2Setup.exe" "/DOutDir=$pwd\out\Windows" `
                   plugin\installer\windows\khimaira.iss
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          Compress-Archive -Path build\Khimaira_artefacts\Release\VST3\KHIMAIRA.vst3 `
+          Compress-Archive -Path "build\Khimaira_artefacts\Release\VST3\KHIMAIRA 1.1.vst3" `
                            -DestinationPath "out\Windows\KHIMAIRA-$env:VERSION-windows-vst3.zip"
 
       - uses: actions/upload-artifact@v4
