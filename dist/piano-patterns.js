@@ -1,10 +1,12 @@
+import {createTheory} from './music-core.js?v=1.0.0';
+const {parse}=createTheory('khimaira-v1');
 import {referenceNotes,overlaps,protectMelody} from './melody-reference.js?v=18';
-import {isTexture,renderTexture,applyPianoPhrase} from './piano-motion.js?v=1.1.0';
+import {isTexture,renderTexture,applyPianoPhrase} from './piano-motion.js?v=2.0.0';
 export const pianoPatterns={
- pianoWhole:'POP 01 · 一小節柱式',pianoHalf:'POP 02 · 兩拍柱式',pianoQuarter:'POP 03 · 四分柱式',
- pianoBassReply:'POP 04 · 低音先行',pianoBackbeat:'POP 05 · 二四拍回答',pianoPush:'POP 06 · 八分推拍',
- pianoBallad:'POP 07 · 抒情長短句',pianoBroken:'POP 08 · 柱式接分解',pianoAnswer:'POP 09 · 柱式句尾回應',
- pianoHandTurn:'POP 10 · 齊右左右',pianoKpop:'POP 11 · K-pop 留白切分',pianoJpop:'POP 12 · J-pop 副歌推進'
+ pianoWhole:'K-POP 01 · Whole-bar pillars / 一小節柱式',pianoHalf:'K-POP 02 · Half-note pillars / 兩拍柱式',pianoQuarter:'K-POP 03 · Quarter-note pillars / 四分柱式',
+ pianoBassReply:'K-POP 04 · Bass then chord / 低音先行',pianoBackbeat:'K-POP 05 · Soft backbeat / 二四拍回答',pianoPush:'K-POP 06 · Eighth-note push / 八分推拍',
+ pianoBallad:'K-POP 07 · Ballad long and short / 抒情長短句',pianoBroken:'K-POP 08 · Block to broken / 柱式接分解',pianoAnswer:'K-POP 09 · Phrase-end answer / 柱式句尾回應',
+ pianoHandTurn:'K-POP 10 · Together R L R / 齊右左右',pianoKpop:'K-POP 11 · K-pop syncopation / 韓式留白切分',pianoJpop:'K-POP 12 · J-pop chorus lift / 日式副歌推進'
 };
 export const pianoRecommendations={
  'American pop':['pianoHalf','pianoQuarter','pianoPush'],Mandopop:['pianoBassReply','pianoBallad','pianoAnswer'],
@@ -28,6 +30,7 @@ const rhythms={
  pianoJpop:[[0,'upper',.65,.75],[.5,'low',.4,.59],[1,'upper',.7,.67],[1.75,'high',.22,.6],[2,'upper',.7,.73],[2.5,'low',.4,.61],[3,'upper',.7,.68],[3.5,'high',.45,.61],...[0,.5,1,1.5,2,2.5,3,3.5].map(t=>[t,'bass',.42,t%1?.55:.68])]
 };
 export function renderPianoPattern(plan,pattern,options={}){
+ if(options.pianoRevision!==1)plan=plan.map(c=>({...c,root:parse(c.symbol)?.root}));
  if(isTexture(pattern)){
   const melody=referenceNotes(options);
   const events=renderTexture(plan,pattern,{...options,barBeats:4,fillMode:options.pianoFills||'phrase',melody:melody.map(n=>({pitch:n.note,start:n.beat,end:n.beat+n.duration}))});
@@ -40,9 +43,13 @@ export function renderPianoPattern(plan,pattern,options={}){
   const emit=(at,notes,duration,velocity,part,fill=false)=>{
    // Shared attack jitter preserves the block chord; no per-note IPC or timer.
    const beat=at+random()*.012*human;if(beat>=end)return;
-   for(const note of notes)out.push({beat,note,part,fill,articulation:'rhythmic',duration:Math.min(end-beat,duration*gate),velocity:Math.max(.25,Math.min(.95,velocity+[0,-.025,.015,-.045][bar%4]+(random()-.5)*.06*human))});
+   const held=options.pianoRevision!==1&&part==='upper'&&['pianoWhole','pianoHalf','pianoBallad'].includes(pattern)&&!fill;
+   const rolled=pattern==='pianoBallad'&&part==='upper'&&options.pianoRevision!==1;
+   for(const [i,note] of notes.entries()){const roll=rolled?i*.02*(options.bpm??92)/60:0;out.push({beat:beat+roll,note,part,fill,...(rolled?{phraseAttack:beat}:{}),articulation:held?'held':'rhythmic',duration:Math.max(0,Math.min(end-beat-roll,duration*(held?1:gate))),velocity:Math.max(.25,Math.min(.95,velocity+[0,-.025,.015,-.045][bar%4]+(random()-.5)*.06*human))});}
+
   };
-  let hits=rhythms[pattern].filter(([t])=>barStart+t>=s.beat-1e-8&&barStart+t<end-1e-8).map(h=>[barStart+h[0],...h.slice(1)]);
+  const grid=pattern==='pianoBallad'&&options.pianoRevision!==1?rhythms[pattern].map(h=>h[0]===.25?[0,...h.slice(1)]:h):rhythms[pattern];
+  let hits=grid.filter(([t])=>barStart+t>=s.beat-1e-8&&barStart+t<end-1e-8).map(h=>[barStart+h[0],...h.slice(1)]);
   if(!hits.some(([at,hand])=>at===s.beat&&['both','bass'].includes(hand)))hits.unshift([s.beat,'bass',s.beats,.63]);
   if(!hits.some(([at,hand])=>at===s.beat&&hand!=='bass')&&s.beat!==barStart)hits.unshift([s.beat,'upper',Math.min(1,s.beats),.59]);
   const dense=melody.filter(m=>m.beat>=barStart&&m.beat<barStart+4).length>=6;
@@ -57,8 +64,8 @@ export function renderPianoPattern(plan,pattern,options={}){
    // Fills belong in an actual rest, not under a held vocal note. Without a
    // reference use only a two-note chord-tone answer every fourth bar.
    if(at>=s.beat&&!melody.some(m=>overlaps(m,at,finish))){
-    for(const n of out)if(n.part==='upper'&&n.beat>=at&&n.beat<finish)n.omitForFill=true;
-    for(const n of out)if(n.part==='upper'&&n.beat<at&&n.beat+n.duration>at)n.duration=at-n.beat;
+    for(const n of out)if(n.part==='upper'&&n.articulation!=='held'&&n.beat>=at&&n.beat<finish)n.omitForFill=true;
+    for(const n of out)if(n.part==='upper'&&n.articulation!=='held'&&n.beat<at&&n.beat+n.duration>at)n.duration=at-n.beat;
     const picks=bar%8===3?[upper.at(-1),upper[Math.max(0,upper.length-2)]]:[upper[0],upper.at(-1)];
     picks.forEach((n,i)=>emit(at+i*.5,[n],.42,.5,'upper',true));
    }

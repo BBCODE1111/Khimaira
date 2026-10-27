@@ -1,6 +1,7 @@
 import {performance} from './engine/performance.js';
 export function performanceOptions(state,hostBpm=120){return {
- pianoPhrase:state.pianoPhrase||'original',
+ pianoRevision:state.pianoRevision??2,
+    pianoPhrase:state.pianoPhrase||'original',
  key:{root:+state.key||0,mode:state.mode||'major'},
  melodyText:state.melodyText||'',melodyFollow:state.melodyFollow||'gentle',pianoFills:state.pianoFills||'phrase',
  voicing:state.voicing,gate:+state.gate/100,human:+state.human/100,swing:+state.swing/100,

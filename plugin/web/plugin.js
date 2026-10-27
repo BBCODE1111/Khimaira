@@ -12,7 +12,7 @@ const $=id=>document.getElementById(id),clone=o=>structuredClone(o);
 const native=!!window.__JUCE__?.backend;let pending=new Map,callId=0;
 if(native)window.__JUCE__.backend.addEventListener('__juce__complete',({promiseId,result})=>{pending.get(promiseId)?.(result);pending.delete(promiseId);});
 const invoke=(name,...params)=>native?new Promise(resolve=>{const resultId=callId++;pending.set(resultId,resolve);window.__JUCE__.backend.emitEvent('__juce__invoke',{name,params,resultId});}):Promise.resolve(name==='snapshot'?null:name==='status'?{host:false,standalone:true,bpm:120}:{ok:true});
-let state={bars:parseChart('| C | Am | F | G |'),source:parseChart('| C | Am | F | G |'),style:'Jazz',key:0,mode:'major',length:4,randomness:'medium',pattern:'jazz',voicing:'rootless',gate:82,human:20,swing:16,rate:.5,seed:42,bassMode:'root',balladEntry:'together',arpFoundation:'off',arpAccent:'beat',density:3,freedom:'color',arpMode:'upDown',arpRate:'16',arpOctaves:2,arpPhase:'flow',arpSeed:1,variation:0,exampleId:null,pianoPhrase:'two',pianoFills:'phrase',melodyFollow:'gentle',melodyText:'',ideaFamily:'auto',mood:'輸入骨幹後 GENERATE；範例需按 LOAD 才載入。'};
+let state={bars:parseChart('| C | Am | F | G |'),source:parseChart('| C | Am | F | G |'),style:'Jazz',key:0,mode:'major',length:4,randomness:'medium',pattern:'jazz',voicing:'rootless',gate:82,human:20,swing:16,rate:.5,seed:42,bassMode:'root',balladEntry:'together',arpFoundation:'off',arpAccent:'beat',density:3,freedom:'color',arpMode:'upDown',arpRate:'16',arpOctaves:2,arpPhase:'flow',arpSeed:1,variation:0,exampleId:null,pianoRevision:2,pianoPhrase:'original',pianoFills:'phrase',melodyFollow:'gentle',melodyText:'',ideaFamily:'auto',mood:'輸入骨幹後 GENERATE；範例需按 LOAD 才載入。'};
 state=restoreSession(state);
 $('input').addEventListener('input',()=>{state.sourceText=$('input').value;invoke('saveUi',clone(state));});
 let hostBpm=120,chartPage=0;
@@ -41,7 +41,7 @@ $('inspire').onclick=()=>chooseExample();
 $('example').onchange=()=>{if($('example').value)chooseExample($('example').value);};
 $('loadExample').onclick=()=>change(loadExample);
 $('generate').onclick=()=>change(generateSession);
-controls.forEach(id=>$(id).onchange=()=>attempt(()=>{checkpoint();state[id]=$(id).value;if(id==='style'){let cfg=styles[state.style];state.pattern=cfg.pattern;state.voicing=cfg.voicing;state.mode=cfg.world?'modal':cfg.defaultMode||(['Minor blues','Neoclassical rock'].includes(state.style)?'minor':'major');state.exampleId=null;state.mood=cfg.description;}commit();}));
+controls.forEach(id=>$(id).onchange=()=>attempt(()=>{checkpoint();state[id]=$(id).value;if(['pattern','style'].includes(id))state.pianoRevision=2;if(id==='style'){let cfg=styles[state.style];state.pattern=cfg.pattern;state.voicing=cfg.voicing;state.mode=cfg.world?'modal':cfg.defaultMode||(['Minor blues','Neoclassical rock'].includes(state.style)?'minor':'major');state.exampleId=null;state.mood=cfg.description;}commit();}));
 $('bars').onchange=()=>{state.length=+$('bars').value;invoke('saveUi',clone(state));message('按 LOAD 或 GENERATE 套用小節數。');};
 $('variate').onclick=()=>{checkpoint();state.arpSeed++;commit();};$('undo').onclick=()=>{if(history.length){state={...history.pop(),sourceText:state.sourceText,source:state.source};selected=[0,0];chartPage=0;commit();}};
 function chord(){return state.bars[selected[0]]?.chords[selected[1]];}
@@ -62,5 +62,5 @@ document.addEventListener('keydown',e=>{if(e.code==='Space'&&!/INPUT|SELECT|TEXT
 if(native)window.__JUCE__.backend.addEventListener('transportState',updateTransport);else $('version').textContent='DESIGN PREVIEW / 1.2.0';
 try{let saved=await invoke('snapshot');if(saved?.ui?.bars){state=restoreSession(state,saved.ui);isLoop=saved.transportLoop??true;$('loop').setAttribute('aria-pressed',isLoop);}updateTransport(await invoke('status'));render();await sync();}catch(e){message(e.message);}
 
-const pianoTools=mountPianoTools($('pianoTools'),{blankUsesExamples:true,getState:()=>state,setState:patch=>{checkpoint();Object.assign(state,patch);},onChange:()=>commit()});
+const pianoTools=mountPianoTools($('pianoTools'),{blankUsesExamples:true,getState:()=>state,setState:patch=>{checkpoint();Object.assign(state,patch);if(patch.pattern||patch.pianoPhrase)state.pianoRevision=2;},onChange:()=>commit()});
 $('pianoToggle').onclick=()=>{pianoTools.refresh();$('pianoDialog').showModal();};

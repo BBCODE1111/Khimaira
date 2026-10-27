@@ -1,4 +1,4 @@
-import {parse,names,mod,approach} from './music.js?v=phrase-1';
+import {parse,names,mod,approach} from './music.js?v=piano-audit-1';
 export function parseBar(text){const tokens=text.trim().split(/\s+|,(?![^()]*\))/).filter(Boolean);if(tokens.length>4)throw Error('每小節最多四個和弦。');if(!tokens.length)return [];const durations=tokens.length===3?[2,1,1]:tokens.map(()=>4/tokens.length);return tokens.map((token,i)=>{const [symbol,beat]=token.split(':');if(!parse(symbol))throw Error('無法辨識 '+symbol+'；Am 是小和弦，AM 是大和弦。');const beats=beat===undefined?durations[i]:Number(beat);if(!Number.isFinite(beats)||beats<=0)throw Error('拍數必須大於零。');return {symbol,beats};}).map((c,i,a)=>{if(Math.abs(a.reduce((n,c)=>n+c.beats,0)-4)>.001)throw Error('每小節的拍數合計須為 4。');return c;});}
 export function parseChart(text){let t=text.trim().replace(/[.。]+$/,'').trim();if(t.startsWith('|'))t=t.slice(1);if(t.endsWith('|'))t=t.slice(0,-1);const parts=t.split('|');if(parts.length>16)throw Error('目前最多支援 16 小節。');return parts.map(p=>({chords:parseBar(p),reason:'原始進行'}));}
 export const chordList=bar=>bar.chords??(bar.symbol?[{symbol:bar.symbol,beats:4}]:[]);

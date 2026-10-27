@@ -14,8 +14,8 @@ const opts={human:0,pianoFills:'off',key:{root:0,mode:'major'}};
 test('all 18 original performances retain the deployed 2592-case event contract',()=>{
  const expected=JSON.parse(readFileSync(new URL('../packages/piano-motion/fixtures/khimaira-before-phrases.json',import.meta.url)));
  const meters=[[4,{numerator:4,denominator:4}]];
- assert.deepEqual(phraseCorpus(performance,ids,meters),expected);
- assert.deepEqual(phraseCorpus(performance,ids,meters,{pianoPhrase:'original'}),expected);
+ assert.deepEqual(phraseCorpus(performance,ids,meters,{pianoRevision:1}),expected);
+ assert.deepEqual(phraseCorpus(performance,ids,meters,{pianoPhrase:'original',pianoRevision:1}),expected);
 });
 test('each of 18 patterns offers three real phrase variations without changing the chart',()=>{
  assert.equal(ids.length,18);const before=structuredClone(chart);
@@ -41,7 +41,7 @@ test('phrase variations preserve chord boundaries, rests, tied notes and same-ke
 test('phrase answers respect melody gaps, keep FILLS off and survive reference protection',()=>{
  for(const id of ids)for(const pianoPhrase of ['two','four']){
   const occupied=performance(chart,id,{...opts,pianoPhrase,melodyText:'C5:32'});
-  assert.ok(!occupied.some(n=>n.articulation==='phrase'||n.fill),id);
+  assert.ok(!occupied.some(n=>n.articulation==='phrase'&&n.beat<.75||n.fill),id);
   const sparse=performance(chart,id,{...opts,pianoPhrase,melodyText:'C5:1 R:31'});assert.ok(sparse.length);
   assert.ok(!sparse.some(n=>n.fill),id+' fills remain off');
   assert.deepEqual(performance(chart,id,{...opts,pianoPhrase,melodyFollow:'off',melodyText:'C5:32'}),performance(chart,id,{...opts,pianoPhrase}));

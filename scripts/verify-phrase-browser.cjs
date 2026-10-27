@@ -35,7 +35,8 @@ async function download(page,selector,name){
     browser=await chromium.launch({headless:true,channel:'chrome',args:['--autoplay-policy=no-user-gesture-required']});
     const report=[];
     for(const [i,name]of ['khimaira','seiren'].entries()){
-      const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[],missing=[];
+      const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[],missing=[],externalFonts=[];
+      page.on('request',request=>{if(/fonts\.(googleapis|gstatic)\.com/.test(request.url()))externalFonts.push(request.url());});
       page.on('pageerror',e=>errors.push(e.message));
       page.on('response',r=>{if(r.url().startsWith(sites[i].url)&&r.status()>=400)missing.push(r.status()+' '+r.url());});
       await page.addInitScript(()=>{
@@ -58,6 +59,15 @@ async function download(page,selector,name){
       assert.equal(await page.evaluate(async()=> (await import('./music-core.js')).MUSIC_CORE_VERSION),'1.0.0');
       const patterns=await page.locator('#pattern option').evaluateAll(es=>es.map(e=>e.value).filter(v=>/^(piano|pop)[A-Z]|^texture/.test(v)));
       assert.equal(patterns.length,18);
+      if(name==='khimaira'){assert.equal(await page.locator('[data-piano="pattern"]').count(),0);assert.equal(await page.locator('[data-piano="pianoPhrase"]').inputValue(),'original');assert.equal(await page.locator('[data-piano="pianoPhrase"]').isVisible(),true);}
+      if(name==='seiren'){
+        await page.setViewportSize({width:390,height:844});
+        await page.evaluate(()=>scrollTo(0,0));
+        const start=await page.getByRole('button',{name:'Try demo',exact:true}).boundingBox();assert.ok(start&&start.y>0&&start.y+start.height<760);
+        await page.screenshot({path:path.join(output,'seiren-mobile-start.png'),fullPage:false});
+        await page.setViewportSize({width:1440,height:1000});
+        assert.equal(await page.locator('#ml-melody-volume').inputValue(),'0.8');assert.equal(await page.locator('#ml-harmony-volume').inputValue(),'0.7');
+      }
       assert.equal(await page.locator('#pattern optgroup[label^="POP"] option').count(),12);
       assert.equal(await page.locator('#pattern optgroup[label^="TEXTURE"] option').count(),6);
       const reference=await page.evaluate(async()=>{
@@ -78,7 +88,7 @@ async function download(page,selector,name){
       }
       if(name==='khimaira'){
         const text=page.locator('[data-piano="melodyText"]'),committed=await text.inputValue();
-        await text.fill('R:1 E5:1 R:14');await page.locator('[data-piano="pattern"]').selectOption('pianoHalf');
+        await text.fill('R:1 E5:1 R:14');await page.locator('#pattern').selectOption('pianoHalf');
         await page.locator('[data-piano="pianoPhrase"]').selectOption('four');assert.equal(await text.inputValue(),'R:1 E5:1 R:14');
         await text.fill(committed);await page.locator('[data-piano="apply"]').click();await page.locator('[data-piano="pianoPhrase"]').selectOption('two');
       }
@@ -86,7 +96,7 @@ async function download(page,selector,name){
       const phraseSelector=name==='khimaira'?'[data-piano="pianoPhrase"]':'#pianoPhrase';
       assert.equal(await page.locator(phraseSelector).inputValue(),name==='khimaira'?'two':'auto');
       for(const pattern of patterns)for(const pianoPhrase of ['space','two','four']){
-        if(name==='khimaira')await page.locator('[data-piano="pattern"]').selectOption(pattern);
+        if(name==='khimaira')await page.locator('#pattern').selectOption(pattern);
         else await page.locator('#pattern').selectOption(pattern);
         await page.locator(phraseSelector).selectOption(pianoPhrase);
         assert.equal(await page.locator('#pattern').inputValue(),pattern);
@@ -110,13 +120,13 @@ async function download(page,selector,name){
       if(name==='seiren'){
         await page.locator('#popFill').selectOption('off');
         const pending=page.waitForEvent('download');await page.locator('#saveProject').click();const item=await pending,file=await item.path();
-        const saved=JSON.parse(fs.readFileSync(file));assert.equal(saved.settings.pattern,'texturePentatonic');assert.equal(saved.settings.popFill,'off');assert.equal(saved.settings.pianoPhrase,'four');
+        const saved=JSON.parse(fs.readFileSync(file));assert.equal(saved.settings.pattern,'texturePentatonic');assert.equal(saved.settings.popFill,'off');assert.equal(saved.settings.pianoPhrase,'four');assert.equal(saved.settings.pianoRevision,2);
         await page.locator('#pattern').selectOption('popWhole');await page.locator('#popFill').selectOption('more');await page.locator('#pianoPhrase').selectOption('space');
         await page.setInputFiles('#loadProject',file);await page.waitForFunction(()=>document.getElementById('pattern').value==='texturePentatonic');
         assert.equal(await page.locator('#popFill').inputValue(),'off');assert.equal(await page.locator('#pianoPhrase').inputValue(),'four');
-        delete saved.settings.pianoPhrase;
+        delete saved.settings.pianoPhrase;delete saved.settings.pianoRevision;
         await page.setInputFiles('#loadProject',{name:'legacy-project.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(saved))});
-        await page.waitForFunction(()=>document.getElementById('pianoPhrase').value==='original');
+        await page.waitForFunction(()=>document.getElementById('pianoPhrase').value==='original');assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('seiren-project')).settings.pianoRevision),1);
         await page.locator('#pianoPhrase').selectOption('auto');restored=true;
       }else{
         await page.reload();await page.locator('.chord-event').first().waitFor();
@@ -124,9 +134,12 @@ async function download(page,selector,name){
         await page.locator('#pianoDetails summary').click();
         assert.ok((await page.locator('[data-piano="melodyText"]').inputValue()).includes('C5'));
         assert.equal(await page.locator(phraseSelector).inputValue(),'four');
-        await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('khimaira-v4'));delete s.pianoSettings.pianoPhrase;localStorage.setItem('khimaira-v4',JSON.stringify(s));});
+        await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('khimaira-v4'));delete s.pianoSettings.pianoPhrase;delete s.pianoSettings.pianoRevision;localStorage.setItem('khimaira-v4',JSON.stringify(s));});
         await page.reload();await page.locator('.chord-event').first().waitFor();await page.locator('#pianoDetails summary').click();
-        assert.equal(await page.locator(phraseSelector).inputValue(),'original');await page.locator(phraseSelector).selectOption('four');restored=true;
+        assert.equal(await page.locator(phraseSelector).inputValue(),'original');
+        // Persist normalized legacy state through a non-musical setting; loading alone need not rewrite storage.
+        await page.locator('#midiSplit').selectOption(await page.locator('#midiSplit').inputValue());
+        assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('khimaira-v4')).pianoSettings.pianoRevision),1);await page.locator(phraseSelector).selectOption('four');restored=true;
       }
       await page.locator('#pattern').selectOption('jazz');assert.equal(await page.locator(phraseSelector).isDisabled(),true);
       await page.locator('#pattern').selectOption('texturePentatonic');assert.equal(await page.locator(phraseSelector).isDisabled(),false);
@@ -134,8 +147,19 @@ async function download(page,selector,name){
       await page.setViewportSize({width:390,height:844});
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
       await page.screenshot({path:path.join(output,name+'-mobile.png'),fullPage:true});
-      assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);
-      report.push({app:name,independentSite:true,patterns:patterns.length,variationsPerPattern:3,legacyMigration:true,downloads,midiImport:true,audioOutput:true,restored,desktopAndMobile:true,errors,missing});
+      if(name==='seiren'){
+        const cue=await page.locator('.bar-cue').first().boundingBox();assert.ok(cue.width>=44&&cue.height>=44);
+        await page.locator('#dockMidi').click();
+        const target=await page.locator('#includeMelody').locator('..').boundingBox();assert.ok(target.width>=44&&target.height>=44);await page.keyboard.press('Escape');
+      }
+      await page.setViewportSize({width:1440,height:1000});
+      if(name==='seiren')await page.locator('#dockMidi').click();
+      await page.locator('#midiPedal').selectOption('on');
+      const pedalFile=name+'-pedal.mid';await download(page,name==='khimaira'?'#dockMidi':'#midi',pedalFile);
+      const data=fs.readFileSync(path.join(output,pedalFile));assert.ok(data.some((v,i)=>v>=0xb0&&v<=0xbf&&data[i+1]===64&&data[i+2]===127));
+      if(name==='seiren')await page.keyboard.press('Escape');
+      assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);if(name==='seiren')assert.deepEqual(externalFonts,[]);
+      report.push({app:name,independentSite:true,patterns:patterns.length,variationsPerPattern:3,legacyMigration:true,pedalExport:true,mobileStartActions:name==='seiren'?true:null,localFonts:name==='seiren'?true:null,downloads,midiImport:true,audioOutput:true,restored,desktopAndMobile:true,errors,missing});
       await page.close();
     }
     fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));

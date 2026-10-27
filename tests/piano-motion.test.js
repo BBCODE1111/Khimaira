@@ -22,7 +22,7 @@ test('course rhythms preserve real rests, dotted ratios and one sustained tied a
 });
 
 test('meter-specific pulses, exact triplets and split harmony never restart the whole pattern',()=>{
- for(const [bb,meter,bass] of [[4,{numerator:4,denominator:4},[0,2]],[3,{numerator:3,denominator:4},[0,2]],[3,{numerator:6,denominator:8},[0,1.5]]]){
+ for(const [bb,meter,bass] of [[4,{numerator:4,denominator:4},[0,2]],[3,{numerator:3,denominator:4},[0]],[3,{numerator:6,denominator:8},[0,1.5]]]){
   for(const id of ids){
    const notes=renderTexture(plan(bb),id,{barBeats:bb,meter,fillMode:'off',human:0});
    assert.deepEqual(notes.filter(n=>n.role==='bass'&&n.beat<bb).map(n=>n.beat),bass);
