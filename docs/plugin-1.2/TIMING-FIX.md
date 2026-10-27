@@ -47,3 +47,7 @@ ctest --test-dir build-plugin/v12 -V
 補測最初曾在延續的工作階段錄到前一段的 4 個額外音和首拍位置差異；該次未通過，沒有刪除多餘事件來冒充通過。重新啟動後的直接錄製與連續重錄均未再現，因此不能單憑該次資料斷言根因。更新安裝包後請完整關閉並重新開啟 Logic，以載入新外掛並清除舊工作階段狀態。
 
 使用者確認未安裝 Ableton Live，因此本輪只宣稱 Logic 的實機驗收結果。Intel Mac 與 Windows DAW 的實機相容性也仍需另測。
+
+## 發佈
+
+修正提交 `4e6096d` 的 [GitHub Actions](https://github.com/BBCODE1111/Khimaira/actions/runs/40430474698) 四項工作（verify-web、Mac、Windows、package）全部成功。已發佈 [plugin-v1.2.0-beta.1](https://github.com/BBCODE1111/Khimaira/releases/tag/plugin-v1.2.0-beta.1)，包含本機實測的 Mac Universal 安裝包、同一提交的 Windows 安裝程式與 VST3 ZIP，以及各檔校驗值。補測報告提交只增加證據文件，不改變執行檔。

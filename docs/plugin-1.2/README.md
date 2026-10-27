@@ -29,7 +29,7 @@
 | 4 六種 pattern 逐音一致 | 通過 | jazz/pop/rock/ballad/house/arp，24 份 8 小節 fixture；native 保留 beat/duration/note/velocity 原值。每種跑 64/257/1024 samples，AU 和 Instrument 各 72 案例，共 288（增加 host PPQ 取整案例）。原始 notes 保持逐值一致；即時 MIDI 事件與檔案匯出共用 480 PPQ 時間格點。 |
 | 5 預設／最小介面 | 版面測試通過 | 同一份打包介面在 900×608／760×518（扣除 42px 原生 footer）無捲動、無重疊；進階區也通過。附兩尺寸瀏覽器截圖及 Logic 預設尺寸實機圖。未把未成功的原生視窗拖曳操作當作最小尺寸實機證據。 |
 | 6 Ableton VST3 路由 | **待實機驗證** | 使用者確認本機沒有安裝 Live，本輪專注 Logic。實際 VST3 binary 在 JUCE host harness 載入，MIDI event output bus、30 組 note-on/off、HOST/STOP 均通過；這不等於 Live 實測。 |
-| 7 Node／native tests | 通過本機 | Node 98 項；原生 CTest 3/3。純 scheduler 與完整 processor 測試通過；原生最大誤差 0.499818 tick／480 PPQ，三輪 sample 位置相同。前一版 Windows CI 2/2、Mac CI 3/3 已通過；本次時間修正的建置結果以最新 Actions 為準。 |
+| 7 Node／native tests | 通過本機 | Node 98 項；原生 CTest 3/3。純 scheduler 與完整 processor 測試通過；原生最大誤差 0.499818 tick／480 PPQ，三輪 sample 位置相同。本次時間修正的 Windows、Mac CI 與安裝包工作也已全部通過。 |
 
 ### Logic 錄製方法與嚴格重測
 
@@ -70,5 +70,7 @@ Mac Universal（arm64 + x86_64）AU/VST3/App 已編譯並完成 ad-hoc 簽章驗
 Logic：MIDI FX → Audio Units → KHIMAIRA → **KHIMAIRA 1.2 MIDI FX**；下方 Instrument 放 Serum／Logic 音源。VST3 以樂器載入，再把 MIDI 輸出接另一條樂器軌。沒有內建音色。單擊 DRAG MIDI 存到「文件／KHIMAIRA MIDI」，真正的跨視窗拖放仍待使用者 DAW 操作補測。
 
 先前基準版本的 [GitHub Actions #5](https://github.com/BBCODE1111/Khimaira/actions/runs/40379697800) 的 verify-web、Mac、Windows、package 四個工作全部成功（commit `a5ca8ad`）。Windows 原生測試 2/2 通過，安裝程式與 VST3 ZIP 已產生；[測試摘錄](windows-ci.txt)。第一輪測試程式曾因大型 processor 配置在 stack 崩潰，已改為 heap 後重跑通過。
+
+本次時間修正（commit `4e6096d`）的 [GitHub Actions](https://github.com/BBCODE1111/Khimaira/actions/runs/40430474698) 已全部通過，包含 verify-web、Mac、Windows、package。[1.2 測試版下載](https://github.com/BBCODE1111/Khimaira/releases/tag/plugin-v1.2.0-beta.1) 已發佈；Mac 安裝包為本機 Logic 實測版本，Windows 檔案來自同一提交的 CI。
 
 本輪 Logic 時間驗收已完成。Ableton、Windows／Intel 的實際 DAW 相容性仍未驗證；下載版保留測試版標記，不宣稱所有宿主皆驗收通過。
