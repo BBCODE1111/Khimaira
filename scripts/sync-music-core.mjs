@@ -32,13 +32,15 @@ if (seirenIndex >= 0) {
   outputs.set(resolve(seiren,'tests/music-core/manifest.json'),manifest);
   outputs.set(resolve(seiren,'piano-motion.js'),motion);
   outputs.set(resolve(seiren,'tests/music-core/motion-manifest.json'),motionManifest);
+  outputs.set(resolve(seiren,'tests/music-core/phrase-corpus.mjs'),readFileSync(resolve(root,'packages/piano-motion/compatibility-corpus.mjs'),'utf8'));
+  outputs.set(resolve(seiren,'tests/music-core/seiren-before-phrases.json'),readFileSync(resolve(root,'packages/piano-motion/fixtures/seiren-before-phrases.json'),'utf8'));
   for (const [source,target] of [
     ['compatibility-corpus.mjs','compatibility-corpus.mjs'],
     ['fixtures/seiren-before.json','seiren-before.json'],
   ]) outputs.set(resolve(seiren,'tests/music-core',target),readFileSync(resolve(root,'packages/music-core',source),'utf8'));
   outputs.set(resolve(seiren,'docs/SHARED-MUSIC-CORE.md'),readFileSync(resolve(root,'packages/music-core/README.md'),'utf8'));
   outputs.set(resolve(seiren,'docs/SHARED-PIANO-MOTION.md'),readFileSync(resolve(root,'packages/piano-motion/README.md'),'utf8'));
-  for(const file of ['course-study-20261027.md','course-study-20261027/source-inventory.json']) {
+  for(const file of ['course-study-20261027.md','course-study-20261027/source-inventory.json','piano-phrases-20261027.md']) {
     outputs.set(resolve(seiren,'docs',file),readFileSync(resolve(root,'docs',file),'utf8'));
   }
 }

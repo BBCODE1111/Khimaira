@@ -4,7 +4,7 @@ import {styles,styleLabels,mutate} from './engine/style-engine.js';
 import {examplePool,nextExample} from './engine/example-pool.js';
 const clone=value=>structuredClone(value);
 export function restoreSession(defaults,saved={}){
- const state={...defaults,...saved};
+ const state={...defaults,...saved,pianoPhrase:saved.pianoPhrase||(Object.keys(saved).length?'original':defaults.pianoPhrase)};
  // Older sessions kept the original LOAD in source, separately from the result.
  state.sourceText=typeof saved.sourceText==='string'?saved.sourceText:serialize(saved.source??defaults.source);
  return state;

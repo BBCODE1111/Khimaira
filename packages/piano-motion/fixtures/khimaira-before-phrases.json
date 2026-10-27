@@ -1,0 +1,74 @@
+{
+  "pianoWhole": {
+    "count": 144,
+    "sha256": "ec7af97628e2497f81f72ad88d9cf187b42a06b7311e24043826239b0f8b48f7"
+  },
+  "pianoHalf": {
+    "count": 144,
+    "sha256": "9f5f42747e81d0bd5e49869f05045d699c2e70e71f9c6dc2a4a790142988cdb2"
+  },
+  "pianoQuarter": {
+    "count": 144,
+    "sha256": "4dbee19d3d30ca404ad959c08e69bdda3f4c10c5f2c1cffbb33c6801ff143362"
+  },
+  "pianoBassReply": {
+    "count": 144,
+    "sha256": "7d98d60bc8485603736db1400a27fa10aa1d6c388ddae239ca1044d8d24133a4"
+  },
+  "pianoBackbeat": {
+    "count": 144,
+    "sha256": "2d728b02334a4cbfeac447c75f5a4cfb67108feae8fab4aee6f8c8310b978e18"
+  },
+  "pianoPush": {
+    "count": 144,
+    "sha256": "3a00b8e79d14afd3c2e1d3159499b48f929f527d62fc901f2815e5f27ed91c0f"
+  },
+  "pianoBallad": {
+    "count": 144,
+    "sha256": "76e592af055fd4652c10b760b879ec9e73f2a22e7fc0cb32d37dadb008052649"
+  },
+  "pianoBroken": {
+    "count": 144,
+    "sha256": "afc9ae3f2671d69ff1a3fbcb952120470296dc2d5f5a7d4cc52f4288f5be48b3"
+  },
+  "pianoAnswer": {
+    "count": 144,
+    "sha256": "4ef4e6f984ea202abba7c95727444421001ba56d6d56bc7ccd6edd42ecbe365d"
+  },
+  "pianoHandTurn": {
+    "count": 144,
+    "sha256": "48e688bc8992f11083d35fb5610e6888bd6ec3ea6bc4b80e94470e03c43ee883"
+  },
+  "pianoKpop": {
+    "count": 144,
+    "sha256": "1bf847a301664a13c302401ac16d19f6f585f08f179bdfba55b90f043bf6aff9"
+  },
+  "pianoJpop": {
+    "count": 144,
+    "sha256": "8606524c7a5059a070625c6f2af8beaab120040de615285fa7729716a13edbe5"
+  },
+  "textureDotted": {
+    "count": 144,
+    "sha256": "ad5c51c9c1e6e2ce9e5bcfbd57271672c62a26c6614319c6593ef9d53f71e037"
+  },
+  "textureTied": {
+    "count": 144,
+    "sha256": "b76d41ca715e15cfa8ba630ce225d3bc853eb2e0c2012d55873fe069cdb40857"
+  },
+  "textureSpace": {
+    "count": 144,
+    "sha256": "a40d0c0c9dfe7592a0f06dc61ee6e9a3eb9482b1f0f235be0aa8b0baf26d7c74"
+  },
+  "textureBroken": {
+    "count": 144,
+    "sha256": "a4a392a14c296a898cf281a96119aa4839bdb0e3407321170585455c12d014a6"
+  },
+  "textureTriplet": {
+    "count": 144,
+    "sha256": "9b8ee0cf43d0559bdcd6145e789604e68f3bd4430553672490a6f87e8fb9bab1"
+  },
+  "texturePentatonic": {
+    "count": 144,
+    "sha256": "fc411b6b526c926478da0f0543a8f45b2004c1aa5be40a301649252952e7aa9e"
+  }
+}

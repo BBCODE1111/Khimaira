@@ -6,3 +6,5 @@
 - 根據需求判斷共用核心與各產品的影響，保留相容設定及已 debug 行為。沒有明確產品行為變更時，輸出契約應保持一致。
 - 共用修改需同步並驗證兩邊；只有本 checkout 時，清楚記錄另一邊尚未驗證。用 README 的命令檢查，不要假設單邊測試能證明另一邊正常。
 - 保留其他正在進行的未提交修改；遇到測試失敗，先比對修改前基準。不得為讓測試通過而直接重製 golden fixture。
+
+- POP／TEXTURE 樂句共用 `applyPianoPhrase`，先讀 `docs/piano-phrases-20261027.md`；各產品原有 12 款 renderer 與生成邏輯不合併。保留 original 演奏指紋及舊專案遷移。Khimaira 的 POP 顯示仍使用舊 piano* ID。

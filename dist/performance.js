@@ -1,8 +1,8 @@
-import {voicingCandidates as candidates} from './voicing.js?v=course-1';
+import {voicingCandidates as candidates} from './voicing.js?v=phrase-1';
 import {arpeggiate} from './arpeggiator.js?v=17';
-import {parse,mod} from './music.js?v=course-1';
-import {pianoPatterns,renderPianoPattern} from './piano-patterns.js?v=course-1';
-import {texturePatterns,isTexture} from './piano-motion.js?v=1.0.0';
+import {parse,mod} from './music.js?v=phrase-1';
+import {pianoPatterns,renderPianoPattern} from './piano-patterns.js?v=phrase-1';
+import {texturePatterns,isTexture} from './piano-motion.js?v=1.1.0';
 export const patterns={arp:'ARP · 合成器分解',sustain:'長音和弦 · 精準全拍',ballad:'Ballad · 柔和分解',jazz:'Jazz · Swing comping',bossa:'Bossa · Bass & syncopation',gospel:'Gospel · Rolling chords',house:'Deep house · Flowing syncopation',soul:'Soul · Laid-back comping',rnb:'R&B · Broken pocket',funk:'Funk · 16th conversation',edm:'EDM · Octave pulse',lofi:'Lo-fi · Dusty late pocket',chill:'Chill · Breathing chords',neosoul:'Neo-soul · Rolling answers',pop:'Pop · Lifted eighths',blues:'Blues · Shuffle comping',neoclassical:'Classical rock · Dramatic ostinato',disco:'Nu-disco · Octave syncopation',ambient:'Ambient · Floating sustain',fusion:'Fusion · 16th accents',rock:'Rock · Eighth pulse',jpop:'J-rock · Driving broken chords',alberti:'Classical · Alberti bass',folk:'Folk · Fingerstyle',ostinato:'Modal · Pedal ostinato',arpUp:'Arp · Up',arpDown:'Arp · Down',arpBounce:'Arp · Up / Down',arpRandom:'Arp · Seeded random',arpOctave:'Arp · Two octaves'};
 Object.assign(patterns,{metal:'Metal · 低音 Gallop',doom:'Doom · 緩慢重擊',grunge:'Grunge · 重擊與留白',alternative:'Alternative · 破碎音型',gothic:'Gothic · 冷峻反覆',requiem:'Requiem · 合唱長音',modalPluck:'調式 · Pedal & plucked answers',sparsePluck:'日本五聲 · Sparse plucks',highlife:'Highlife · Interlocking guitar',pentatonicAnswer:'Tizita · Pentatonic answers',slackKey:'Slack-key · Alternating bass',breathingDrone:'當代笛樂 · Breathing drone',ragaDrone:'印度音列 · Sa–Pa drone',afrobeats:'Afrobeats · Syncopated pocket',amapiano:'Amapiano · Keys & bass replies',dembow:'Reggaeton · Dembow-inspired keys',dancehall:'Dancehall · Offbeat vamp',latinPop:'Latin pop · 3–3–2 keys',flamenco:'Flamenco · 4/4 strum study'});
 Object.assign(patterns,pianoPatterns);
@@ -17,7 +17,7 @@ if(pattern==='arp'){
  for(const s of plan){all.push({beat:s.beat,note:s.notes[0],part:'bass',articulation:'held',duration:s.beats,velocity:.62});
   if(options.arpFoundation==='pad')for(const n of s.notes.slice(1))all.push({beat:s.beat,note:n,part:'upper',articulation:'held',duration:s.beats,velocity:.42});}
 }
-if(pianoPatterns[pattern]||isTexture(pattern))all.push(...renderPianoPattern(plan,pattern,isTexture(pattern)?{...options,totalBeats:bars.length*4}:options));
+if(pianoPatterns[pattern]||isTexture(pattern))all.push(...renderPianoPattern(plan,pattern,{...options,totalBeats:bars.length*4}));
 for(const [idx,s] of (pattern==='arp'||pianoPatterns[pattern]||isTexture(pattern)?[]:plan).entries()){const v=s.notes,upper=v.slice(1),length=s.beats,bar=Math.floor(s.beat/4),phrase=bar%8,variant=bar%3,pedal=['ballad','soul','chill','gospel','ambient'].includes(pattern);const add=(t,notes,dur,velocity=.74,roll=0,articulation='rhythmic',part=null)=>{notes.forEach((note,j)=>{const jitter=pattern==='sustain'||articulation==='held'&&notes.length===1?0:(random()*.025*human+j*roll);const pocket=pattern==='lofi'&&notes!==v&&note!==v[0]? .03*Number(options.bpm||92)/60:0;const sixteenth=['funk','fusion'].includes(pattern)&&Math.abs(t*4-Math.round(t*4))<1e-8&&Math.round(t*4)%2?swing/2:0;const local=t+jitter+pocket+sixteenth;if(local>=length)return;all.push({beat:s.beat+local,note,part:part||(notes.length===1&&['edm','disco','pop'].includes(pattern)||note===v[0]||notes.length===1&&note<upper[0]?'bass':'upper'),articulation:pattern==='sustain'||pedal&&note!==v[0]?'held':articulation,duration:pedal&&note!==v[0]?length-local:Math.min(pattern==='sustain'||articulation==='held'?dur:dur*gate*(.96+random()*.04),length-local),velocity:Math.max(.25,Math.min(.96,velocity+(pattern==='sustain'?0:([-.07,-.04,0,.04,-.02,.03,.08,-.01][phrase])+(t%1===0?.018:-.018)+(random()-.5)*.16*human)))});});};
 if(pattern==='sustain'){add(0,v,length,.78);continue;}
 if(pattern==='metal'){

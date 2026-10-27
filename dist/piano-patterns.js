@@ -1,10 +1,10 @@
 import {referenceNotes,overlaps,protectMelody} from './melody-reference.js?v=18';
-import {isTexture,renderTexture} from './piano-motion.js?v=1.0.0';
+import {isTexture,renderTexture,applyPianoPhrase} from './piano-motion.js?v=1.1.0';
 export const pianoPatterns={
- pianoWhole:'Piano 01 · 一小節柱式',pianoHalf:'Piano 02 · 兩拍柱式',pianoQuarter:'Piano 03 · 四分柱式',
- pianoBassReply:'Piano 04 · 低音先行',pianoBackbeat:'Piano 05 · 二四拍回答',pianoPush:'Piano 06 · 八分推拍',
- pianoBallad:'Piano 07 · 抒情長短句',pianoBroken:'Piano 08 · 柱式接分解',pianoAnswer:'Piano 09 · 柱式句尾回應',
- pianoHandTurn:'Piano 10 · 齊右左右',pianoKpop:'Piano 11 · K-pop 留白切分',pianoJpop:'Piano 12 · J-pop 副歌推進'
+ pianoWhole:'POP 01 · 一小節柱式',pianoHalf:'POP 02 · 兩拍柱式',pianoQuarter:'POP 03 · 四分柱式',
+ pianoBassReply:'POP 04 · 低音先行',pianoBackbeat:'POP 05 · 二四拍回答',pianoPush:'POP 06 · 八分推拍',
+ pianoBallad:'POP 07 · 抒情長短句',pianoBroken:'POP 08 · 柱式接分解',pianoAnswer:'POP 09 · 柱式句尾回應',
+ pianoHandTurn:'POP 10 · 齊右左右',pianoKpop:'POP 11 · K-pop 留白切分',pianoJpop:'POP 12 · J-pop 副歌推進'
 };
 export const pianoRecommendations={
  'American pop':['pianoHalf','pianoQuarter','pianoPush'],Mandopop:['pianoBassReply','pianoBallad','pianoAnswer'],
@@ -31,7 +31,7 @@ export function renderPianoPattern(plan,pattern,options={}){
  if(isTexture(pattern)){
   const melody=referenceNotes(options);
   const events=renderTexture(plan,pattern,{...options,barBeats:4,fillMode:options.pianoFills||'phrase',melody:melody.map(n=>({pitch:n.note,start:n.beat,end:n.beat+n.duration}))});
-  return protectMelody(events.map(n=>({...n,part:n.role==='bass'?'bass':'upper'})),melody);
+  return protectMelody(applyPianoPhrase(events,plan,pattern,{...options,barBeats:4,melody:melody.map(n=>({pitch:n.note,start:n.beat,end:n.beat+n.duration}))}).map(n=>({...n,part:n.role==='bass'?'bass':'upper'})),melody);
  }
  const melody=referenceNotes(options),out=[],human=Math.max(0,Math.min(1,Number(options.human??.2))),gate=Math.max(.1,Math.min(1,Number(options.gate??.82)));
  let seed=(options.seed??42)>>>0;const random=()=>{seed=(1664525*seed+1013904223)>>>0;return seed/4294967296;};
@@ -64,5 +64,5 @@ export function renderPianoPattern(plan,pattern,options={}){
    }
   }
  }
- return protectMelody(out.filter(n=>!n.omitForFill&&Number.isFinite(n.note)),melody);
+ return protectMelody(applyPianoPhrase(out.filter(n=>!n.omitForFill&&Number.isFinite(n.note)),plan,pattern,{...options,barBeats:4,melody:melody.map(n=>({pitch:n.note,start:n.beat,end:n.beat+n.duration}))}),melody);
 }
