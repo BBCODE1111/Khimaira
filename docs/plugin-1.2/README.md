@@ -1,6 +1,6 @@
 # KHIMAIRA 1.2.0 MIDI FX 重建／驗收報告
 
-2026-10-27。**可安裝測試，尚未達到全部正式驗收條件。** 網頁 `dist/` 與基準 `078fbcd` 完全相同。
+2026-10-27。**Logic 的 1 tick 與首輪起音問題已修正；其他 DAW 仍需各別實測。** 網頁 `dist/` 與基準 `078fbcd` 完全相同。
 
 ## 完成的重建
 
@@ -24,12 +24,12 @@
 | # | 結果 | 證據與限制 |
 | --- | --- | --- |
 | 1 Logic MIDI FX → 音源 | 通過功能驗證 | Logic Pro 11.2.2 的 MIDI FX 選單出現 KHIMAIRA 1.2 MIDI FX，實際插在 Serum 前；PLAY/HOST 產生正常輸出音量訊號，並錄成 MIDI region。AU strict 驗證成功。 |
-| 2 8 小節、120 BPM、三輪、≤1 tick | **嚴格標準尚未通過** | 80 notes／輪。Logic 匯出 480 PPQ 後，對原始浮點 beat 最大差 1.01830794 tick；預備拍後第一輪有兩個起點比後續輪早 1 tick。第 2–4 輪位置完全相同。保留原始 MIDI 與失敗輸出，未放寬門檻。 |
+| 2 8 小節、120 BPM、三輪、≤1 tick | **通過** | 80 notes／輪；從第 1 輪開始比較三輪。最大差 0.49600498 tick，音符位置／音高／力度三輪完全相同。標準仍為 ≤1 tick，沒有跳過首輪或放寬門檻。詳見 [時間修正報告](TIMING-FIX.md)。 |
 | 3 原生 PLAY／host BPM／背景操作 | 功能通過；壓力觀察有範圍限制 | Logic 停止時 PLAY 持續，關閉介面後仍播放；在 Tempo 列表把真正的速度事件從 122 改到 123，外掛立即顯示 123 並繼續。開啟 Activity Monitor 後仍持續。原生測試另驗證 120→180 與 UI 不推進音訊時鐘；未用音訊量測儀量化整台系統負載。 |
-| 4 六種 pattern 逐音一致 | 通過 | jazz/pop/rock/ballad/house/arp，24 份 8 小節 fixture；native 保留 beat/duration/note/velocity 原值。每種跑 64/257/1024 samples，AU 和 Instrument 各 72 案例，共 144。 |
+| 4 六種 pattern 逐音一致 | 通過 | jazz/pop/rock/ballad/house/arp，24 份 8 小節 fixture；native 保留 beat/duration/note/velocity 原值。每種跑 64/257/1024 samples，AU 和 Instrument 各 72 案例，共 288（增加 host PPQ 取整案例）。原始 notes 保持逐值一致；即時 MIDI 事件與檔案匯出共用 480 PPQ 時間格點。 |
 | 5 預設／最小介面 | 版面測試通過 | 同一份打包介面在 900×608／760×518（扣除 42px 原生 footer）無捲動、無重疊；進階區也通過。附兩尺寸瀏覽器截圖及 Logic 預設尺寸實機圖。未把未成功的原生視窗拖曳操作當作最小尺寸實機證據。 |
-| 6 Ableton VST3 路由 | **待實機驗證** | 本機未找到 Live，已詢問安裝位置。實際 VST3 binary 在 JUCE host harness 載入，MIDI event output bus、30 組 note-on/off、HOST/STOP 均通過；這不等於 Live 實測。 |
-| 7 Node／native tests | 通過本機 | Node 98 項；原生 CTest 3/3。純 scheduler 與完整 processor 測試通過；原生最大誤差 0.00999614 tick／480 PPQ，三輪 sample 位置相同。Windows CI 2/2、Mac CI 3/3 也通過。 |
+| 6 Ableton VST3 路由 | **待實機驗證** | 使用者確認本機沒有安裝 Live，本輪專注 Logic。實際 VST3 binary 在 JUCE host harness 載入，MIDI event output bus、30 組 note-on/off、HOST/STOP 均通過；這不等於 Live 實測。 |
+| 7 Node／native tests | 通過本機 | Node 98 項；原生 CTest 3/3。純 scheduler 與完整 processor 測試通過；原生最大誤差 0.499818 tick／480 PPQ，三輪 sample 位置相同。前一版 Windows CI 2/2、Mac CI 3/3 已通過；本次時間修正的建置結果以最新 Actions 為準。 |
 
 ### Logic 錄製方法與嚴格重測
 
@@ -41,7 +41,7 @@
 node plugin/scripts/verify-logic.mjs docs/plugin-1.2/logic-host-120.mid
 ```
 
-這個命令目前故意保留嚴格失敗，不能用 native unit tests 取代 Logic 驗收。差異可能包含 Logic 錄製／MIDI 匯出取整，但尚未證明根因，不能宣稱只是匯出問題。無預備拍的首次錄製另缺第一組起音，因此本報告採用有預備拍的檔案。
+此命令現在通過，直接檢查 Logic 匯出檔的第 1–3 輪。舊失敗檔與輸出保留為 `logic-host-120-before.mid`／`logic-recording-before.txt`。修正採用與 MIDI 檔一致的 480 PPQ 事件精度，原始和聲／伴奏資料不變；最短事件至少 1 tick。詳見時間修正報告。
 
 最初的 BPM 操作曾只改到 Logic 顯示欄，實際 Tempo 事件仍為 120；後來直接從 Tempo 列表確認與修改，排除這次測試操作造成的誤判。不是已確認的外掛 BPM 故障。
 
@@ -69,6 +69,6 @@ Mac Universal（arm64 + x86_64）AU/VST3/App 已編譯並完成 ad-hoc 簽章驗
 
 Logic：MIDI FX → Audio Units → KHIMAIRA → **KHIMAIRA 1.2 MIDI FX**；下方 Instrument 放 Serum／Logic 音源。VST3 以樂器載入，再把 MIDI 輸出接另一條樂器軌。沒有內建音色。單擊 DRAG MIDI 存到「文件／KHIMAIRA MIDI」，真正的跨視窗拖放仍待使用者 DAW 操作補測。
 
-[GitHub Actions #5](https://github.com/BBCODE1111/Khimaira/actions/runs/40379697800) 的 verify-web、Mac、Windows、package 四個工作全部成功（commit `a5ca8ad`）。Windows 原生測試 2/2 通過，安裝程式與 VST3 ZIP 已產生；[測試摘錄](windows-ci.txt)。第一輪測試程式曾因大型 processor 配置在 stack 崩潰，已改為 heap 後重跑通過。
+先前基準版本的 [GitHub Actions #5](https://github.com/BBCODE1111/Khimaira/actions/runs/40379697800) 的 verify-web、Mac、Windows、package 四個工作全部成功（commit `a5ca8ad`）。Windows 原生測試 2/2 通過，安裝程式與 VST3 ZIP 已產生；[測試摘錄](windows-ci.txt)。第一輪測試程式曾因大型 processor 配置在 stack 崩潰，已改為 heap 後重跑通過。
 
-正式版前仍需完成第 2、6 項，及 Windows／Intel 的實際 DAW 覆蓋驗證。本次不建立「全部驗收通過」的正式標籤。
+本輪 Logic 時間驗收已完成。Ableton、Windows／Intel 的實際 DAW 相容性仍未驗證；下載版保留測試版標記，不宣稱所有宿主皆驗收通過。

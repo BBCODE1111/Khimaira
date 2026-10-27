@@ -3,24 +3,6 @@
   "ppq": 480,
   "startCycle": 0,
   "notesPerCycle": 80,
-  "maxErrorTicks480": 1.0183079415938323,
-  "identicalCycles": false
+  "maxErrorTicks480": 0.49600497555900347,
+  "identicalCycles": true
 }
-node:internal/modules/run_main:107
-    triggerUncaughtException(
-    ^
-
-AssertionError [ERR_ASSERTION]: Logic recording exceeds 1 tick
-    at file:///Users/liuyenhui/Documents/ChatGPT/CHORD%20SOLUTION/Khimaira/plugin/scripts/verify-logic.mjs:26:8
-    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
-    at async node:internal/modules/esm/loader:643:26
-    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
-  generatedMessage: false,
-  code: 'ERR_ASSERTION',
-  actual: false,
-  expected: true,
-  operator: '==',
-  diff: 'simple'
-}
-
-Node.js v24.19.0

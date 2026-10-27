@@ -1,20 +1,27 @@
 {
-  "sha256": "351c036bba473376f5275fb51851fde9cab03566189288239eeaca31dad6aeed",
+  "installer": "KHIMAIRA-1.2.0-mac.pkg",
+  "sha256": "c49ff3fbf570214616b2f41bf34789442b59b6aa5ed3b5e5f26aa4ea116567d4",
   "bundles": [
     {
-      "bundle": "khimaira-app.pkg/Payload/Applications/KHIMAIRA 1.2.app/Contents/Info.plist",
+      "bundle": "KHIMAIRA 1.2.app",
       "id": "music.khimaira.v12.instrument",
-      "version": "1.2.0"
+      "version": "1.2.0",
+      "binarySha256": "29a755e273459436359390d8f793c86f3a7ed6fb04d48e1d336cd2d5cfd3b520",
+      "installedMatchesPackage": true
     },
     {
-      "bundle": "khimaira-vst3.pkg/Payload/Library/Audio/Plug-Ins/VST3/KHIMAIRA 1.2.vst3/Contents/Info.plist",
+      "bundle": "KHIMAIRA 1.2.vst3",
       "id": "music.khimaira.v12.instrument",
-      "version": "1.2.0"
+      "version": "1.2.0",
+      "binarySha256": "11568cce1930dc76230bcf8f865ade755f95a7c8acaa06bb96a5497985d484de",
+      "installedMatchesPackage": true
     },
     {
-      "bundle": "khimaira-au.pkg/Payload/Library/Audio/Plug-Ins/Components/KHIMAIRA 1.2 MIDI FX.component/Contents/Info.plist",
+      "bundle": "KHIMAIRA 1.2 MIDI FX.component",
       "id": "music.khimaira.v12.midifx",
-      "version": "1.2.0"
+      "version": "1.2.0",
+      "binarySha256": "8ee2f09cfd50633a88571b2d1a188f5bb99f93e2e954f4ffb6706e300fbf226b",
+      "installedMatchesPackage": true
     }
   ]
 }

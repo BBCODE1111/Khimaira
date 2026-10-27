@@ -1,6 +1,7 @@
 #pragma once
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "Sequence.h"
+#include "HostTimeline.h"
 class KhimairaProcessor final : public juce::AudioProcessor {
 public:
  KhimairaProcessor();
@@ -22,7 +23,7 @@ public:
  std::atomic<double> bpm{120},position{0},hostTempo{120};
  std::atomic<bool> playing{false},hasHost{false};
 private:
- khimaira::Mailbox mailbox;khimaira::Scheduler scheduler;
+ khimaira::Mailbox mailbox;khimaira::Scheduler scheduler;khimaira::HostTimeline hostTimeline;
  juce::CriticalSection stateLock;juce::var saved;
  std::atomic<int> restart{0};int lastRestart=0;double manualBeat=0,sampleRateHz=48000;
  bool wasHostPlaying=false, wasHostMode=false, wasRunning=false;

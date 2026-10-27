@@ -10,7 +10,19 @@ namespace khimaira {
 struct Note { double beat=0, duration=1; int pitch=60; double velocity=.7; };
 struct Event { double beat=0; int pitch=60; double velocity=0; bool on=false; };
 struct Sequence {
- static constexpr int maxNotes=8192;
+ static constexpr int maxNotes=8192,ticksPerQuarter=480;
+ static std::pair<double,double> playbackBounds(const Note& n,double length){
+  const int lastTick=(int)std::llround(length*ticksPerQuarter);
+  const int startTick=std::clamp((int)std::llround(n.beat*ticksPerQuarter),0,lastTick-1);
+  const int endTick=std::clamp((int)std::llround((n.beat+n.duration)*ticksPerQuarter),startTick+1,lastTick);
+  return {double(startTick)/ticksPerQuarter,double(endTick)/ticksPerQuarter};
+ }
+ bool sortAndValidateEvents(){
+  std::sort(events.begin(),events.begin()+eventCount,[](const Event&a,const Event&b){return a.beat!=b.beat?a.beat<b.beat:a.on<b.on;});
+  std::array<bool,128> sounding{};
+  for(int i=0;i<eventCount;i++){auto e=events[i];if(e.on&&sounding[e.pitch])return false;sounding[e.pitch]=e.on;}
+  return true;
+ }
  std::array<Note,maxNotes> notes{};
  std::array<Event,maxNotes*2> events{};
  int noteCount=0,eventCount=0;
@@ -20,14 +32,21 @@ struct Sequence {
   length=beats;noteCount=0;eventCount=0;
   for(auto n:source){
    if(!std::isfinite(n.beat)||!std::isfinite(n.duration)||n.beat<0||n.duration<=0||n.beat+n.duration>length+1e-6||n.pitch<0||n.pitch>127||!std::isfinite(n.velocity)||n.velocity<=0||n.velocity>1) return false;
-   // JSON round-trips can move touching boundaries by a few floating-point ulps.
-   const double end=std::round(std::min(n.beat+n.duration,length)*1e9)/1e9;
+   // Validate the unquantised source first, normalising floating-point ulps.
    notes[noteCount++]=n;
-   events[eventCount++]={std::round(n.beat*1e9)/1e9,n.pitch,n.velocity,true};events[eventCount++]={end,n.pitch,0,false};
+   events[eventCount++]={std::round(n.beat*1e9)/1e9,n.pitch,n.velocity,true};
+   events[eventCount++]={std::round(std::min(n.beat+n.duration,length)*1e9)/1e9,n.pitch,0,false};
   }
-  std::sort(events.begin(),events.begin()+eventCount,[](const Event&a,const Event&b){return a.beat!=b.beat?a.beat<b.beat:a.on<b.on;});
-  std::array<bool,128> sounding{};
-  for(int i=0;i<eventCount;i++){auto e=events[i];if(e.on&&sounding[e.pitch])return false;sounding[e.pitch]=e.on;}
+  if(!sortAndValidateEvents())return false;
+  // Preserve source notes verbatim. Live delivery and MIDI files share 480 PPQ,
+  // including at project start and at every loop; never accumulate rounded deltas.
+  eventCount=0;
+  for(int i=0;i<noteCount;i++){
+   const auto n=notes[i];const auto bounds=playbackBounds(n,length);
+   events[eventCount++]={bounds.first,n.pitch,n.velocity,true};
+   events[eventCount++]={bounds.second,n.pitch,0,false};
+  }
+  if(!sortAndValidateEvents())return false;
   return true;
  }
 };
@@ -52,7 +71,7 @@ public:
   bool jump=changed||!running||std::abs(start-expected)>beatPerSample*2.5;
   if(jump)flush(emit);
   double end=start+samples*beatPerSample;double local=loop?start-std::floor(start/seq->length)*seq->length:start;
-  if(jump && start>=0 && (loop||start<seq->length))for(int i=0;i<seq->noteCount;i++){auto n=seq->notes[i];if(n.beat<local-1e-9&&n.beat+n.duration>local+1e-9){emit(n.pitch,n.velocity,0);active[n.pitch]=true;}}
+  if(jump && start>=0 && (loop||start<seq->length))for(int i=0;i<seq->noteCount;i++){auto n=seq->notes[i];auto bounds=Sequence::playbackBounds(n,seq->length);if(bounds.first<local-1e-9&&bounds.second>local+1e-9){emit(n.pitch,n.velocity,0);active[n.pitch]=true;}}
   const long first=loop?static_cast<long>(std::floor(start/seq->length)):0;
   const long last=loop?static_cast<long>(std::floor(end/seq->length)):0;
   // Include the preceding cycle's final note-offs at the exact loop boundary.

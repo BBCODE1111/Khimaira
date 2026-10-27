@@ -14,7 +14,7 @@ KhimairaProcessor::KhimairaProcessor():AudioProcessor(
  Array<var> notes;for(int bar=0;bar<4;bar++){int roots[]={48,45,53,55};for(int interval:{0,bar==1?3:4,7}){auto n=new DynamicObject;n->setProperty("beat",bar*4.0);n->setProperty("duration",4.0);n->setProperty("note",roots[bar]+interval);n->setProperty("velocity",.72);notes.add(var(n));}}
  object->setProperty("notes",notes);object->setProperty("ui",var(new DynamicObject));update(var(object));
 }
-void KhimairaProcessor::prepareToPlay(double sr,int){sampleRateHz=sr;manualBeat=0;restart.fetch_add(1);wasRunning=wasHostMode=wasHostPlaying=false;}
+void KhimairaProcessor::prepareToPlay(double sr,int){sampleRateHz=sr;hostTimeline.reset();manualBeat=0;restart.fetch_add(1);wasRunning=wasHostMode=wasHostPlaying=false;}
 bool KhimairaProcessor::isBusesLayoutSupported(const BusesLayout& l) const{
 #if KHIMAIRA_MIDI_FX
  return l.inputBuses.isEmpty() && l.outputBuses.isEmpty();
@@ -28,8 +28,9 @@ void KhimairaProcessor::processBlock(AudioBuffer<float>& audio,MidiBuffer& midi)
  const int samples=audio.getNumSamples();
  if(samples<=0 || sampleRateHz<=0)return;
  double tempo=hostTempo.load(),hostBeat=0;
- bool hostRunning=false,found=false;
+ bool hostRunning=false,found=false;std::optional<int64_t> hostSample;
  if(auto* ph=getPlayHead())if(auto pos=ph->getPosition()){
+  if(auto t=pos->getTimeInSamples())hostSample=*t;
   if(auto t=pos->getBpm())if(std::isfinite(*t)&&*t>0)tempo=*t;
   if(auto q=pos->getPpqPosition())if(std::isfinite(*q)){hostBeat=*q;found=true;hostRunning=pos->getIsPlaying();}
  }
@@ -41,12 +42,13 @@ void KhimairaProcessor::processBlock(AudioBuffer<float>& audio,MidiBuffer& midi)
  const bool hostMode=follow && hostRunning;
  if(hostMode)previewRequested.store(false);
  bool run=armed.load() && (hostMode||previewRequested.load());
- double at=hostMode?hostBeat:manualBeat;
+ const double bps=tempo/(60*sampleRateHz);
+ const double stableBeat=hostTimeline.resolve(hostBeat,hostSample,bps,samples,hostMode);
+ double at=hostMode?stableBeat:manualBeat;
  bool changed=hostMode!=wasHostMode;
  wasHostMode=hostMode;
  const int reset=restart.load();
  if(reset!=lastRestart){lastRestart=reset;manualBeat=0;if(!hostMode)at=0;changed=true;}
- const double bps=tempo/(60*sampleRateHz);
  auto* seq=mailbox.getCurrent();
  if(!seq || !run || !wasRunning || changed){bool swapped=false;seq=mailbox.consume(swapped);changed=changed||swapped;}
  if(!loop.load()&&seq&&at>=seq->length){run=false;previewRequested.store(false);}
@@ -101,7 +103,7 @@ void KhimairaProcessor::transport(const var& v){
 void KhimairaProcessor::getStateInformation(MemoryBlock& dest){auto data=snapshot();data.getDynamicObject()->setProperty("transportHost",followHost.load());data.getDynamicObject()->setProperty("transportLoop",loop.load());data.getDynamicObject()->setProperty("transportBpm",bpm.load());auto s=JSON::toString(data);dest.replaceAll(s.toRawUTF8(),s.getNumBytesAsUTF8());}
 void KhimairaProcessor::setStateInformation(const void* data,int bytes){if(bytes<=0||bytes>8*1024*1024)return;auto v=JSON::parse(String::fromUTF8((const char*)data,bytes));if((bool)update(v)["ok"]){if(v.hasProperty("transportHost"))followHost.store((bool)v["transportHost"]);if(v.hasProperty("transportLoop"))loop.store((bool)v["transportLoop"]);if(v.hasProperty("transportBpm")){double t=(double)v["transportBpm"];if(std::isfinite(t))bpm.store(jlimit(30.,300.,t));}armed.store(followHost.load());restart.fetch_add(1);}}
 File KhimairaProcessor::midiFile(){
- const auto data=snapshot();MidiMessageSequence track;constexpr int ppq=480;
+ const auto data=snapshot();MidiMessageSequence track;constexpr int ppq=khimaira::Sequence::ticksPerQuarter;
  std::vector<khimaira::Note> notes;for(const auto& n:*data["notes"].getArray())notes.push_back({(double)n["beat"],(double)n["duration"],(int)n["note"],(double)n["velocity"]});
  auto sequence=std::make_unique<khimaira::Sequence>();if(!sequence->assign(notes,(double)data["length"]))return {};
  for(int i=0;i<sequence->eventCount;i++){auto e=sequence->events[i];auto m=e.on?MidiMessage::noteOn(1,e.pitch,(uint8)jlimit(1,127,roundToInt(e.velocity*127))):MidiMessage::noteOff(1,e.pitch);m.setTimeStamp(std::round(e.beat*ppq));track.addEvent(m);}
