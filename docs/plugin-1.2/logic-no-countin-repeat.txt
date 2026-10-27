@@ -1,0 +1,8 @@
+{
+  "file": "docs/plugin-1.2/logic-no-countin-repeat.mid",
+  "ppq": 480,
+  "startCycle": 0,
+  "notesPerCycle": 80,
+  "maxErrorTicks480": 0.49600497555900347,
+  "identicalCycles": true
+}

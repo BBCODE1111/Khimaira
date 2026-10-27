@@ -36,4 +36,14 @@ ctest --test-dir build-plugin/v12 -V
 
 [修正前錄製](logic-host-120-before.mid) · [修正前失敗輸出](logic-recording-before.txt) · [修正後錄製](logic-host-120.mid) · [嚴格比對輸出](logic-recording-strict.txt) · [原生測試](native-tests.txt) · [安裝包驗證](package-validation.json)
 
+## 關閉預備拍補測
+
+重新啟動 Logic、載入同一 QA 專案，關閉 Count In，直接從第 1 小節錄製；再刪除測試片段、保持 Logic 開啟並連續重錄。兩份錄製都從第 1 輪比對，各 80 notes，最大誤差同為 **0.49600498 tick**，前三輪完全一致。
+
+- [直接錄製 MIDI](logic-no-countin-fresh.mid) · [比對輸出](logic-no-countin-fresh.txt)
+- [連續重錄 MIDI](logic-no-countin-repeat.mid) · [比對輸出](logic-no-countin-repeat.txt)
+- [Logic 測試現場截圖](logic-timing-final.png)
+
+補測最初曾在延續的工作階段錄到前一段的 4 個額外音和首拍位置差異；該次未通過，沒有刪除多餘事件來冒充通過。重新啟動後的直接錄製與連續重錄均未再現，因此不能單憑該次資料斷言根因。更新安裝包後請完整關閉並重新開啟 Logic，以載入新外掛並清除舊工作階段狀態。
+
 使用者確認未安裝 Ableton Live，因此本輪只宣稱 Logic 的實機驗收結果。Intel Mac 與 Windows DAW 的實機相容性也仍需另測。
