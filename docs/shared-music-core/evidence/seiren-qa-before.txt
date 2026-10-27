@@ -202,7 +202,7 @@ test at tests/alpha6-arranger.test.js:46:1
 ✖ all 48 retained styles can arrange the baseline melody while retaining a traceable core or failing export (5.681208ms)
   AssertionError [ERR_ASSERTION]: Mandopop
   + actual - expected
-  
+
     [
       0,
       9,
@@ -215,7 +215,7 @@ test at tests/alpha6-arranger.test.js:46:1
       7,
   -   0
     ]
-  
+
       at TestContext.<anonymous> (file:///Users/liuyenhui/Documents/ChatGPT/CHORD%20SOLUTION/Seiren-QA/tests/alpha6-arranger.test.js:50:10)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1382:25)
@@ -240,9 +240,9 @@ test at tests/alpha6-arranger.test.js:46:1
 test at tests/beta-20261026.test.js:20:1
 ✖ dominant tritones need both chord tones; remote major sevenths are allowed but close semitones are rejected (1.516917ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   false !== true
-  
+
       at TestContext.<anonymous> (file:///Users/liuyenhui/Documents/ChatGPT/CHORD%20SOLUTION/Seiren-QA/tests/beta-20261026.test.js:23:9)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1382:25)

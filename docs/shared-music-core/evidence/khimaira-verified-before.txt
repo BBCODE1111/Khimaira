@@ -145,9 +145,9 @@ test at tests/example-titles.test.js:3:1
 test at tests/exploration.test.js:6:1
 ✖ low stays anchored; high can replace root functions and use non-tonic starts (0.892834ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   0 !== 5
-  
+
       at TestContext.<anonymous> (file:///private/tmp/chord-core-refactor/khimaira-verified-before/tests/exploration.test.js:6:428)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1382:25)
