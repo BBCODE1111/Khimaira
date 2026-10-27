@@ -1,0 +1,164 @@
+✔ local ii V preserves C and resolves to the next Am, keeping source and target immutable (1.786542ms)
+✔ intrabar targets, slash root, four beats and surrounding events are preserved (0.376334ms)
+✔ last bar wraps only when looping and invalid or crowded targets do not destroy chords (0.258166ms)
+✔ parallel color keeps 11/13, explicit tensions and compatible bass; special chords reject (0.297375ms)
+✔ inversion only uses structural chord tones and returns to root (0.224791ms)
+✔ seek clips notes at selected bar, rebases time and never exceeds the segment (1.167875ms)
+✔ space ignores repeated keys, modifiers and editing controls (0.088791ms)
+✔ one-shot automatic cadence does not pretend to resolve past the final bar (0.815667ms)
+✔ classic ascending, descending, exclusive/inclusive and alternating note orders (9.680125ms)
+✔ all six rates give exact subdivisions and MIDI ticks, including 24 steps and 32 steps per bar (2.573458ms)
+✔ POLY is simultaneous, octave cycling is bounded, MIXED contains both chords and single notes (0.314708ms)
+✔ FLOW continues note index across chord changes; RESTART resets order without moving the clock (0.387167ms)
+✔ random and walk are repeatable for export, vary by seed, and walk only moves to neighbours (1.268917ms)
+✔ triplets stay even, straight divisions swing in pairs, GATE 100 is gapless and GATE 10 remains short (0.747375ms)
+✔ every ARP mode/rate/range/phase survives dense harmony, swing, humanization and a MIDI round-trip (1263.311083ms)
+✔ presets retain original harmony, produce distinct musical events, and empty charts are safe (0.924833ms)
+✔ held voices connect every chord and bar boundary, including dense changes and loop endpoints (53.392459ms)
+✔ all performance patterns round-trip through MIDI without lost, stuck, overlapping or shortened notes (731.911333ms)
+✔ swing arpeggios use actual long/short beat intervals; gate retains intentional articulation (0.238209ms)
+✔ all patterns are scheduled through chord boundaries and loops despite mobile-sized timer jitter (485.978041ms)
+✔ natural completion lets piano releases finish; explicit STOP still damps voices (0.161333ms)
+✔ MIDI quantization merges same-tick attacks and retains positive durations at sub-tick edges (0.191834ms)
+✔ six dark styles expose 48 unique studies, four dark directions, suitable tempos and matching grooves (7.573416ms)
+✔ authored Phrygian/tritone, suspended, chromatic and Neapolitan colors survive generation in every key (115.862125ms)
+✔ low mutation respects supplied roots; free high mutation changes structure without soft jazz extensions (1.099125ms)
+✔ every dark example has musical boundaries and balanced MIDI at all keys and gate extremes (1125.286417ms)
+✔ metal gallops, doom and requiem hold, and all six patterns sound rhythmically distinct (2.177167ms)
+✖ every style has four distinct new directions and at least seven unique examples (128.998334ms)
+✔ INSPIRE visits every example exactly once, includes studies and references, and follows manual LOAD by ID (9.049792ms)
+✔ all new charts parse, preserve four-beat bars, and produce playable distinct audio/MIDI schedules (164.405625ms)
+✔ new major and minor blues examples retain full twelve-bar forms (0.25225ms)
+✖ every reference and every style study has a distinct mood description (0.727209ms)
+✔ composable chord editor retains chosen tensions through parser, chart and voicing (1.4355ms)
+✔ all songs load and each style works in all randomness levels with valid clip durations (1084.745666ms)
+✖ low stays anchored; high can replace root functions and use non-tonic starts (0.906167ms)
+✔ cadences target the next actual chord and use minor iiø Vb9, never random diminished inserts (0.362333ms)
+✔ scale spelling and five positions use only the selected scale (1.746ms)
+✔ guitar voicings obey tuning, bass, third/seventh, span and create varied melody lines (59.416334ms)
+✔ Deep House has sustained upper voices and off-grid bass/chord separation (1.28375ms)
+✔ styles affect populated input, vary across seeds, preserve source and valid bar lengths (1266.22525ms)
+✔ sample library and every style empty-chart phrase parse and play (74.535875ms)
+✔ sustain MIDI is full-duration, quantized and humanization-independent (0.786583ms)
+✔ all performance patterns produce bounded, balanced, deterministic MIDI and no same-note overlap (39.585667ms)
+✔ bass inversion is audible and scale options distinguish colors from compatible scales (0.474542ms)
+✔ varied seeds offer more than the former three fixed alternatives (2.746458ms)
+✔ deployed music core matches the single canonical source (101.177167ms)
+✔ Khimaira retains its pre-extraction theory and basic generation outputs (69.651292ms)
+✔ compatibility profiles preserve intentional differences and previously fixed spelling (0.841291ms)
+✔ chord spelling, slash bass, extensions and invalid symbols (1.257542ms)
+✔ major and minor target cadences preserve anchors (0.281167ms)
+✔ every generated style and key yields valid playable chords (220.501917ms)
+✔ guitar candidates contain all required chord tones and correct bass (161.887ms)
+✔ MIDI contains valid header and balanced note events; no tempo event (4.159042ms)
+✔ 1.2 embeds only the compact shell and unchanged engine dependency closure (1.640375ms)
+✔ 1.2 jazz: exact note-array parity for seed, voicing and advanced options (21.047542ms)
+✔ 1.2 pop: exact note-array parity for seed, voicing and advanced options (10.535125ms)
+✔ 1.2 rock: exact note-array parity for seed, voicing and advanced options (8.883583ms)
+✔ 1.2 ballad: exact note-array parity for seed, voicing and advanced options (9.428792ms)
+✔ 1.2 house: exact note-array parity for seed, voicing and advanced options (10.444459ms)
+✔ 1.2 arp: exact note-array parity for seed, voicing and advanced options (46.580958ms)
+✔ 1.2 harmony generation matches the web engine in sharp/minor keys (4.062833ms)
+✔ review aliases accept pasted charts without changing pitch or slash bass (1.554541ms)
+✔ sharp keys spell generated roots and secondary dominants consistently (16.159625ms)
+✔ voicing avoids semitone clashes and puts sharp ninth above third, with five upper voices at most (1.932208ms)
+✔ every supported quality has playable candidates in all keys and voicings (17.248375ms)
+✔ extended guitar voicings omit optional fifths and retain thirds, sevenths and top extensions (164.220417ms)
+✔ Funk color mutations retain dominant vamps and minor extensions (0.611042ms)
+✔ sixteenth swing affects Funk and Fusion; lofi delays every upper attack by 30ms (1.352625ms)
+✔ Rock separates eighth bass and backbeat chords; walking and delayed Ballad are optional (0.900125ms)
+✔ MIDI uses 1–127 velocity and split tracks preserve note timing, durations and total length (3.48075ms)
+✔ transpose and Roman numerals retain harmonic roles, slash bass, and pitch round trips (2.974625ms)
+✔ walking bass respects slash-chord tones and does not anticipate across a rest (0.321125ms)
+✔ authored functional spellings and slash bass survive color and transposition (1.342625ms)
+✔ cadences reject passing diminished chords and preserve existing ii–V tails (0.796542ms)
+✔ minor mode retargets secondary dominants and keeps inversion degrees and IV–iv (0.806875ms)
+✔ medium generation reconstructs on odd and even seeds; style color stays idiomatic (1.598166ms)
+✔ 8/16-bar short forms develop A–A-prime and retain full duration (0.97875ms)
+✔ repeated harmony has multiple rhythm motifs and a dynamic arc without random feel (10.39825ms)
+✔ ballad is broken, pedal voices end at the chord boundary, and jpop is distinct (2.181792ms)
+✔ rootless minor ninth stays compact; walking approaches alternate and ARP can have a foundation (4.836833ms)
+✔ harmony matrix: every style/key/mode/density/variation remains parseable and four beats (1568.245375ms)
+✔ pipe input, explicit rhythm, uppercase major and 3-chord defaults (1.658292ms)
+✔ solutions keep source immutable and maintain four-beat bars (1.075375ms)
+✔ all performance patterns respect intrabar chord boundaries (2.391167ms)
+✔ density one keeps the resolving dominant, including secondary, slash and subV chords (1.947459ms)
+✔ American pop IV suspension is sus2 in every key (0.200375ms)
+✔ all dark eight-bar studies develop a new ending while keeping the first phrase (39.443125ms)
+✔ remaining repetitive grooves have at least three onset motifs on identical harmony (3.112666ms)
+✔ short piano notes release for at least 80ms without changing MIDI gate lengths (0.176958ms)
+✔ 60, 120 and 240 BPM map beats and note lengths to audio seconds exactly (0.715125ms)
+✔ live acceleration preserves beat position, retimes held notes and cancels future attacks (0.745125ms)
+✔ invalid intermediate tempo input is ignored and startup lead stays in the future (0.292167ms)
+✔ loop remains on the beat grid through tempo changes and finishes current cycle when disabled (0.14675ms)
+✔ background lag skips expired attacks instead of replaying them in a burst (0.073417ms)
+✔ gate shortens rhythmic notes while held voices keep their musical landing points (41.433125ms)
+✔ piano releases retain an 80ms floor and a 350ms lyrical ceiling (0.134667ms)
+✔ resuming at the current bar retains the original loop start (0.1235ms)
+✔ regional free rewrites keep strict pitch collections, basses and MIDI in scale in every key (1044.159625ms)
+✔ world scale recommendations use project tonic, correct spelling and five playable regions (1.416042ms)
+✔ modal automatic studies avoid jazz cadences while explicit ii–V remains available (1.175125ms)
+✔ new groove families produce different note schedules and preserve full-length MIDI mode (1.9525ms)
+ℹ tests 101
+ℹ suites 0
+ℹ pass 98
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1861.967417
+
+✖ failing tests:
+
+test at tests/example-pool.test.js:10:1
+✖ every style has four distinct new directions and at least seven unique examples (128.998334ms)
+  AssertionError [ERR_ASSERTION]: Ballad 3
+      at TestContext.<anonymous> (file:///private/tmp/chord-core-refactor/khimaira-verified-after/tests/example-pool.test.js:12:87)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/example-titles.test.js:3:1
+✖ every reference and every style study has a distinct mood description (0.727209ms)
+  AssertionError [ERR_ASSERTION]: Japanese rock
+      at TestContext.<anonymous> (file:///private/tmp/chord-core-refactor/khimaira-verified-after/tests/example-titles.test.js:6:93)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/exploration.test.js:6:1
+✖ low stays anchored; high can replace root functions and use non-tonic starts (0.906167ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 5
+  
+      at TestContext.<anonymous> (file:///private/tmp/chord-core-refactor/khimaira-verified-after/tests/exploration.test.js:6:428)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 5,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

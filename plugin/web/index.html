@@ -8,7 +8,7 @@
 <p id="mood">輸入骨幹後 GENERATE；範例需按 LOAD 才載入。</p>
 <div class="performance"><label>PERFORM<select id="pattern"></select></label><label>VOICING<select id="voicing"><option value="close">Close</option><option value="open">Open</option><option value="rootless">Rootless + Bass</option></select></label><label>GATE <span id="gateText">82%</span><input id="gate" type="range" min="10" max="100" value="82"></label><label>HUMAN <span id="humanText">20%</span><input id="human" type="range" min="0" max="100" value="20"></label></div>
 <div class="bottom-line"><span id="noteCount">0 notes</span><span id="message" role="status">Ready</span></div>
-<div class="extra-row"><button id="advancedToggle" aria-expanded="false">ADVANCED / 進階</button><span>HOST 跟隨 DAW · PLAY 原生試聽 · DRAG MIDI 拖入軌道</span></div></main>
+<div class="extra-row"><button id="pianoToggle">PIANO / 伴奏</button><button id="advancedToggle" aria-expanded="false">ADVANCED / 進階</button><span>HOST 跟隨 DAW · PLAY 原生試聽 · DRAG MIDI 拖入軌道</span></div></main>
 <dialog id="editor"><form method="dialog"><h2>Shape this chord</h2><div class="edit-controls"><label>ROOT<select id="root"></select></label><label>QUALITY<select id="quality"></select></label><label>BASS<select id="bass"><option value="">Root</option></select></label></div><label>SYMBOL<input id="symbol"></label><p>可自行加入延伸音，例如 Cmaj7(9,#11) / Am7/G。</p><div class="dialog-actions"><button value="cancel">CANCEL</button><button type="button" id="applyEdit" class="primary">APPLY</button></div></form></dialog>
 <dialog id="advanced"><h2>ADVANCED / 進階</h2><div class="advanced-grid">
 <label>SWING %<input id="swing" type="number" min="0" max="32" value="16"></label>
@@ -26,4 +26,4 @@
 <label>FREEDOM<select id="freedom"><option value="color">Color</option><option value="free">Free</option></select></label>
 <button id="variate">ARP VARIATE</button><button id="advancedClose">CLOSE</button>
 </div><p>新設定在下一小節生效。試聽使用 DAW BPM；MIDI FX 不產生音色，請在後方接樂器。</p></dialog>
-<script type="module" src="plugin.js"></script></body></html>
+<dialog id="pianoDialog"><h2>PIANO / 柱式伴奏與旋律留白</h2><div id="pianoTools"></div><form method="dialog"><button>CLOSE</button></form></dialog><script type="module" src="plugin.js"></script></body></html>

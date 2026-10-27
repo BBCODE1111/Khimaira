@@ -1,0 +1,25 @@
+✔ Seiren ships the pinned shared module without needing a sibling checkout (1.065334ms)
+✔ Seiren retains its pre-extraction theory and basic generation outputs (214.836167ms)
+✔ twelve genuinely different pop patterns keep a deterministic bar grid (19.410625ms)
+✔ together/right/left/right uses a chord-tone fifth in the second left-hand pulse (0.189083ms)
+✔ fills answer gaps, stay in the chord and disappear under busy melody or OFF (0.87925ms)
+✔ dense melody reduces eighth-note accompaniment while retaining meter anchors (0.364291ms)
+✔ split chords, N.C., 3/4 and 6/8 keep their boundaries (1.777875ms)
+✔ new performances remain safe and export the same protected notes across keys (1376.02175ms)
+✔ Mandarin pop leads the style list and offers all three families plus minor studies (2.7485ms)
+✔ Generate uses different functional families without melody and adapts with melody (21.218083ms)
+✔ musical harmony rejects lower semitones and minor ninths in every register (0.783416ms)
+✔ colour chords avoid the semitone below a sustained tonic (78.590292ms)
+✔ all styles and three variations preserve melody without audible semitone clashes (1181.191292ms)
+✔ blues offbeats follow the requested straight or swung feel (0.867917ms)
+✔ explicit BPM labels take precedence over numbered sample fields (0.7295ms)
+✔ exact loop lengths select a plausible tempo and retain leading rests (0.288083ms)
+✔ non-loop downbeat phase preserves the preceding pickup (0.3935ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1528.570833

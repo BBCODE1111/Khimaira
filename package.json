@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "test": "node --test tests/*.test.js",
+    "music:sync": "node scripts/sync-music-core.mjs",
+    "music:check": "node scripts/sync-music-core.mjs --check",
     "start": "python3 -m http.server 5173 --directory dist"
   },
   "description": "Khimaira奇美拉 - 和弦怪物. MORPH YOUR CHORDS like the legendary monster"

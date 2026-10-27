@@ -9,7 +9,7 @@ if stage.exists(): shutil.rmtree(stage)
 shutil.copytree(root/'web', stage)
 engine = stage/'engine'; engine.mkdir()
 source = root.parent/'dist'
-pending = ['style-engine.js','performance.js','music.js','voicing.js','arpeggiator.js','solutions.js','example-pool.js','harmony-actions.js']
+pending = ['piano-tools.js','style-engine.js','performance.js','music.js','voicing.js','arpeggiator.js','solutions.js','example-pool.js','harmony-actions.js']
 seen = set()
 while pending:
     name = pending.pop()

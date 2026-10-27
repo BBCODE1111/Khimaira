@@ -1,0 +1,34 @@
+{
+  "parse-and-tones": {
+    "cases": 4568,
+    "sha256": "69ba6bced9d668c65f0d51871e69183b8da228a4ea216d41b6452fa0e9e91d98"
+  },
+  "approaches": {
+    "cases": 4568,
+    "sha256": "14d5180394456ce32c58e456641f363691785ab0ddd48d2f6b0e9fb000d4770d"
+  },
+  "spelling-and-transposition": {
+    "cases": 6456,
+    "sha256": "cd004fef9cb1b6c991f235cdd9d19bade4f5e324ce886b3342980b44350a11be"
+  },
+  "legacy-generation": {
+    "cases": 2304,
+    "sha256": "cd814749869ce8b27de8ec9c5b0f1fb75cdd579c8eeabead26ae1a789d3075a3"
+  },
+  "product-style-strategies": {
+    "cases": 864,
+    "sha256": "0986e390dedf60ff188fb17273db0cabc76b27658921bbb4c814691c3a438f04"
+  },
+  "performance": {
+    "cases": 183,
+    "sha256": "8aa98522a66b2efe8f0d439e676a36c81ca5fc6c7c4abd41d5bcf2a20e8317b7"
+  },
+  "legacy-midi-bytes": {
+    "cases": 183,
+    "sha256": "6f30a5b8df8ed12e0e237ca4210b43f6f8a7105c4a4cde63803968350024bf35"
+  },
+  "instrument-voicings": {
+    "cases": 24,
+    "sha256": "b3a72a677a12f16a72e16b2cba6d27caf403d137a4181576839f6eb8a16b3bf9"
+  }
+}

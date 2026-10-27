@@ -1,9 +1,10 @@
 import {darkStyles} from './dark-styles.js?v=17';
-import {names,mod,parse,spellPitch,spellChord,spellInterval,transposeSymbol,chordTones} from './music.js?v=17';
-import {parseBar,chordList,parseChart} from './solutions.js?v=17';
+import {names,mod,parse,spellPitch,spellChord,spellInterval,transposeSymbol,chordTones} from './music.js?v=course-1';
+import {parseBar,chordList,parseChart} from './solutions.js?v=course-1';
 import {songs} from './song-pool.js?v=17';
 import {worldStyles} from './world-styles.js?v=17';
-import {worldMutation} from './world-generator.js?v=17';
+import {worldMutation} from './world-generator.js?v=course-1';
+import {harmonyStudies,learnedIdea} from './harmony-knowledge.js?v=18';
 export const styles={
 Jazz:{description:'功能替代、次屬和弦、ii–V、三全音／backdoor，讓 3rd 與 7th 連接。',pattern:'jazz',voicing:'rootless',phrases:[['Cmaj9 Ebdim7','Dm9 G13','Em7 A7b9','Dm9 Db7#11'],['Em9 A7alt','Dm9 G13','Fm9 Bb13','C69 G7alt'],['C69','F#m7b5 B7b9','Em9 A7alt','Dm9 G13']],T:['Cmaj9','Em9 A7alt','C69 Ebdim7'],R:['Am9','Em7 A7alt','Dm9 G13'],S:['Fmaj9','Fm9 Bb13','Dm9 G13'],D:['G13','Dm9 Db7#11','G7sus4 G7alt']},
 Gospel:{description:'斜線低音、減七經過和弦、IV–iv、sus 解決與 plagal 色彩。',pattern:'gospel',voicing:'open',phrases:[['C69 E7/G#','Am9 C7/G','Fmaj9 Fm6','C/G G7sus4'],['Cmaj9/E','Fmaj9 F#dim7','C/G A7b9','Dm9 G13'],['C69','Bb/C C7','Fmaj9 Fm6','C/G G7']],T:['C69/E','Cmaj9 E7/G#','C/G'],R:['Am9 C7/G','C7/G','Em7 A7b9'],S:['Fmaj9 Fm6','Fmaj9 F#dim7','Dm9/G'],D:['G7sus4 G13','C/G G7','Db9 C69']},
@@ -37,7 +38,11 @@ Object.assign(styles,{
 });
 styles.House=preset('Deep / Soulful House · 共同音九和弦、跨拍延留、稀疏切分與獨立低音。建議 114–124 BPM。','house','rootless',[['Am9','D9','Gmaj9','Cmaj9'],['Cm9','Fm9','Abmaj9','Gm9'],['Dm9','G13','Cmaj9','Fmaj9'],['Fm9','Abmaj9','Cm9','Bb13']]);
 Object.assign(styles,darkStyles,worldStyles);
-export const styleLabels={...Object.fromEntries(Object.entries(darkStyles).map(([k,v])=>[k,v.label])),...Object.fromEntries(Object.entries(worldStyles).map(([k,v])=>[k,v.label])),'Neoclassical rock':'古典戲劇搖滾 · Neoclassical rock',House:'Deep / Soulful House','Major blues':'Major blues · 大調藍調','Minor blues':'Minor blues · 小調藍調'};
+styles.Ballad=preset('鋼琴抒情：清楚的低音、柱式和弦與歌句留白。','pianoBallad','open',styles.Mandopop.phrases.map(p=>[...p]));
+for(const study of harmonyStudies)for(const style of study.styles)styles[style].phrases.push([...study.medium]);
+for(const [style,pattern] of Object.entries({Mandopop:'pianoBassReply','American pop':'pianoHalf','K-pop':'pianoKpop','Japanese rock':'pianoJpop'}))styles[style].pattern=pattern;
+styles.Mandopop.description='1645、卡農下降低音、4536251；依變化強度加入目標明確的次屬、導音與 IV–iv。';
+export const styleLabels={Mandopop:'Mandarin Pop · 華語流行',Ballad:'Pop Ballad · 抒情',...Object.fromEntries(Object.entries(darkStyles).map(([k,v])=>[k,v.label])),...Object.fromEntries(Object.entries(worldStyles).map(([k,v])=>[k,v.label])),'Neoclassical rock':'古典戲劇搖滾 · Neoclassical rock',House:'Deep / Soulful House','Major blues':'Major blues · 大調藍調','Minor blues':'Minor blues · 小調藍調'};
 export function seeded(seed){let n=(seed+971)>>>0;return ()=>{n=(Math.imul(n,1664525)+1013904223)>>>0;return n/4294967296;};}
 // Each style owns its harmonic vocabulary; dominant function is not inferred for rock/pop V triads.
 export const tintTables={
@@ -67,6 +72,7 @@ export const tintTables={
  'Nu-disco':[['6','maj7','69'],['m7','m9'],['9','13']],
  Ambient:[['add9','maj9','maj7#11'],['m9','m11'],['7sus4','9sus4']]
 };
+tintTables.Ballad=tintTables.Mandopop;
 export function tint(symbol,style,level,random,key=0,mode='major'){
  const c=parse(symbol);if(!c)return symbol;
  const slash=c.bassName?'/'+c.bassName:'';
@@ -78,7 +84,7 @@ export function tint(symbol,style,level,random,key=0,mode='major'){
  }
  if(c.bassName&&!c.pcs.includes(c.bass)||/[b#()]/.test(c.q)||c.q==='m6'||/dim|sus|alt|Maj/.test(c.q)||c.q==='5')return spellChord(symbol);
  const table=tintTables[style]||tintTables.Jazz;
- const functional=['Jazz','Gospel','Bossa nova','Classical','Soul','R&B','Neo-soul','Lo-fi hip-hop','Mandopop','K-pop'].includes(style);
+ const functional=['Jazz','Gospel','Bossa nova','Classical','Soul','R&B','Neo-soul','Lo-fi hip-hop','Mandopop','Ballad','K-pop'].includes(style);
  const dominant=!c.minor&&(c.intervals.includes(10)||functional&&mod(c.root-key)===7);
  let options=table[c.minor?1:dominant?2:0];
  if(style==='American pop'&&mod(c.root-key)===5)options=options.map(q=>q==='sus4'?'sus2':q);
@@ -164,13 +170,20 @@ export function reduceDensity(bars,{loop=true}={}){
  }
  return out;
 }
-export function mutate(source,{style='Jazz',key=0,mode='major',freedom='free',density=2,seed=0,randomness='medium',method='style',loop=true}={}){
+export function mutate(source,{style='Jazz',key=0,mode='major',freedom='free',density=2,seed=0,randomness='medium',method='style',loop=true,ideaFamily='auto'}={}){
  if(method==='original')return structuredClone(source);
  const cfg=styles[style]||styles.Jazz,styleSeed=[...style].reduce((n,c)=>n+c.charCodeAt(0),0),random=seeded(seed+styleSeed),count=source.length||4,filled=source.some(b=>chordList(b).length),level=randomness;
  const songCandidates=songs.filter(s=>s.style===style&&s.mode===mode);
  const phrases=[...cfg.phrases,...(cfg.dark?cfg.contrasts.map(([,chart])=>chart.split('|')):[]),...songCandidates.map(s=>parseChart(s.chart).map(b=>b.chords.map(c=>c.symbol).join(' ')))];
  const phrase=phrases[((seed%phrases.length)+phrases.length)%phrases.length];
  const replace=method==='style'&&freedom==='free'&&level!=='low';
+ const idea=method==='style'&&(!filled||replace)?learnedIdea({style,mode,randomness,seed,count,loop,family:ideaFamily}):null;
+ if(idea){
+  const learned=idea.phrase.map(bar=>({chords:parseBar(bar).map(c=>({...c,symbol:transposeSymbol(c.symbol,key,key,mode)})),reason:style+' · '+idea.title+' · '+idea.family,knowledgeId:idea.id}));
+  // These complete phrases already contain their inversions and target cadences.
+  // Random tinting/automatic bass rewriting would erase the concept being taught.
+  return density===1?reduceDensity(learned,{loop}):learned;
+ }
  let result=cfg.world?worldMutation(source,cfg,{key,seed,randomness,freedom,density,method}):Array.from({length:count},(_,i)=>{
   const input=chordList(source[i]||{}),rewrite=!filled||replace||!input.length;
   return {chords:rewrite?parseBar(phrase[i%phrase.length]).map(c=>({...c,symbol:transpose(c.symbol,key)})):structuredClone(input),reason:style+' · '+(rewrite?'句型重構':'保留根音上色')};

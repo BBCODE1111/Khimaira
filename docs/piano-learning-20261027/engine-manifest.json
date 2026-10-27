@@ -1,0 +1,22 @@
+{
+  "arpeggiator.js": "b66d7a40a82ab687b3c59fca12a7e8ed983cb36aaf43ee6f7c2a8ca3727e08f6",
+  "contrast-examples.js": "fdf36e162c91ecd9918e62d2f7e8437eb2aec0c51908aa6864ab06d520e3b375",
+  "dark-styles.js": "0b9089de83e504e0ca5e371c29367c07d29f965e09a79066e31872651eddc0fb",
+  "example-pool.js": "bb9f546e0186d09176b571cdd1689cebea918b91aa35aab875f80f6f9aadeb73",
+  "example-titles.js": "9a2d027878b1bbe63cf3b1918bfd9e052ae02d1ba153da92779d1a6f54538472",
+  "harmony-actions.js": "8d62c407336cee159fb9171bd4172f3bc14e2977bab33dd2cd0c4571f678f29d",
+  "harmony-knowledge.js": "520c4f0ee82aad5ef1eb875a121769ac09c085ce05f2938cfcfe936842464670",
+  "melody-reference.js": "f03c82dc0fe261428c00631b10d4b764efa0e9558d3209f068ddec5ab05d5fd0",
+  "music-core.js": "832ea0733c3d5fa50a4ba3180e55ec7ca40f105f9caabeed19caf3b448dd7758",
+  "music.js": "720551e7b19eba6fed701a1956657a78471d386ca4f766b953b5bfc6ac33e6db",
+  "performance.js": "f178e487a1b217853b9d646fcaa34627252d8a4c3b0af50d23a6b5b63d1883bd",
+  "piano-patterns.js": "c2bd9df13da4bc5609d14708877660c4cbbf87448e9fa25ef17ace68095c7a81",
+  "piano-tools.js": "badd2dca0fb95ee8330ca972c1faf653e52833133dff536e796cee3b2a679c04",
+  "scale-library.js": "867618f0633ecbd26de18a566959379b77e6c6c04aee5593d6db61f2a665bea7",
+  "solutions.js": "59fa3e469cba4677444d65405024405bbcdd4454a8b5a14796bcc2fe1cafdaa9",
+  "song-pool.js": "ed82551e651fab80608f3c2408de3757948451cf52978fd2877074aca8adf195",
+  "style-engine.js": "5724d2752deb30cb7c07f756410de0ca8dc8ff662a6d4270926c941b810ae806",
+  "voicing.js": "21bca52956f40dd1ae64bbfa6da0177a9cab4ecc4e897cabf112aacc8e99fdd2",
+  "world-generator.js": "4f28d189bfa1d1b549055320e0a937c50843758eae1b5481f7f875152be65989",
+  "world-styles.js": "ec0d9496dd6b392615f5c129d2b9a957eb34a19f01c45d71906103e902703866"
+}

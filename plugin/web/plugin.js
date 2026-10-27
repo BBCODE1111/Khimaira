@@ -1,3 +1,4 @@
+import {mountPianoTools} from './engine/piano-tools.js';
 import {compilePattern} from './pattern.js';
 import {restoreSession,selectExample,loadExample,generateSession,loadBackbone,keepResult} from './session.js';
 import {names,parse} from './engine/music.js';
@@ -11,7 +12,7 @@ const $=id=>document.getElementById(id),clone=o=>structuredClone(o);
 const native=!!window.__JUCE__?.backend;let pending=new Map,callId=0;
 if(native)window.__JUCE__.backend.addEventListener('__juce__complete',({promiseId,result})=>{pending.get(promiseId)?.(result);pending.delete(promiseId);});
 const invoke=(name,...params)=>native?new Promise(resolve=>{const resultId=callId++;pending.set(resultId,resolve);window.__JUCE__.backend.emitEvent('__juce__invoke',{name,params,resultId});}):Promise.resolve(name==='snapshot'?null:name==='status'?{host:false,standalone:true,bpm:120}:{ok:true});
-let state={bars:parseChart('| C | Am | F | G |'),source:parseChart('| C | Am | F | G |'),style:'Jazz',key:0,mode:'major',length:4,randomness:'medium',pattern:'jazz',voicing:'rootless',gate:82,human:20,swing:16,rate:.5,seed:42,bassMode:'root',balladEntry:'together',arpFoundation:'off',arpAccent:'beat',density:3,freedom:'color',arpMode:'upDown',arpRate:'16',arpOctaves:2,arpPhase:'flow',arpSeed:1,variation:0,exampleId:null,mood:'輸入骨幹後 GENERATE；範例需按 LOAD 才載入。'};
+let state={bars:parseChart('| C | Am | F | G |'),source:parseChart('| C | Am | F | G |'),style:'Jazz',key:0,mode:'major',length:4,randomness:'medium',pattern:'jazz',voicing:'rootless',gate:82,human:20,swing:16,rate:.5,seed:42,bassMode:'root',balladEntry:'together',arpFoundation:'off',arpAccent:'beat',density:3,freedom:'color',arpMode:'upDown',arpRate:'16',arpOctaves:2,arpPhase:'flow',arpSeed:1,variation:0,exampleId:null,pianoFills:'phrase',melodyFollow:'gentle',melodyText:'',ideaFamily:'auto',mood:'輸入骨幹後 GENERATE；範例需按 LOAD 才載入。'};
 state=restoreSession(state);
 $('input').addEventListener('input',()=>{state.sourceText=$('input').value;invoke('saveUi',clone(state));});
 let hostBpm=120,chartPage=0;
@@ -57,6 +58,9 @@ $('prevPage').onclick=()=>{chartPage=Math.max(0,chartPage-1);render();};$('nextP
 $('advancedToggle').onclick=()=>{$('advanced').showModal();$('advancedToggle').setAttribute('aria-expanded','true');};
 $('advancedClose').onclick=()=>$('advanced').close();$('advanced').onclose=()=>$('advancedToggle').setAttribute('aria-expanded','false');
 $('host').onclick=async()=>updateTransport(await invoke('transport',{host:!isHost}));$('loop').onclick=()=>{isLoop=!isLoop;$('loop').setAttribute('aria-pressed',isLoop);invoke('transport',{loop:isLoop});};$('play').onclick=async()=>{updateTransport(await invoke('transport',{play:true}));};$('stop').onclick=async()=>updateTransport(await invoke('transport',{play:false}));$('bpm').onchange=()=>invoke('transport',{bpm:+$('bpm').value});
-document.addEventListener('keydown',e=>{if(e.code==='Space'&&!/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)&&!$('editor').open&&!$('advanced').open){e.preventDefault();(isPlaying?$('stop'):$('play')).click();}});
+document.addEventListener('keydown',e=>{if(e.code==='Space'&&!/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)&&!$('editor').open&&!$('advanced').open&&!$('pianoDialog').open){e.preventDefault();(isPlaying?$('stop'):$('play')).click();}});
 if(native)window.__JUCE__.backend.addEventListener('transportState',updateTransport);else $('version').textContent='DESIGN PREVIEW / 1.2.0';
 try{let saved=await invoke('snapshot');if(saved?.ui?.bars){state=restoreSession(state,saved.ui);isLoop=saved.transportLoop??true;$('loop').setAttribute('aria-pressed',isLoop);}updateTransport(await invoke('status'));render();await sync();}catch(e){message(e.message);}
+
+const pianoTools=mountPianoTools($('pianoTools'),{blankUsesExamples:true,getState:()=>state,setState:patch=>{checkpoint();Object.assign(state,patch);},onChange:()=>commit()});
+$('pianoToggle').onclick=()=>{pianoTools.refresh();$('pianoDialog').showModal();};

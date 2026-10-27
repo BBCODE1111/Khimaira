@@ -1,0 +1,257 @@
+✔ source loop labels preserve BPM/key and leading rests; never pretend they are acoustic estimates (1.921583ms)
+✔ melody path suppresses brief octave glitches while retaining sustained chromatic changes and rests (25.477125ms)
+✔ GENERATE changes the final protected chart across styles, not just discarded raw candidates (240.237833ms)
+✔ same-style repeated generation explores different safe harmonies (14.573541ms)
+✔ unsafe bossa fifth ornament is revoiced onto a safe chord tone without losing its rhythmic attack (1.086584ms)
+✔ held common tones cross bar lines without reattacks; rhythmic pulses are retained (0.401ms)
+✔ natural release extends safe sounds but ends before an incompatible next melody (0.340958ms)
+✔ warm and keys presets have harmonic content and bounded click-free short-note envelopes (0.139333ms)
+✔ a strong fresh onset splits repeated same-pitch notes without quantizing their timing (2.25375ms)
+✔ musical color is explicit: permits whole-tone colors, retains semitone/tritone protection, and exports using the selected rule (0.592041ms)
+✔ splitting identical harmony must not restart a groove or turn syncopations into downbeats (23.548416ms)
+✔ real changes at fractional melody onsets do not shift the bar groove, including odd meters (6.847166ms)
+✔ harmonic repairs use the beat grid while the reference melody retains its microtiming (4.299333ms)
+✔ batch move preserves relative timing and pitch intervals even at timeline and pitch limits (0.35075ms)
+✔ marquee supports reverse drags, partially intersected notes, and shared resize cannot invert a note (0.224833ms)
+✔ harmony-only MIDI physically omits the melody track but keeps tempo, meter and audited note timing (7.691292ms)
+✔ harmony-only rounding stays inside audible bounds against an unquantized reference audio track (0.676041ms)
+✔ the phrase core remains transposition-equivariant while genre harmony may substitute it (202.956292ms)
+✔ genre variation retains a traceable melody core without half-bar chord churn (17.062125ms)
+✔ all eight basic arrangements have audible bar-one anchors and retain distinct genre rhythm, with zero discarded notes on the fixture (331.629916ms)
+✔ a changed melodic harmonic arrival shifts the arrangement, and denser phrases lighten subdivision velocities (1.290834ms)
+✔ sample lead-in is measured from audio data, bounded, and silence is not mistaken for an attack (0.562083ms)
+✖ all 48 retained styles can arrange the baseline melody while retaining a traceable core or failing export (5.681208ms)
+✔ audio-like early onsets retain the same harmonic function, while real performed tails still respect exact melody timing (32.776083ms)
+✔ YIN recognizes fundamentals with harmonics across a practical melody range (49.416ms)
+✔ actual WAV fixture yields 32 pitches, repeated notes, and 108 BPM without hand-authored note input (806.178292ms)
+✔ leading silence and empty input are handled honestly (12.982291ms)
+✔ tempo ambiguity has alternatives; estimated tempo is never an exact-confidence claim (3.909ms)
+✔ key inference suggests rather than forces a key; audio grid changes preserve seconds (0.405083ms)
+✔ PCM spectral flux finds 60 BPM without note onsets (648.054875ms)
+✔ PCM spectral flux finds 92 BPM without note onsets (364.839583ms)
+✔ PCM spectral flux finds 120 BPM without note onsets (181.991583ms)
+✔ PCM spectral flux finds 184 BPM without note onsets (59.595958ms)
+✔ dynamic programming follows gradual tempo drift and tempo map preserves wall-clock timing (152.773917ms)
+✔ silence and sparse events do not claim a reliable tempo (70.340875ms)
+✔ YIN contour preserves vibrato, follows a glide, and breaks over silence (27.004292ms)
+✔ F0 overlay rejects low-confidence points and octave jumps (0.1535ms)
+✔ audio beat-map calibration keeps notes, contour and original audio on one clock (0.55725ms)
+✔ tap reports consistency and requires four taps (0.229667ms)
+✔ all nine synthesis voices schedule finite envelopes and can be stopped (0.294709ms)
+✔ instrument choices produce GM program events without changing exported pitches (0.286916ms)
+✔ project restores F0 and beats and accepts expanded instruments while rejecting corrupt overlays (0.659291ms)
+✔ original audio audition schedules the recording and harmony, never a duplicate MIDI melody (1.125208ms)
+✔ MIDI audition uses edited notes and harmony without playing the retained original recording (0.174292ms)
+✖ dominant tritones need both chord tones; remote major sevenths are allowed but close semitones are rejected (1.516917ms)
+✔ demo has at least five visible genre charts, a G dominant in bar four and a ii–V (13.581333ms)
+✔ bebop passing tones do not cause chord-per-beat churn; generation still varies (8.210125ms)
+✔ pickup is N.C. by default and can be harmonized; 3/4 boundaries stay on quarter beats (51.544833ms)
+✔ sharp-key spelling applies to chords, slash bass and piano-roll pitches (2.210958ms)
+✔ 336 arrangements preserve every melody, stay below it, remain conflict-free and export all tracks (1479.682666ms)
+✔ individual locked chord spans survive a replacement chart with different splits (0.385375ms)
+✔ project validation preserves notes and locks and rejects malformed import before application (0.476041ms)
+✔ an old dominant context cannot justify a tritone after the harmony has changed (0.326125ms)
+✔ export audits quantized bytes and refuses a newly introduced sub-tick clash (0.639708ms)
+✔ audited export retains separate melody and accompaniment tracks (83.381208ms)
+✔ sampled harmony uses original velocities and strict releases; melody defaults to 35% (1.462083ms)
+✔ cue and variable-tempo playback use a common clock and loops stop at the current cycle end (0.283833ms)
+✔ stopping while piano samples load prevents a late playback start (2.480667ms)
+✔ strict sampled-piano envelope reaches zero at note-off; v1 natural release remains available (0.585042ms)
+✔ on-beat melody and harmony share exact scheduled attacks through variable tempo and loop boundaries (7.882958ms)
+✔ without melody the complete v1 performance and voicing are unchanged for every pattern (259.913958ms)
+✔ all 48 original styles and five rewrite methods stay melody compatible and export safely (1068.205333ms)
+✔ safe slash chords are retained; incompatible manual edits are repaired (4.438542ms)
+✔ 3/4 and 6/8 keep real beats and no four-beat gaps across the legacy performance engine (1.089458ms)
+✔ all arp rates/modes and dense chromatic input respect protection (5.56925ms)
+✔ strict policy forbids seconds, sevenths and tritones in either direction (1.119958ms)
+✔ all styles / 12 transpositions / 4 variants preserve melody and actual-note safety (604.031ms)
+✔ chromatic, overlapping, sustained and non-4/4 melodies cannot bypass checking (140.084334ms)
+✔ exported accompaniment is the exact checked performance and retains safe timing after PPQ rounding (10.721417ms)
+✔ styles change performed rhythm while safe options are deterministic for a seed (3.509208ms)
+✔ local ii V preserves C and resolves to the next Am, keeping source and target immutable (1.350709ms)
+✔ intrabar targets, slash root, four beats and surrounding events are preserved (0.384125ms)
+✔ last bar wraps only when looping and invalid or crowded targets do not destroy chords (0.232917ms)
+✔ parallel color keeps 11/13, explicit tensions and compatible bass; special chords reject (0.251458ms)
+✔ inversion only uses structural chord tones and returns to root (0.193334ms)
+✔ seek clips notes at selected bar, rebases time and never exceeds the segment (0.920083ms)
+✔ space ignores repeated keys, modifiers and editing controls (0.08525ms)
+✔ one-shot automatic cadence does not pretend to resolve past the final bar (0.683458ms)
+✔ classic ascending, descending, exclusive/inclusive and alternating note orders (0.860875ms)
+✔ all six rates give exact subdivisions and MIDI ticks, including 24 steps and 32 steps per bar (2.317042ms)
+✔ POLY is simultaneous, octave cycling is bounded, MIXED contains both chords and single notes (0.300708ms)
+✔ FLOW continues note index across chord changes; RESTART resets order without moving the clock (0.311ms)
+✔ random and walk are repeatable for export, vary by seed, and walk only moves to neighbours (1.176208ms)
+✔ triplets stay even, straight divisions swing in pairs, GATE 100 is gapless and GATE 10 remains short (0.51725ms)
+✔ every ARP mode/rate/range/phase survives dense harmony, swing, humanization and a MIDI round-trip (1175.655375ms)
+✔ presets retain original harmony, produce distinct musical events, and empty charts are safe (0.94775ms)
+✔ held voices connect every chord and bar boundary, including dense changes and loop endpoints (16.129167ms)
+✔ all performance patterns round-trip through MIDI without lost, stuck, overlapping or shortened notes (629.878292ms)
+✔ swing arpeggios use actual long/short beat intervals; gate retains intentional articulation (0.251833ms)
+✔ all patterns are scheduled through chord boundaries and loops despite mobile-sized timer jitter (367.6785ms)
+✔ natural completion lets piano releases finish; explicit STOP still damps voices (0.199084ms)
+✔ MIDI quantization merges same-tick attacks and retains positive durations at sub-tick edges (0.183209ms)
+✔ six dark styles expose 48 unique studies, four dark directions, suitable tempos and matching grooves (3.268584ms)
+✔ authored Phrygian/tritone, suspended, chromatic and Neapolitan colors survive generation in every key (17.945458ms)
+✔ low mutation respects supplied roots; free high mutation changes structure without soft jazz extensions (0.994625ms)
+✔ every dark example has musical boundaries and balanced MIDI at all keys and gate extremes (998.29425ms)
+✔ metal gallops, doom and requiem hold, and all six patterns sound rhythmically distinct (1.348917ms)
+✔ composable chord editor retains chosen tensions through parser, chart and voicing (1.482333ms)
+✔ all songs load and each style works in all randomness levels with valid clip durations (852.829083ms)
+✔ low stays anchored; high can replace root functions and use non-tonic starts (4.84625ms)
+✔ cadences target the next actual chord and use minor iiø Vb9, never random diminished inserts (0.336208ms)
+✔ scale spelling and five positions use only the selected scale (1.85925ms)
+✔ guitar voicings obey tuning, bass, third/seventh, span and create varied melody lines (23.703417ms)
+✔ Deep House has sustained upper voices and off-grid bass/chord separation (1.013042ms)
+✔ chord spelling, slash bass, extensions and invalid symbols (1.034667ms)
+✔ major and minor target cadences preserve anchors (0.201834ms)
+✔ every generated style and key yields valid playable chords (51.596166ms)
+✔ guitar candidates contain all required chord tones and correct bass (15.859166ms)
+✔ MIDI contains valid header and balanced note events; no tempo event (0.497083ms)
+✔ pipe input, explicit rhythm, uppercase major and 3-chord defaults (1.54125ms)
+✔ solutions keep source immutable and maintain four-beat bars (1.615667ms)
+✔ all performance patterns respect intrabar chord boundaries (2.635ms)
+✔ 60, 120 and 240 BPM map beats and note lengths to audio seconds exactly (1.534792ms)
+✔ live acceleration preserves beat position, retimes held notes and cancels future attacks (0.171542ms)
+✔ invalid intermediate tempo input is ignored and startup lead stays in the future (0.09975ms)
+✔ loop remains on the beat grid through tempo changes and finishes current cycle when disabled (0.137541ms)
+✔ background lag skips expired attacks instead of replaying them in a burst (0.070333ms)
+✔ gate shortens rhythmic notes while held voices keep their musical landing points (18.140375ms)
+✔ short-note releases scale with duration instead of a fixed quarter-second tail (0.091916ms)
+✔ regional free rewrites keep strict pitch collections, basses and MIDI in scale in every key (892.285667ms)
+✔ world scale recommendations use project tonic, correct spelling and five playable regions (0.959208ms)
+✔ modal automatic studies avoid jazz cadences while explicit ii–V remains available (0.272542ms)
+✔ new groove families produce different note schedules and preserve full-length MIDI mode (0.600625ms)
+✔ format 0 running status, zero-velocity note off, track name, tempo and drum exclusion (1.606625ms)
+✔ sustain pedal holds notes until release; bent tracks are explicitly identified (0.178541ms)
+✔ tempo map conversion is continuous and invertible at tempo changes (1.729042ms)
+✔ export round-trips two independent tracks, durations, tempo changes and 6/8 (0.709625ms)
+✔ rejects truncated/corrupt files and unsupported timing rather than guessing (0.333833ms)
+✔ changing meters are explicitly rejected by the first prototype (0.516125ms)
+✔ drag snaps time, preserves duration/metadata and moves pitch without mutating input (0.985ms)
+✔ vertical motion leaves imported microtiming untouched and free move bypasses snap (0.095083ms)
+✔ drag clamps MIDI pitch and timeline boundaries while preserving duration (0.1095ms)
+✔ resize either edge retains pitch and opposite edge; cannot invert a note (0.100083ms)
+✔ triplet grid and newly drawn notes remain valid at limits (0.165958ms)
+✔ history snapshots are independent; undo/redo, new branches and bounded retention (0.246541ms)
+✔ moving across bars, lengthening and adding chromatic melody notes re-protects accompaniment and exports edited notes (19.986ms)
+✔ quantize floors each onset independently, retaining duration and metadata (0.185666ms)
+✔ quantize supports selected notes, FREE, triplets and stable grid boundaries (0.259166ms)
+✔ quantize is one undoable edit and redo restores the exact result (0.124833ms)
+✔ audio alignment: 60 BPM / 0.5 pickup beats without leading silence (0.767375ms)
+✔ audio alignment: 60 BPM / 1 pickup beats without leading silence (0.073291ms)
+✔ audio alignment: 60 BPM / 1.5 pickup beats without leading silence (0.054458ms)
+✔ audio alignment: 60 BPM / 3 pickup beats without leading silence (0.064417ms)
+✔ audio alignment: 92 BPM / 0.5 pickup beats without leading silence (0.071166ms)
+✔ audio alignment: 92 BPM / 1 pickup beats without leading silence (0.050708ms)
+✔ audio alignment: 92 BPM / 1.5 pickup beats without leading silence (0.057875ms)
+✔ audio alignment: 92 BPM / 3 pickup beats without leading silence (0.041334ms)
+✔ audio alignment: 120 BPM / 0.5 pickup beats without leading silence (0.063583ms)
+✔ audio alignment: 120 BPM / 1 pickup beats without leading silence (0.104125ms)
+✔ audio alignment: 120 BPM / 1.5 pickup beats without leading silence (0.051833ms)
+✔ audio alignment: 120 BPM / 3 pickup beats without leading silence (0.047125ms)
+✔ audio alignment: 184 BPM / 0.5 pickup beats without leading silence (0.03275ms)
+✔ audio alignment: 184 BPM / 1 pickup beats without leading silence (0.030375ms)
+✔ audio alignment: 184 BPM / 1.5 pickup beats without leading silence (0.027708ms)
+✔ audio alignment: 184 BPM / 3 pickup beats without leading silence (0.040541ms)
+✔ negative recording downbeat means recorded sound starts after BAR 1; no clipped or fabricated notes (0.15425ms)
+✔ signed tempo integration is invertible on both sides of BAR 1 (0.333167ms)
+✔ negative editing, drawing, moving and quantizing keep lengths and enforce BAR 0 edge (0.2675ms)
+✔ padded MIDI preserves 0.5-beat BAR 0, notes, meter and tempo (1.03175ms)
+✔ padded MIDI preserves 1-beat BAR 0, notes, meter and tempo (1.339833ms)
+✔ padded MIDI preserves 1.5-beat BAR 0, notes, meter and tempo (0.171875ms)
+✔ padded MIDI preserves 3-beat BAR 0, notes, meter and tempo (0.125333ms)
+✔ short MIDI preserves 0.5-beat BAR 0, notes, meter and tempo (0.147625ms)
+✔ short MIDI preserves 1-beat BAR 0, notes, meter and tempo (0.133583ms)
+✔ short MIDI preserves 1.5-beat BAR 0, notes, meter and tempo (0.112417ms)
+✔ short MIDI preserves 3-beat BAR 0, notes, meter and tempo (0.100083ms)
+✔ 3/4 and 6/8 pickups roundtrip with tempo changes during pickup and body (0.415ms)
+✔ audited export compares harmony and melody in the same signed coordinates (1.670959ms)
+✔ explicit pickup leaves BAR 1 harmonized, rather than treating leading rests as automatic N.C. (0.778542ms)
+✔ v2 projects persist pickup alignment; v1 migration is lossless and does not mutate source (0.776333ms)
+✔ first pass plays BAR 0 once; repeat starts on BAR 1 and tails anticipate the next phrase (0.912666ms)
+✔ loop disabled plays opening pickup, no tail duplication, and stops at the body end (0.119625ms)
+✔ original source uses exact first/loop/tail recording slices without synthesized duplicate melody (0.236833ms)
+✔ negative downbeat adds initial silence before buffer time zero, never passes negative buffer offset (0.115834ms)
+✔ cueing later bars does not replay initial pickup; loop toggles cancel queued next-cycle sources (0.153833ms)
+✔ cycle math is stable for variable tempo and repeated BAR 1 boundaries (0.049792ms)
+✔ padded MIDI import can be saved as v2 without retaining its synthetic rest-bar tempo origin (0.28325ms)
+✔ clicking a downbeat note rebases MIDI tempo changes without altering elapsed note timing (0.265875ms)
+✔ an intro note tied across BAR 1 is clipped at loop end and resumed at the repeat origin (0.130292ms)
+✔ count-in has separate state from negative pickup beats (0.159834ms)
+✔ re-enabling loop reschedules the original audio canceled in the lookahead window (0.119666ms)
+✔ MIDI tempo before the first positive tempo event retains the standard 120 BPM default (0.036709ms)
+✔ confirmed audio, MIDI and drawn notes keep pitch, beats, bar count and edits across repeated tempo changes (12.005334ms)
+✔ unconfirmed audio still calibrates seconds to beats; confirmation freezes the calibrated beat positions (0.64625ms)
+✔ original audio switches to pitch-preserving note playback at another tempo, without changing the source (0.183416ms)
+✔ tempo changes resume an active transport; invalid values do not mutate it (0.552083ms)
+✔ mute is independent of audition source, volume, melody notes and transport (0.225125ms)
+✔ player mix mutes and restores an already sounding melody bus without touching harmony or stopping playback (0.119875ms)
+✔ melody transport reports the start beat immediately without an unsolicited count-in (0.644708ms)
+ℹ tests 189
+ℹ suites 0
+ℹ pass 187
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1797.24625
+
+✖ failing tests:
+
+test at tests/alpha6-arranger.test.js:46:1
+✖ all 48 retained styles can arrange the baseline melody while retaining a traceable core or failing export (5.681208ms)
+  AssertionError [ERR_ASSERTION]: Mandopop
+  + actual - expected
+  
+    [
+      0,
+      9,
+      5,
+      7,
+      0,
+      9,
+  +   2,
+  -   5,
+      7,
+  -   0
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/liuyenhui/Documents/ChatGPT/CHORD%20SOLUTION/Seiren-QA/tests/alpha6-arranger.test.js:50:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [
+      0, 9, 5, 7,
+      0, 9, 2, 7
+    ],
+    expected: [
+      0, 9, 5, 7, 0,
+      9, 5, 7, 0
+    ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/beta-20261026.test.js:20:1
+✖ dominant tritones need both chord tones; remote major sevenths are allowed but close semitones are rejected (1.516917ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/liuyenhui/Documents/ChatGPT/CHORD%20SOLUTION/Seiren-QA/tests/beta-20261026.test.js:23:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

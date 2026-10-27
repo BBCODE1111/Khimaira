@@ -1,4 +1,5 @@
 import {darkStudyMoods} from './dark-styles.js?v=17';
+import {harmonyStudies} from './harmony-knowledge.js?v=18';
 // Short, original listening cues, never source-song names.
 export const studyMoods={
  Jazz:['輕快・街角','苦甜・酒吧','緊張・樓梯'],
@@ -45,6 +46,9 @@ export const studyMoods={
  'Celtic Dorian':['明亮・小徑','夢幻・山谷','輕快・原野']
 };
 Object.assign(studyMoods,darkStudyMoods);
+studyMoods.Ballad=['溫暖・歌句','苦甜・琴房','明亮・回信'];
+const learnedMoods=['溫暖・留白','苦甜・階梯','明亮・回家','憂鬱・回答','夢幻・夜燈','緊張・轉角'];
+for(const [i,study] of harmonyStudies.entries())for(const style of study.styles)studyMoods[style].push(learnedMoods[i]);
 export function moodCategory(label){return /^(明亮|溫暖|輕快)/.test(label)?'bright':/^(夢幻)/.test(label)?'dreamy':/^(緊張|莊重)/.test(label)?'tense':'melancholy';}
 export function studyMood(style,index){const moods=studyMoods[style]||['溫暖・琴房'];return moods[index%moods.length];}
 export function exampleTitle(example,index){return `Ex${index+1} · ${example.mood}`;}

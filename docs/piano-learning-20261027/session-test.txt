@@ -1,0 +1,1 @@
+PASS: fixed backbone, result isolation, all 48 styles / 382 examples with explicit LOAD, browsing isolation, filled GENERATE ignores examples, blank GENERATE loads examples, explicit KEEP, legacy recall, invalid draft preservation

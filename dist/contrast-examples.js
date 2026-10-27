@@ -3,6 +3,11 @@ import {darkContrasts} from './dark-styles.js?v=17';
 // Mood is a listening suggestion, not a claim about a tradition or a source song.
 // Order: bright / melancholy / dreamy / tense. Explicit modes prevent major/minor relabelling.
 const charts={
+ Ballad:[
+ 'major;Cadd9|Fmaj7|Dm7 Gsus4|Cadd9',
+ 'minor;Cmadd9|Abmaj7|Fm7 G7|Cm',
+ 'major;Cmaj9|Fmaj7/C|Gsus4/C|Cadd9',
+ 'major;C/E E7/G#|Am7 A7|Dm7 G7|Cadd9'],
  Jazz:[
  'major;Fmaj9|Em7 A7|Dm9 G13|C69',
  'minor;Cm9|Fm9|Dm7b5 G7b9|Cm6',

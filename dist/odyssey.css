@@ -168,3 +168,6 @@ button:not(.chord-event):not(.bar-cue){min-height:44px;font-size:12px}
  .score.compact-tools .chart-tools:not(:focus-within){height:0;min-height:0;padding-block:0;overflow:hidden;opacity:0;pointer-events:none}
  .score.compact-tools .chart-tools:focus-within{height:auto;opacity:1}
 }
+
+/* Piano tools live in a drawer/dialog, leaving the main score layout intact. */
+.piano-tool-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.piano-tool-grid label,.piano-import label{min-width:0}.piano-tool-grid select,.piano-import select{width:100%}#pianoTools{padding:12px 0}#pianoTools textarea{box-sizing:border-box;width:100%;min-height:62px;background:#183247;color:#edf2f6;border:1px solid #a18a66;padding:8px;font:14px monospace;resize:vertical}.piano-import{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}.piano-import input{max-width:100%;font-size:11px}.piano-actions{display:flex;gap:8px;flex-wrap:wrap}#pianoTools p{font-size:12px;line-height:1.6;color:#b9c9d5}#pianoDialog{width:min(760px,94vw);max-height:90vh;overflow:auto}#pianoDialog>form{text-align:right;margin-top:12px}@media(max-width:520px){.piano-tool-grid,.piano-import{grid-template-columns:1fr}}

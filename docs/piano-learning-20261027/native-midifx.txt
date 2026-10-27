@@ -1,0 +1,1 @@
+PASS 432 processor cases: six patterns, exact retained beat/duration/pitch/velocity, three identical 8-bar loops at 120 BPM, blocks 64/257/1024, exact and rounded host PPQ. Maximum error 0.499903 ticks @480 PPQ. Native PLAY tempo changes, callback suspension, STOP/restart, bar-boundary update, silent audio, state recall. MIDI FX=1

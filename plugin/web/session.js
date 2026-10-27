@@ -37,7 +37,7 @@ export function generateSession(state){
  // genuinely empty backbone uses a selected example (or the style's first one).
  if(!input.length)return loadExample(state);
  const source=resize(input,state.length);
- const bars=mutate(source,{style:state.style,key:+state.key,mode:state.mode,randomness:state.randomness,seed,freedom:state.freedom||'color',density:+state.density||3,method:'style'});
+ const bars=mutate(source,{style:state.style,key:+state.key,mode:state.mode,randomness:state.randomness,seed,freedom:state.freedom||'color',density:+state.density||3,method:'style',ideaFamily:state.ideaFamily||'auto'});
  return {...state,bars,variation:seed,mood:'MORPH '+seed+' · '+(styleLabels[state.style]||state.style)+' · 原始骨幹'};
 }
 export function loadBackbone(state){
