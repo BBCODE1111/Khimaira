@@ -1,12 +1,12 @@
-import {parseChart,chordList,serialize} from './solutions.js?v=piano-audit-1';
-import {parse} from './music.js?v=piano-audit-1';
-import {normalizeKey,parseDegreeChart,chartToDegrees,materializeChart,sameDegrees,formatDegreeChart} from './degree-chart.js';
-import {detectKey} from './key-detection.js';
-import {mutate,styles} from './style-engine.js?v=key-redesign-2';
-import {styleTonality} from './backbone-mutation.js';
-import {examplesForKey,nextKeyedExample} from './keyed-examples.js';
+import {parseChart,chordList,serialize} from './solutions.js?v=key-functional-1';
+import {parse} from './music.js?v=key-functional-1';
+import {normalizeKey,parseDegreeChart,chartToDegrees,materializeChart,sameDegrees,formatDegreeChart,degreeLabels} from './degree-chart.js?v=key-functional-1';
+import {detectKey} from './key-detection.js?v=key-functional-1';
+import {mutate,styles} from './style-engine.js?v=key-functional-1';
+import {styleTonality} from './backbone-mutation.js?v=key-functional-1';
+import {examplesForKey,nextKeyedExample} from './keyed-examples.js?v=key-functional-1';
 
-import {convertDegreeMode} from './mode-conversion.js';
+import {convertDegreeMode} from './mode-conversion.js?v=key-functional-1';
 
 export const HARMONY_SCHEMA=1;
 const copy=x=>structuredClone(x);
@@ -37,7 +37,7 @@ export function migrateHarmony(old={}){
  return s;
 }
 export function harmonyView(s){
- return {bars:materializeChart(s.score,s.key),sourceText:symbols(s.backbone.degrees,s.key),romanText:formatDegreeChart(s.backbone.degrees),
+ return {bars:materializeChart(s.score,s.key),sourceText:symbols(s.backbone.degrees,s.key),romanText:formatDegreeChart(s.backbone.degrees,s.key),degreeLabels:degreeLabels(s.score,s.key),
   key:s.key.root,mode:s.key.mode,tonality:effectiveKey(s),canRestore:!sameDegrees(s.score,s.backbone.degrees),candidates:copy(s.candidates),warning:copy(s.warning),origin:copy(s.origin)};
 }
 export function applyHarmonyAction(current,action){

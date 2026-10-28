@@ -1,13 +1,13 @@
 import {darkStyles} from './dark-styles.js?v=17';
-import {names,mod,parse,spellPitch,spellChord,spellInterval,transposeSymbol,chordTones} from './music.js?v=piano-audit-1';
-import {parseBar,chordList,parseChart} from './solutions.js?v=piano-audit-1';
+import {names,mod,parse,spellPitch,spellChord,spellInterval,transposeSymbol,chordTones,tritoneRoot} from './music.js?v=key-functional-1';
+import {parseBar,chordList,parseChart} from './solutions.js?v=key-functional-1';
 import {songs} from './song-pool.js?v=17';
 import {worldStyles} from './world-styles.js?v=17';
-import {worldMutation} from './world-generator.js?v=piano-audit-1';
+import {worldMutation} from './world-generator.js?v=key-functional-1';
 import {harmonyStudies,learnedIdea} from './harmony-knowledge.js?v=18';
-import {detectKey} from './key-detection.js';
-import {normalizeKey} from './degree-chart.js';
-import {anchoredMutation} from './backbone-mutation.js';
+import {detectKey} from './key-detection.js?v=key-functional-1';
+import {normalizeKey} from './degree-chart.js?v=key-functional-1';
+import {anchoredMutation} from './backbone-mutation.js?v=key-functional-1';
 export const styles={
 Jazz:{description:'功能替代、次屬和弦、ii–V、三全音／backdoor，讓 3rd 與 7th 連接。',pattern:'jazz',voicing:'rootless',phrases:[['Cmaj9 Ebdim7','Dm9 G13','Em7 A7b9','Dm9 Db7#11'],['Em9 A7alt','Dm9 G13','Fm9 Bb13','C69 G7alt'],['C69','F#m7b5 B7b9','Em9 A7alt','Dm9 G13']],T:['Cmaj9','Em9 A7alt','C69 Ebdim7'],R:['Am9','Em7 A7alt','Dm9 G13'],S:['Fmaj9','Fm9 Bb13','Dm9 G13'],D:['G13','Dm9 Db7#11','G7sus4 G7alt']},
 Gospel:{description:'斜線低音、減七經過和弦、IV–iv、sus 解決與 plagal 色彩。',pattern:'gospel',voicing:'open',phrases:[['C69 E7/G#','Am9 C7/G','Fmaj9 Fm6','C/G G7sus4'],['Cmaj9/E','Fmaj9 F#dim7','C/G A7b9','Dm9 G13'],['C69','Bb/C C7','Fmaj9 Fm6','C/G G7']],T:['C69/E','Cmaj9 E7/G#','C/G'],R:['Am9 C7/G','C7/G','Em7 A7b9'],S:['Fmaj9 Fm6','Fmaj9 F#dim7','Dm9/G'],D:['G7sus4 G13','C/G G7','Db9 C69']},
@@ -98,8 +98,8 @@ const isDominant=c=>c&&c.intervals.includes(4)&&c.intervals.includes(10);
 export const cadenceTarget=symbol=>{const c=parse(symbol);return !!c&&!c.intervals.includes(6)&&!c.intervals.includes(8)&&c.intervals.some(n=>n===3||n===4);};
 export function cadenceTo(target,{tritone=false,rich=false}={}){
  const c=parse(target);if(!cadenceTarget(target))return null;
- // Chromatic subV roots use a readable semitone neighbour, not Abb/Fb spellings.
- const dominant=tritone?spellPitch(c.root+1,c.root,'major'):spellInterval(c.rootName,7,4);
+ // subV is the chromatic upper neighbour, spelled as a second above its target.
+ const dominant=tritone?tritoneRoot(target):spellInterval(c.rootName,7,4);
  return [spellInterval(c.rootName,2,1)+(c.minor?'m7b5':rich?'m9':'m7'),dominant+(tritone?(rich?'7#11':'7'):c.minor?'7b9':rich?'13':'7')];
 }
 function changeCore(c,rootName,q){

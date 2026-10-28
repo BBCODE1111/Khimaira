@@ -1,5 +1,5 @@
-import {degreeToChord,chordToDegree} from './degree-chart.js';
-import {parse,chordTones} from './music.js?v=piano-audit-1';
+import {degreeToChord,chordToDegree} from './degree-chart.js?v=key-functional-1';
+import {parse,chordTones} from './music.js?v=key-functional-1';
 
 // Only authored diatonic chords change. Chromatic/borrowed/applied chords
 // retain their functional degrees and qualities, including slash basses.

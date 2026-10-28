@@ -1,4 +1,4 @@
-import {parse,mod,keyName,spellInterval} from './music.js?v=piano-audit-1';
+import {parse,mod,keyName,spellInterval,analyzeHarmony} from './music.js?v=key-functional-1';
 
 // Chromatic Roman notation is major-referenced in BOTH modes: Cm–Ab–Bb is
 // i–bVI–bVII. Quality is explicit, so changing tonic never changes chord type.
@@ -44,15 +44,15 @@ export function parseRoman(token,key={}){
  key=normalizeKey(key);
  // 6/9 is a chord quality, /V is a secondary function, /3 is a bass degree.
  const parts=token.replace('6/9','69').split('/');
- let chord=romanHead(parts.shift());
+ const head=parts.shift(),sub=head.startsWith('subV');let chord=romanHead(sub?'bII'+head.slice(4):head);
  if(parts.length&&/^[b#♭♯]*(?:[ivIV]+)$/.test(parts[0])){
   const target=romanHead(parts.shift()),targetName=degreePitch(target,key);
   chord=chordToDegree(degreeToChord(chord,{root:parse(targetName).root,tonic:targetName,mode:'major'}),key);
  }
  if(parts.length){
   const m=parts.shift().replaceAll('♭','b').replaceAll('♯','#').match(/^([b#]{0,2})([1-7])$/);
-  if(!m)throw Error('轉位低音請用級數，例如 I/3 或 V7/V/#4');
-  chord.bass={degree:+m[2],alteration:[...m[1]].reduce((n,c)=>n+(c==='#'?1:-1),0)};
+  if(m)chord.bass={degree:+m[2],alteration:[...m[1]].reduce((n,c)=>n+(c==='#'?1:-1),0)};
+  else {const bass=token.split('/').at(-1);if(!/^[A-G][#b]{0,2}$/.test(bass))throw Error('轉位低音請用音名或級數，例如 I/E 或 I/3');chord.bass=pitchDegree(bass,key);}
  }
  if(parts.length)throw Error('無法辨識級數 '+token);
  return chord;
@@ -81,14 +81,24 @@ export function parseDegreeChart(text,key={}){
 }
 export function formatDegree(chord){
  const accidental=n=>n>0?'#'.repeat(n):'b'.repeat(-n);
- const applied={2:'V',3:'vi',6:'ii',7:'iii'}[chord.degree];
- const dominantQuality=chord.quality===''||/^(7|9|13)/.test(chord.quality);
- if(chord.alteration===0&&applied&&dominantQuality)return 'V'+chord.quality+'/'+applied+(chord.bass?'/'+accidental(chord.bass.alteration)+chord.bass.degree:'');
  let numeral=numerals[chord.degree-1],q=chord.quality;
  if(q==='m7b5'){numeral=numeral.toLowerCase();q='ø7';}
  else if(q.startsWith('dim')){numeral=numeral.toLowerCase();q=q==='dim7'?'°7':'°';}
  else if(q.startsWith('m')&&!q.startsWith('maj')){numeral=numeral.toLowerCase();q=q.startsWith('mMaj')?'maj'+q.slice(4):q.slice(1);}
  return accidental(chord.alteration)+numeral+q+(chord.bass?'/'+accidental(chord.bass.alteration)+chord.bass.degree:'');
 }
-export function formatDegreeChart(bars){return '| '+bars.map(b=>b.chords.map(c=>formatDegree(c)+(c.beats===4?'':':'+c.beats)).join(' ')).join(' | ')+' |';}
+// One analysis feeds both the detector and all user-facing function labels.
+export function analyzeDegreeChart(bars,key={root:0,mode:'major'},options={}){return analyzeHarmony(materializeChart(bars,key),normalizeKey(key),options);}
+export function degreeLabels(bars,key,options={}){
+ const labels=bars.map(b=>b.chords.map(()=>''));for(const c of analyzeDegreeChart(bars,key,options).events)labels[c.bar][c.chord]=c.label;return labels;
+}
+export function formatDegreeChart(bars,key={root:0,mode:'major'},{bassNames=false}={}){
+ const labels=degreeLabels(bars,key);
+ return '| '+bars.map((b,i)=>b.chords.map((c,j)=>{
+  let label=labels[i][j];
+  if(c.bass&&!bassNames){label=label.replace(/\/[A-G][#b]*$/,'');const a=c.bass.alteration;label+='/'+(a>0?'#'.repeat(a):'b'.repeat(-a))+c.bass.degree;}
+  if(!bassNames){const restored=parseRoman(label,key);if(restored.degree!==c.degree||restored.alteration!==c.alteration||restored.quality!==c.quality)label=formatDegree(c);}
+  return label+(c.beats===4?'':':'+c.beats);
+ }).join(' ')).join(' | ')+' |';
+}
 export function sameDegrees(a,b){return JSON.stringify(a)===JSON.stringify(b);}

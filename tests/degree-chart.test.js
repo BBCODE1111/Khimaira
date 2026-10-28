@@ -35,3 +35,10 @@ test('degree display/input round-trips timing, accidentals, extensions and basse
  assert.equal(formatDegreeChart(parseDegreeChart('I | V/V | V | I')),'| I | V/V | V | I |');
  for(const text of ['I:3 V:2','VIII','I/9','ii7:0','I:NaN'])assert.throws(()=>parseDegreeChart(text));
 });
+
+test('contextual functions serialize losslessly even when readable subV uses an enharmonic spelling',()=>{
+ for(const [tonic,sub] of [['Ab','A7#11'],['Eb','E7#11'],['Db','D7#11'],['Gb','G7#11'],['Cb','C7#11']]){
+  const key={root:parse(tonic).root,tonic,mode:'major'},degrees=parseDegreeChart(sub+' | '+tonic,key);
+  assert.deepEqual(parseDegreeChart(formatDegreeChart(degrees,key),key),degrees);
+ }
+});

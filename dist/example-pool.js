@@ -1,6 +1,6 @@
-import {styles} from './style-engine.js?v=piano-audit-1';
+import {styles} from './style-engine.js?v=key-functional-1';
 import {songs} from './song-pool.js?v=17';
-import {parseChart,serialize} from './solutions.js?v=piano-audit-1';
+import {parseChart,serialize} from './solutions.js?v=key-functional-1';
 import {studyMood,moodCategory,exampleTitle} from './example-titles.js?v=18';
 import {contrastExamples,moodOrder} from './contrast-examples.js?v=18';
 export function examplePool(style){

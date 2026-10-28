@@ -1,4 +1,4 @@
-import {parse,mod,chordTones,spellPitch} from './music.js?v=piano-audit-1';
+import {parse,mod,chordTones,spellPitch} from './music.js?v=key-functional-1';
 import {worldScales} from './world-styles.js?v=17';
 
 export function styleTonality(style,cfg,key){
