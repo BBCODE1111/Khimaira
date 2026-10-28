@@ -29,14 +29,14 @@ async function download(page,selector,name){
   return bytes.length;
 }
 (async()=>{
- const site=await serve(khimaira);let browser;
+ const site=process.env.VERIFY_LIVE==='1'?{url:'https://bbcode1111.github.io/Khimaira/',server:null}:await serve(khimaira);let browser;
  try{
   browser=await chromium.launch({headless:true,channel:'chrome',args:['--autoplay-policy=no-user-gesture-required']});
   const page=await browser.newPage({viewport:{width:1440,height:1400}}),errors=[],missing=[],report=[];
   page.on('pageerror',e=>errors.push(e.stack));page.on('response',r=>{if(r.url().startsWith(site.url)&&r.status()>=400)missing.push(r.url());});
   await page.addInitScript(()=>{window.__musicTestEnergy=0;const connect=AudioNode.prototype.connect;AudioNode.prototype.connect=function(target,...args){if(target instanceof AudioDestinationNode){const context=target.context;if(!context.__tap){const tap=context.createScriptProcessor(2048,2,2);tap.onaudioprocess=e=>{for(const sample of e.inputBuffer.getChannelData(0))window.__musicTestEnergy+=sample*sample;};connect.call(tap,target);context.__tap=tap;}connect.call(this,context.__tap);}return connect.call(this,target,...args);};});
   const click=id=>page.locator('#'+id).click(),read=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('khimaira-v5'))),chords=()=>page.locator('.chord-event strong').allTextContents();
-  async function load(text){await page.locator('#chartInput').fill(text);await click('applyChart');}
+  async function load(text){if(await page.locator('#advancedInput').count()&&!await page.locator('#chartInput').isVisible())await page.locator('#advancedInput summary').click();await page.locator('#chartInput').fill(text);await click('applyChart');}
   async function tonic(n){await click('keyButton');await page.locator('#keyTonic').selectOption(String(n));await click('applyKey');}
   async function shot(name){await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:path.join(output,name+'.png')});}
   await page.goto(site.url);await page.locator('.chord-event').first().waitFor();
@@ -53,31 +53,31 @@ async function download(page,selector,name){
   await shot('d-major-generate-desktop');const beforeRestore=await chords();await click('restore');assert.deepEqual(await chords(),['D','Bm','G','A']);await click('undo');assert.deepEqual(await chords(),beforeRestore);
   report.push({case:'G → D transpose, GENERATE, RESTORE and UNDO',pass:true});
   await page.locator('.seed-tools summary').click();const p=await page.evaluate(async()=>{const s=JSON.parse(localStorage.getItem('khimaira-v5')).harmony;return (await import('./keyed-examples.js')).examplesForKey(s.style,s.key)[0];});
-  await page.locator('#library').selectOption(p.id);await click('loadPreset');assert.deepEqual((await read()).harmony.score,p.degrees);assert.deepEqual((await read()).harmony.backbone,g);
-  const inspire=[];for(let i=0;i<2;i++){await click('nextSong');const s=(await read()).harmony;assert.equal(s.key.root,2);assert.equal(s.key.mode,'major');assert.deepEqual(s.backbone,g);inspire.push(s.origin.kind);}
+  await page.locator('#library').selectOption(p.id);await click('loadPreset');assert.deepEqual((await read()).harmony.score,p.degrees);assert.deepEqual((await read()).harmony.backbone.degrees,p.degrees);const loadedBackbone=(await read()).harmony.backbone;
+  const inspire=[];for(let i=0;i<2;i++){await click('nextSong');const s=(await read()).harmony;assert.equal(s.key.root,2);assert.equal(s.key.mode,'major');assert.deepEqual(s.backbone,loadedBackbone);inspire.push(s.origin.kind);}
   assert.ok(inspire.includes('fusion'));assert.ok(inspire.includes('example'));
-  report.push({case:'Exact compatible example LOAD and both INSPIRE paths preserve backbone',pass:true});
-  await click('useCurrent');await click('confirmCancel');assert.deepEqual((await read()).harmony.backbone,g);
-  const kept=(await read()).harmony.score;await click('useCurrent');await click('confirmApply');assert.deepEqual((await read()).harmony.backbone.degrees,kept);await click('undo');assert.deepEqual((await read()).harmony.backbone,g);
-  await load('F | Dm | Bb | C');assert.equal((await read()).harmony.key.root,2);assert.deepEqual(await chords(),['F','Dm','Bb','C']);assert.equal(await page.locator('#keyWarning').isVisible(),true);
+  report.push({case:'Exact compatible example LOAD adopts backbone; both INSPIRE paths preserve it',pass:true});
+  await click('useCurrent');await click('confirmCancel');assert.deepEqual((await read()).harmony.backbone,loadedBackbone);
+  const kept=(await read()).harmony.score;await click('useCurrent');await click('confirmApply');assert.deepEqual((await read()).harmony.backbone.degrees,kept);await click('undo');assert.deepEqual((await read()).harmony.backbone,loadedBackbone);
+  if((await read()).harmony.keyMode!=='locked')await click('keyLock');await load('F | Dm | Bb | C');assert.equal((await read()).harmony.key.root,2);assert.deepEqual(await chords(),['F','Dm','Bb','C']);assert.equal(await page.locator('#keyWarning').isVisible(),true);
   await click('acceptKeySuggestion');assert.equal((await read()).harmony.key.root,5);assert.deepEqual(await chords(),['F','Dm','Bb','C']);
   await click('keyLock');await load('Am | F | C | G');assert.ok(await page.locator('#keyCandidate').isVisible());const pitches=await chords();await click('keyCandidate');assert.deepEqual(await chords(),pitches);
   report.push({case:'KEEP confirmation, locked input suggestion and candidate reinterpretation',pass:true});
-  await click('keyLock');await load('C | Am | F | G');await click('keyButton');await page.locator('#keyMode').selectOption('minor');await click('convertMode');await click('confirmCancel');assert.equal((await read()).harmony.key.mode,'major');
+  if((await read()).harmony.keyMode==='locked')await click('keyLock');await load('C | Am | F | G');await click('keyLock');await click('keyButton');await page.locator('#keyMode').selectOption('minor');await click('convertMode');await click('confirmCancel');assert.equal((await read()).harmony.key.mode,'major');
   await click('keyButton');await page.locator('#keyMode').selectOption('minor');await click('convertMode');await click('confirmApply');assert.equal((await read()).harmony.key.mode,'minor');assert.deepEqual(await chords(),['Cm','Ab','Fm','G']);
   const minorIds=await page.locator('#library option').evaluateAll(xs=>xs.map(x=>x.value));
   const expectedIds=await page.evaluate(async()=>{const s=JSON.parse(localStorage.getItem('khimaira-v5')).harmony;return (await import('./keyed-examples.js')).examplesForKey(s.style,s.key).map(p=>p.id);});assert.deepEqual(minorIds,expectedIds);
-  await page.locator('#library').selectOption(minorIds[0]);await click('loadPreset');assert.equal((await read()).harmony.key.mode,'minor');await click('restore');assert.deepEqual(await chords(),['Cm','Ab','Fm','G']);
+  await page.locator('#library').selectOption(minorIds[0]);await click('loadPreset');assert.equal((await read()).harmony.key.mode,'minor');const loadedMinor=await chords();await click('generate');await click('restore');assert.deepEqual(await chords(),loadedMinor);
   report.push({case:'Independent confirmed mode conversion, minor-only examples and RESTORE',pass:true,minorExamples:minorIds.length});
-  await page.locator('.chord-event').first().click();await page.locator('#editQuality').selectOption('m9');await click('editorApply');assert.equal((await read()).harmony.origin.type,'edit');await click('restore');assert.deepEqual(await chords(),['Cm','Ab','Fm','G']);
+  await click('editChord');await page.locator('#editQuality').selectOption('m11');await click('editorApply');assert.equal((await read()).harmony.origin.type,'edit');await click('restore');assert.deepEqual(await chords(),loadedMinor);
   const saved=await read();await page.reload();await page.locator('.chord-event').first().waitFor();assert.deepEqual((await read()).harmony,saved.harmony);
-  await page.locator('#chartInput').fill('i | bVI | iv | V7');await click('generate');assert.equal((await read()).harmony.key.mode,'minor');assert.equal((await read()).sourceDraft,null);
+  if(await page.locator('#advancedInput').count()&&!await page.locator('#chartInput').isVisible())await page.locator('#advancedInput summary').click();await page.locator('#chartInput').fill('i | bVI | iv | V7');await click('generate');assert.equal((await read()).harmony.key.mode,'minor');assert.equal((await read()).sourceDraft,null);
   await page.locator('#tempo').fill('137');await page.locator('#tempo').press('Enter');await page.locator('#midiSplit').selectOption('split');await download(page,'#dockMidi','key-redesign-137bpm.mid');
   const bytes=fs.readFileSync(path.join(output,'key-redesign-137bpm.mid')),tempoAt=bytes.indexOf(Buffer.from([255,81,3]));assert.ok(tempoAt>0);assert.equal(bytes.readUIntBE(tempoAt+3,3),Math.round(60000000/137));
   await click('play');await page.waitForFunction(()=>window.__musicTestEnergy>.01,null,{timeout:30000});assert.equal(await page.locator('#play').getAttribute('aria-pressed'),'true');assert.ok(await page.locator('.sounding').count()>0);await click('stop');
   report.push({case:'Bar edit / Roman input / reload / 137 BPM MIDI / real Web Audio output and highlighting',pass:true});
-  await page.locator('#chartInput').fill('not-a-chord');await click('generate');assert.equal((await read()).sourceDraft,'not-a-chord');assert.equal((await read()).harmony.key.mode,'minor');
-  await page.locator('#chartInput').fill('i | bVI | iv | V7');await click('applyChart');
+  if(await page.locator('#advancedInput').count()&&!await page.locator('#chartInput').isVisible())await page.locator('#advancedInput summary').click();await page.locator('#chartInput').fill('not-a-chord');await click('generate');assert.equal((await read()).sourceDraft,'not-a-chord');assert.equal((await read()).harmony.key.mode,'minor');
+  if(await page.locator('#advancedInput').count()&&!await page.locator('#chartInput').isVisible())await page.locator('#advancedInput summary').click();await page.locator('#chartInput').fill('i | bVI | iv | V7');await click('applyChart');
   await page.locator('#style').selectOption('Dorian folk');assert.equal((await read()).harmony.key.mode,'minor'); // explicitly locked mode wins
   assert.equal(await page.locator('#loadPreset').isDisabled(),true);await click('nextSong');assert.equal((await read()).harmony.origin.kind,'backbone');
   report.push({case:'Invalid input preserves score; locked mode wins over modal style; empty compatible pool fallback',pass:true});
@@ -94,5 +94,5 @@ async function download(page,selector,name){
   assert.equal(await page.locator('#key').count(),0);assert.equal(await page.locator('#mode').count(),0);assert.equal(await page.locator('#keyButton').count(),1);
   assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);report.push({case:'Unique KEY and desktop / tablet / mobile layout and controls',pass:true});
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({report,errors,missing},null,2)+'\n');console.log(JSON.stringify(report,null,2));
- }finally{await browser?.close();site.server.closeAllConnections();await new Promise(resolve=>site.server.close(resolve));}
+ }finally{await browser?.close();if(site.server){site.server.closeAllConnections();await new Promise(resolve=>site.server.close(resolve));}}
 })().catch(e=>{console.error(e);process.exitCode=1;});

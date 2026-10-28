@@ -1,7 +1,7 @@
 import {pedalIntervals,pedalMidiEvents} from './piano-pedal.js?v=2.0.0';
-import {voicingCandidates} from './voicing.js?v=key-functional-1';
+import {voicingCandidates} from './voicing.js?v=morph-1';
 // Product adapter: generation, voicing and MIDI remain owned by this app.
-import {names,mod,createTheory} from './music-core.js?v=1.1.0';
+import {names,mod,createTheory} from './music-core.js?v=1.1.1';
 const {parse,chordTones,spellInterval,keyName,spellPitch,spellChord,transposeSymbol,romanNumeral,analyzeHarmony,tritoneRoot}=createTheory('khimaira-v1');
 export {names,mod,parse,chordTones,spellInterval,keyName,spellPitch,spellChord,transposeSymbol,romanNumeral,analyzeHarmony,tritoneRoot};
 const recipes={Jazz:[[0,'maj7'],[9,'7'],[2,'m7'],[7,'7'],[4,'m7'],[9,'7'],[2,'m9'],[7,'13']],Gospel:[[0,'maj9'],[4,'m7'],[5,'maj7'],[5,'m6'],[0,'maj7'],[9,'7'],[2,'m7'],[7,'7sus4']],Fusion:[[0,'maj9'],[3,'maj7'],[5,'maj9'],[8,'maj7'],[2,'m9'],[1,'7'],[0,'maj9'],[7,'7#9']],'Bossa nova':[[0,'maj7'],[9,'7b9'],[2,'m9'],[7,'13'],[4,'m7'],[3,'dim7'],[2,'m7'],[7,'7']],Rock:[[0,''],[7,''],[9,'m'],[5,''],[0,''],[10,''],[5,''],[7,'']],'Japanese rock':[[5,'maj7'],[7,''],[4,'m7'],[9,'m7'],[5,''],[7,''],[0,''],[4,'7']],House:[[9,'m7'],[5,'maj7'],[0,'maj7'],[7,''],[9,'m9'],[5,'maj9'],[2,'m7'],[7,'7']],Classical:[[0,''],[5,''],[2,'m'],[7,'7'],[0,''],[9,'m'],[2,'m'],[7,'7']],'Phrygian dominant':[[0,''],[1,''],[0,''],[10,'m'],[0,''],[5,'m'],[1,''],[0,'']],'Dorian folk':[[0,'m'],[5,''],[0,'m'],[10,''],[0,'m7'],[5,''],[7,'m'],[0,'m']]};
@@ -14,10 +14,10 @@ export function pianoVoicing(symbol,previous=[]){
  return candidates.sort((a,b)=>cost(a)-cost(b))[0]||[];
  function cost(v){return v.slice(1).reduce((s,n,i)=>s+Math.abs(n-(previous[i+1]??(57+i*4))),0);}
 }
-export {performance as events} from './performance.js?v=key-functional-1';
+export {performance as events} from './performance.js?v=morph-1';
 const tuning=[40,45,50,55,59,64];
 export function guitarShapes(symbol){const c=parse(symbol);if(!c)return [];let all=[];for(let start=0;start<=12;start++){const opts=tuning.map(t=>[-1,...Array.from({length:5},(_,i)=>start+i).filter(f=>f<=15&&c.pcs.includes(mod(t+f)))]);const walk=(arr,s)=>{if(s===6){const notes=arr.flatMap((f,i)=>f<0?[]:[tuning[i]+f]);if(notes.length<3||mod(notes[0])!==c.bass)return;const set=new Set(notes.map(mod));const required=c.intervals.length>4?c.intervals.filter(n=>n!==7&&n!==0&&!(n===17&&c.intervals.includes(21))):c.intervals;if(required.some(n=>!set.has(mod(c.root+n))))return;const fretted=arr.filter(f=>f>0);if(fretted.length>4&&new Set(fretted).size>3)return;const span=Math.max(...fretted)-Math.min(...fretted);if(span>3)return;all.push({frets:arr,omitted:chordTones(symbol).filter((_,i)=>!set.has(mod(c.root+c.intervals[i]))),score:span*3+arr.filter(f=>f<0).length+start*.15});return;}for(const f of opts[s])walk([...arr,f],s+1);};walk([],0);}const seen=new Set;return all.sort((a,b)=>a.score-b.score).filter(x=>{const k=x.frets.join();if(seen.has(k))return false;seen.add(k);return true;}).filter((x,i,a)=>i===0||Math.abs(Math.max(...x.frets)-Math.max(...a[0].frets))>=3).slice(0,3);}
-export {scaleOptions as scales} from './scale-library.js?v=key-functional-1';
+export {scaleOptions as scales} from './scale-library.js?v=morph-1';
 export function midiBytes(notes,totalBeats,{split=false,pedal=false,chordSpans=[],melody=[],channel=0,bpm}={}){
  if(split){
   const chunks=['bass','upper'].map(part=>{

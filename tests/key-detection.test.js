@@ -2,6 +2,14 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import {parseChart} from '../dist/solutions.js';
 import {detectKey} from '../dist/key-detection.js';
 import {keyCases} from './key-cases.js';
+import {readFileSync} from 'node:fs';
+const labelled49=JSON.parse(readFileSync(new URL('./key-detection-cases.json',import.meta.url))).cases;
+assert.equal(labelled49.length,49);
+for(const {chart,expected} of labelled49)test(`user-labelled key: ${chart}`,()=>{
+ const actual=detectKey(parseChart(chart)).primary;
+ const answers=expected.map(name=>{const chord=parse(name);return {root:chord.root,mode:chord.minor?'minor':'major'};});
+ assert.ok(answers.some(key=>key.root===actual?.root&&key.mode===actual?.mode),`${chart}: expected ${expected.join(' / ')} (first preferred), got ${actual?.tonic} ${actual?.mode}`);
+});
 test('28 human-labelled key cases: borrowed plagal cadence, inversions, minor V, blues, sequences and non-tonic entrances',()=>{
  for(const [chart,root,mode,alternatives=[]] of keyCases){
   const d=detectKey(parseChart(chart)),acceptable=[[root,mode],...alternatives];
@@ -75,5 +83,20 @@ test('all 36 new cases retain their manually labelled key across 12 transpositio
  for(const [chart,root,mode] of newCases)for(let semitones=0;semitones<12;semitones++){
   const target=(root+semitones)%12,bars=parseChart(chart).map(b=>({...b,chords:b.chords.map(c=>({...c,symbol:transposeSymbol(c.symbol,semitones,target,mode)}))}));
   assert.ok(matches(detectKey(bars).primary,target,mode),chart+' shift '+semitones);
+ }
+});
+test('unresolved ii–V uses the shared functional analysis in all twelve transpositions',()=>{
+ for(let shift=0;shift<12;shift++){
+  const bars=parseChart('Em7 | A7 | Dm7 | G7').map(b=>({chords:b.chords.map(c=>({...c,symbol:transposeSymbol(c.symbol,shift,shift,'major')}))}));
+  const d=detectKey(bars);assert.equal(d.primary.root,shift);assert.equal(d.primary.mode,'major');
+  assert.equal(d.analysis.events.at(-1).impliedTonic.strength,'ii-V');
+  assert.equal(d.analysis.events.at(-1).cadence,null,'unresolved is not an observed cadence');
+  assert.deepEqual(d.analysis,analyzeHarmony(bars,d.primary));
+ }
+});
+test('minor candidate spellings follow conventional key signatures',()=>{
+ for(const [root,tonic] of [[1,'C#'],[6,'F#'],[8,'G#'],[10,'Bb'],[3,'Eb']]){
+  const ranked=detectKey(parseChart('E | B | C#m | A')).ranked;
+  assert.equal(ranked.find(k=>k.root===root&&k.mode==='minor').tonic,tonic);
  }
 });

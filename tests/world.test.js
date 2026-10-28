@@ -35,12 +35,12 @@ test('world scale recommendations use project tonic, correct spelling and five p
  }
  const conflicting=scaleOptions('F',{style:'Indian Yaman',key:0})[0];assert.ok(conflicting.conflicts.includes('F'));assert.notEqual(conflicting.level,'和弦相容');
 });
-test('modal automatic studies avoid jazz cadences while explicit ii–V remains available',()=>{
+test('modal MORPH preserves its pitch collection even when a tonal approach is requested',()=>{
  const input=parseChart('| C5 | C5 | C5 | C5 |');
  const automatic=mutate(input,{style:'Indian Bhupali',randomness:'high',density:3,seed:9});
  assert.ok(automatic.flatMap(b=>b.chords).every(c=>!parse(c.symbol).pcs.includes(5)&&!parse(c.symbol).pcs.includes(11)));
  const explicit=mutate(input,{style:'Indian Bhupali',method:'cadence',density:3,seed:9});
- assert.ok(explicit.some(b=>b.chords.length===3));assert.notEqual(serialize(automatic),serialize(explicit));
+ assert.ok(explicit.every(b=>b.chords.length===1));assert.ok(explicit.flatMap(b=>b.chords).every(c=>!parse(c.symbol).pcs.includes(5)&&!parse(c.symbol).pcs.includes(11)));
 });
 test('new groove families produce different note schedules and preserve full-length MIDI mode',()=>{
  const bars=parseChart('| Cm7 | Fm7 | Cm7 | Bb |');

@@ -1,13 +1,13 @@
 import {darkStyles} from './dark-styles.js?v=17';
-import {names,mod,parse,spellPitch,spellChord,spellInterval,transposeSymbol,chordTones,tritoneRoot} from './music.js?v=key-functional-1';
-import {parseBar,chordList,parseChart} from './solutions.js?v=key-functional-1';
+import {names,mod,parse,spellPitch,spellChord,spellInterval,transposeSymbol,chordTones,tritoneRoot} from './music.js?v=morph-1';
+import {parseBar,chordList,parseChart} from './solutions.js?v=morph-1';
 import {songs} from './song-pool.js?v=17';
 import {worldStyles} from './world-styles.js?v=17';
-import {worldMutation} from './world-generator.js?v=key-functional-1';
+import {worldMutation} from './world-generator.js?v=morph-1';
 import {harmonyStudies,learnedIdea} from './harmony-knowledge.js?v=18';
-import {detectKey} from './key-detection.js?v=key-functional-1';
-import {normalizeKey} from './degree-chart.js?v=key-functional-1';
-import {anchoredMutation} from './backbone-mutation.js?v=key-functional-1';
+import {detectKey} from './key-detection.js?v=morph-1';
+import {normalizeKey} from './degree-chart.js?v=morph-1';
+import {anchoredMutation} from './backbone-mutation.js?v=morph-1';
 export const styles={
 Jazz:{description:'功能替代、次屬和弦、ii–V、三全音／backdoor，讓 3rd 與 7th 連接。',pattern:'jazz',voicing:'rootless',phrases:[['Cmaj9 Ebdim7','Dm9 G13','Em7 A7b9','Dm9 Db7#11'],['Em9 A7alt','Dm9 G13','Fm9 Bb13','C69 G7alt'],['C69','F#m7b5 B7b9','Em9 A7alt','Dm9 G13']],T:['Cmaj9','Em9 A7alt','C69 Ebdim7'],R:['Am9','Em7 A7alt','Dm9 G13'],S:['Fmaj9','Fm9 Bb13','Dm9 G13'],D:['G13','Dm9 Db7#11','G7sus4 G7alt']},
 Gospel:{description:'斜線低音、減七經過和弦、IV–iv、sus 解決與 plagal 色彩。',pattern:'gospel',voicing:'open',phrases:[['C69 E7/G#','Am9 C7/G','Fmaj9 Fm6','C/G G7sus4'],['Cmaj9/E','Fmaj9 F#dim7','C/G A7b9','Dm9 G13'],['C69','Bb/C C7','Fmaj9 Fm6','C/G G7']],T:['C69/E','Cmaj9 E7/G#','C/G'],R:['Am9 C7/G','C7/G','Em7 A7b9'],S:['Fmaj9 Fm6','Fmaj9 F#dim7','Dm9/G'],D:['G7sus4 G13','C/G G7','Db9 C69']},
@@ -26,7 +26,7 @@ Object.assign(styles,{
 'Soul':preset('大六／九和弦、IV–iv 與柔和次屬；有呼吸的切分和聲。','soul','open',[['Fmaj9','Fm6','C/E','A7 Dm7'],['C69','Em7 A7','Dm9','G13'],['Am9','D9','Fmaj9','C69']]),
 'R&B':preset('小九和弦、major 9、半音低音與 secondary dominant，慵懶的分層節奏。','rnb','rootless',[['Dm9','G13','Cmaj9','A7b9'],['Fmaj9','Em7 A7b9','Dm9','G7sus4'],['Am9','Gm9 C13','Fmaj9','E7#9']]),
 'Funk':preset('Dominant 9/13、Dorian vamp，十六分休止與短促和弦互相咬合。','funk','rootless',[['C9','C9','F9','G9'],['Dm9','G13','Dm9','G9'],['Cm9','F13','Bb9','G7#9']]),
-'EDM':preset('可循環的 vi–IV–I–V、add9 與 sus；八分節奏與八度低音推進。','edm','open',[['Am','Fadd9','C','Gsus4 G'],['F','G','Am','Am'],['C','G','Am','F']]),
+'EDM':preset('可循環的 vi–IV–I–V、add9 與 sus；明亮寬排列與反拍 pluck。','progressiveDrop','open',[['Am','Fadd9','C','Gsus4 G'],['F','G','Am','Am'],['C','G','Am','F']]),
 'Lo-fi hip-hop':preset('暖色 maj7/m9、細碎小調 ii–V、短句留白與鬆動的後拍。','lofi','close',[['Dm9','G13','Cmaj9','A7b9'],['Fmaj9','Fm9','Em9','A7b9'],['Am9','D9','Gmaj9','Cmaj9']]),
 'Chill':preset('慢速 add9/6/9、共同音延留與稀疏旋律；給聲部空間自然呼吸。','chill','open',[['Fmaj9','Cmaj9/E','Dm9','C69'],['Am9','Fmaj9','Cmaj9','G6'],['Cmaj9','D/C','Fmaj9/C','Cmaj9']]),
 'Neo-soul':preset('半音接近、m11/maj9、backdoor 與平滑內聲部；不急著回到 I。','neosoul','rootless',[['Fm9','Bb13','Cmaj9','A7alt'],['Dm11','Db7#11','Cmaj9','B7alt'],['Fmaj9','Em9 A7alt','Dm11','G13']]),
@@ -179,9 +179,9 @@ export function mutate(source,options={}){
  // `free` remains an explicit legacy API spelling for recompose, never a default.
  const recreate=options.recreate===true||['free','recreate'].includes(options.freedom);
  const key=normalizeKey(options.tonality||(!recreate&&filled?detectKey(source).primary:null)||{root:options.key||0,mode:options.mode||'major'});
- if(filled&&!recreate&&['style','color'].includes(method)){
+ if(filled&&!recreate){
   const result=anchoredMutation(source,{...options,tonality:key},{styles,tint,cadenceTo,seeded});
-  return method==='color'&&options.density===1?reduceDensity(result,options):result;
+  return result;
  }
  return legacyMutation(source,{...options,key:key.root,mode:key.mode,freedom:recreate?'free':'color'});
 }

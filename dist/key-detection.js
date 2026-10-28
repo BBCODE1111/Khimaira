@@ -1,5 +1,5 @@
-import {analyzeHarmony,mod} from './music.js?v=key-functional-1';
-import {normalizeKey} from './degree-chart.js?v=key-functional-1';
+import {analyzeHarmony,mod} from './music.js?v=morph-1';
+import {normalizeKey} from './degree-chart.js?v=morph-1';
 
 // Krumhansl–Kessler pitch-class profiles (Krumhansl 1990). Published numeric
 // research data; Pearson correlation implemented here, no third-party code.
@@ -27,6 +27,7 @@ export function detectKey(bars,{loop=true,sections}={}){
    const w=c.beats/analysis.totalBeats;
    evidence+=({diatonic:3,dominant:3,secondary:3,tritone:3,'applied-predominant':3,borrowed:1.5,unexplained:-2}[c.role])*w;
    if(c.offset===0&&c.role==='diatonic')evidence+=.7*w;
+   if(c.impliedTonic)evidence+=(c.impliedTonic.strength==='ii-V'?4:.5)*w;
    if(c.cadence)evidence+=({ 'ii-V-I':7,'V-I':4,'subV-I':4,'IV-I':2,'iv-I':4,'bVII-I':2,'v-i':1 }[c.cadence])*(1+(c.phraseEnd?.15:0))*w;
   }
   const first=analysis.events[0],last=analysis.events.at(-1);

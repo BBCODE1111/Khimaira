@@ -58,7 +58,7 @@ async function download(page,selector,name){
       assert.equal(await page.evaluate(async()=> (await import('./music-core.js')).MUSIC_CORE_VERSION),'1.0.0');
       let midiBytes;
       if(name==='khimaira'){
-        await page.locator('#chartInput').fill('| F#maj7/C# | Bdim7 | E7alt | Am9 |');await page.locator('#applyChart').click();
+        if(await page.locator('#advancedInput').count()&&!await page.locator('#chartInput').isVisible())await page.locator('#advancedInput summary').click();await page.locator('#chartInput').fill('| F#maj7/C# | Bdim7 | E7alt | Am9 |');await page.locator('#applyChart').click();
         assert.equal(await page.locator('.chord-event strong').first().textContent(),'F#maj7/C#');
         await page.locator('.chord-event').first().click();await page.locator('#editorApply').click();
         assert.equal(await page.locator('.chord-event strong').first().textContent(),'F#maj7/C#');

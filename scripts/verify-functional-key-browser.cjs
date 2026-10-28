@@ -34,7 +34,7 @@ async function download(page,selector,name){
   const page=await browser.newPage({viewport:{width:1440,height:1100}}),errors=[],report=[];
   page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)errors.push(r.status()+' '+r.url());});
   const click=id=>page.locator('#'+id).click(),read=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('khimaira-v5'))),chords=()=>page.locator('.chord-event strong').allTextContents();
-  const load=async text=>{await page.locator('#chartInput').fill(text);await click('applyChart');};
+  const load=async text=>{if(await page.locator('#advancedInput').count()&&!await page.locator('#chartInput').isVisible())await page.locator('#advancedInput summary').click();await page.locator('#chartInput').fill(text);await click('applyChart');};
   const shot=async name=>{await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:path.join(output,name+'.png')});};
   await page.goto(site.url);await page.locator('.chord-event').first().waitFor();
   for(const [text,key,labels] of [

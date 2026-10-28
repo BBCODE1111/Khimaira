@@ -1,9 +1,9 @@
 /**
- * Shared music theory 1.1.0. Canonical source; generated deployment copies are
+ * Shared music theory 1.1.1. Canonical source; generated deployment copies are
  * checked by scripts/sync-music-core.mjs. No UI, playback or generation imports.
  * Profiles preserve the two apps' existing contracts, including known differences.
  */
-export const MUSIC_CORE_VERSION = '1.1.0';
+export const MUSIC_CORE_VERSION = '1.1.1';
 export const names=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
 export const mod=n=>((n%12)+12)%12;
 const pc=s=>mod(({C:0,D:2,E:4,F:5,G:7,A:9,B:11})[s[0]]+[...s.slice(1)].reduce((n,a)=>n+(a==='#'?1:a==='b'?-1:0),0));
@@ -174,6 +174,15 @@ export function createTheory(profile) {
       pre.approachTarget=row.target;
      }
      if(target.offset===0&&diatonic(target))row.cadence=row.iiV?'ii-V-I':row.relation==='tritone'?'subV-I':'V-I';
+    }
+    // An unresolved ii–V is still evidence for its implied tonic. Keep it
+    // distinct from an observed cadence: no destination chord is invented.
+    // Minor ii is half-diminished; a plain minor ii principally suggests major.
+    const previous=at(row.index-1);
+    if(!row.cadence&&row.offset===7&&dominant(row)){
+     const pair=previous&&mod(previous.root-root)===2&&(major?previous.quality==='m':previous.quality==='d');
+     row.impliedTonic={root,mode,strength:pair?'ii-V':'V'};
+     if(pair){row.iiV=true;const pre=rows[(row.index-1+rows.length)%rows.length];pre.approachTonic={root,mode};}
     }
     const next=at(row.index+1);
     if(!row.cadence&&next&&next.offset===0&&diatonic(next)){

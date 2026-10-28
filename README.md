@@ -14,7 +14,7 @@ KHIMAIRA 是給作曲、編曲與吉他手的和聲探索工具。輸入一條�
 
 KEY 統一放在播放欄。輸入 LOAD 建立骨幹；GENERATE 把骨幹發展成所選樂風；INSPIRE 提供同調式的範例或範例變化；範例 LOAD 原樣移至目前主音。三者保留骨幹，RESTORE 可回家；KEEP 需確認，可 UNDO。
 
-AUTO 依輸入判定；選主音會移調並 LOCKED。Also fits 是保留音高的改判，與移調分開。大小調轉換是獨立確認動作。網站 MIDI 匯出包含使用者目前速度。新版保留舊存檔演奏，支援名稱／級數輸入。外掛 1.4 另行開發，未隨網站部署。
+AUTO 依輸入判定；選主音會移調，保留原本 AUTO／LOCK 狀態。Also fits 是保留音高的改判，與移調分開。大小調轉換是獨立確認動作。網站 MIDI 匯出包含使用者目前速度。新版保留舊存檔演奏，支援名稱／級數輸入。外掛 1.4 另行開發，未隨網站部署。
 
 ## 從四個和弦開始
 
@@ -173,3 +173,7 @@ GitHub Pages 發布 `dist/` 的靜態網站。推送至 `main` 時，GitHub Acti
 - 圖片採 WebP，Cinzel／DM Sans 字體隨網站附帶並保留 OFL 授權。
 
 完整修正與驗證範圍見 [評測修正紀錄](docs/review-20261026/REPORT.md)。外掛來源已整合至 [plugin/](plugin/README.md)，手動 Actions **Build KHIMAIRA Plug-in** 可建置 Universal macOS 與 Windows 安裝包。
+
+## MORPH 更新（2026-10-28）
+
+範例 LOAD 直接成為新骨幹；MORPH 保留根音、順序與指定低音，以樂風上色並加入接向下一個目標的經過和弦。RESTORE 回到載入的骨幹，UNDO 可回到 LOAD 前。INSPIRE 是預覽，KEEP 才採用。詳見 [發布紀錄](docs/morph-backbone/README.md)。

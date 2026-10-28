@@ -1,0 +1,302 @@
+{
+ "note": "人工標註的調性測試案例。expected 用 | 分隔表示可接受的答案（關係大小調模稜兩可時）；第一個為優先答案。",
+ "cases": [
+  {
+   "chart": "Dm | G | C | A7",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "Dm7 | G7 | Cmaj7 | A7",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "Dm7 G7 | Cmaj7 A7 | Dm7 G7 | C",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "C | A7 | Dm | G7",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "C | E7 | Am | D7 | G7 | C",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "Cmaj7 | C7 | Fmaj7 | Fm6 | C",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "Am7 | D7 | Gmaj7 | Gmaj7",
+   "expected": [
+    "G"
+   ]
+  },
+  {
+   "chart": "Em7 | A7 | Dm7 | G7 | C",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "Bm7b5 | E7 | Am | Am",
+   "expected": [
+    "Am"
+   ]
+  },
+  {
+   "chart": "Dm7b5 | G7 | Cm | Cm",
+   "expected": [
+    "Cm"
+   ]
+  },
+  {
+   "chart": "F | G | Em | Am",
+   "expected": [
+    "C",
+    "Am"
+   ]
+  },
+  {
+   "chart": "F | G | E7 | Am",
+   "expected": [
+    "Am"
+   ]
+  },
+  {
+   "chart": "C | G | Am | F",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "Am | F | C | G",
+   "expected": [
+    "Am",
+    "C"
+   ]
+  },
+  {
+   "chart": "F | Fm | C | C",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "C | Bb | F | C",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "C | Ab | Bb | C",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "G | D/F# | Em | C | D | G",
+   "expected": [
+    "G"
+   ]
+  },
+  {
+   "chart": "D | A/C# | Bm | F#m | G | D/F# | G | A",
+   "expected": [
+    "D"
+   ]
+  },
+  {
+   "chart": "Fmaj7 | E7 | Am | Am",
+   "expected": [
+    "Am"
+   ]
+  },
+  {
+   "chart": "C7 | F7 | C7 | G7",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "Gm7 | C7 | Fmaj7 | Fmaj7",
+   "expected": [
+    "F"
+   ]
+  },
+  {
+   "chart": "Ebmaj7 | Cm7 | Fm7 | Bb7",
+   "expected": [
+    "Eb"
+   ]
+  },
+  {
+   "chart": "F#m7 | B7 | Emaj7 | C#7",
+   "expected": [
+    "E"
+   ]
+  },
+  {
+   "chart": "Bbmaj7 | Gm7 | Cm7 | F7",
+   "expected": [
+    "Bb"
+   ]
+  },
+  {
+   "chart": "Am | G | F | E7",
+   "expected": [
+    "Am"
+   ]
+  },
+  {
+   "chart": "Dm | C | Bb | A7",
+   "expected": [
+    "Dm"
+   ]
+  },
+  {
+   "chart": "C | Am | Dm | G",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "A7 | Dm | G7 | C",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "Cmaj7 | Am7 | D7 | G7",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "F | Dm | Bb | C",
+   "expected": [
+    "F"
+   ]
+  },
+  {
+   "chart": "G | Em | C | D",
+   "expected": [
+    "G"
+   ]
+  },
+  {
+   "chart": "Cm | Bdim7 | Fm/Ab | G7b9",
+   "expected": [
+    "Cm"
+   ]
+  },
+  {
+   "chart": "Eb | Bb | Cm | Ab",
+   "expected": [
+    "Eb"
+   ]
+  },
+  {
+   "chart": "C | Db7 | C | C",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "Gm7 | C7 | F | F",
+   "expected": [
+    "F"
+   ]
+  },
+  {
+   "chart": "Dm7 | G7 | C | C",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "Dm7 | G7",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "Em7 | A7 | Dm7 | G7",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "Abmaj7 | Bb7 | Cm | Cm",
+   "expected": [
+    "Cm"
+   ]
+  },
+  {
+   "chart": "Dm7b5 | G7b9 | Cm6 | Cm6",
+   "expected": [
+    "Cm"
+   ]
+  },
+  {
+   "chart": "Bbmaj7 | Am7 | Dm7 | Gm7 | C7 | F",
+   "expected": [
+    "F"
+   ]
+  },
+  {
+   "chart": "C | C7 | F | Fm | C | G7 | C",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "E | B | C#m | A",
+   "expected": [
+    "E"
+   ]
+  },
+  {
+   "chart": "Ab | Eb | Fm | Db",
+   "expected": [
+    "Ab"
+   ]
+  },
+  {
+   "chart": "Bm | G | D | A",
+   "expected": [
+    "Bm",
+    "D"
+   ]
+  },
+  {
+   "chart": "C | F | C | G",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "G | C | G | D",
+   "expected": [
+    "G"
+   ]
+  },
+  {
+   "chart": "Am7 | Dm7 | G7 | Cmaj7 | Fmaj7 | Bm7b5 | E7 | Am",
+   "expected": [
+    "Am"
+   ]
+  }
+ ]
+}

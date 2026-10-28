@@ -19,7 +19,7 @@ function anchors(source,out,key){
  change+=out.reduce((n,b,i)=>n+Math.max(0,b.chords.length-source[i].chords.length)*4,0);
  return {rootKept:rootKept/total,functionKept:functionKept/total,change};
 }
-test('all 49 styles × 28 labelled backbones × 3 levels × 5 seeds retain anchors, cadence and increasing mutation',()=>{
+test('all 49 styles × 28 labelled backbones × 3 levels × 5 seeds retain every authored root and bass at its onset, duration and chord family',()=>{
  let comparisons=0;
  for(const [text,root,mode] of keyCases)for(const style of Object.keys(styles)){
   const source=parseChart(text),tonality=effectiveKey(createHarmony({text,key:{root,mode},locked:true,style}));
@@ -27,15 +27,11 @@ test('all 49 styles × 28 labelled backbones × 3 levels × 5 seeds retain ancho
   for(let seed=0;seed<5;seed++){
    const outs=['low','medium','high'].map(randomness=>mutate(source,{style,seed,randomness,tonality}));
    const stats=outs.map(out=>anchors(source,out,root));
-   assert.ok(stats[0].rootKept>=.9,style+' LOW roots');assert.ok(stats[1].functionKept>=.7,style+' MEDIUM functions');
-   assert.ok(stats[0].change<stats[1].change,`${style} ${text} seed ${seed}: LOW ${stats[0].change} >= MED ${stats[1].change}`);
-   assert.ok(stats[1].change<stats[2].change,`${style} ${text} seed ${seed}: MED ${stats[1].change} >= HIGH ${stats[2].change}`);
-   assert.equal(new Set(outs.map(serialize)).size,3,style+' levels');
+   stats.forEach(x=>{assert.equal(x.rootKept,1,style+' roots');assert.equal(x.functionKept,1,style+' functions');});
    for(let level=0;level<outs.length;level++){
     const out=outs[level];assert.equal(out.length,source.length);
     out.forEach((b,i)=>{assert.equal(b.chords.reduce((n,c)=>n+c.beats,0),4);assert.ok(b.chords.length<=4);b.chords.forEach(c=>assert.ok(parse(c.symbol),c.symbol));
-     if(i===0||i===out.length-1||i%4===3){assert.equal(role(b.chords[0].symbol,root),role(source[i].chords[0].symbol,root),style+' phrase anchor');
-      if(i%4===3||i===out.length-1)assert.equal(role(b.chords.at(-1).symbol,root),role(source[i].chords.at(-1).symbol,root),style+' cadence endpoint');}
+     let onset=0;source[i].chords.forEach(original=>{let at=0;const replacement=b.chords.find(c=>{const found=Math.abs(at-onset)<1e-8;at+=c.beats;return found;});assert.ok(replacement);assert.equal(parse(replacement.symbol).bass,parse(original.symbol).bass);onset+=original.beats;});
     });comparisons++;
    }
   }
@@ -49,7 +45,7 @@ test('GENERATE repeatedly varies each style while tonic, mode and backbone stay 
   const key=effectiveKey(s),backbone=JSON.stringify(s.backbone);
   for(let i=0;i<10;i++){
    s=applyHarmonyAction(s,{type:'generate',options:{randomness}});const current=serialize(harmonyView(s).bars);
-   assert.notEqual(current,previous,style+' '+randomness);assert.deepEqual(effectiveKey(s),key);assert.equal(JSON.stringify(s.backbone),backbone);assert.equal(s.warning,null);previous=current;
+   if(current===previous)assert.equal(s.warning?.type,'variation-exhausted',style+' '+randomness);else assert.equal(s.warning,null);assert.deepEqual(effectiveKey(s),key);assert.equal(JSON.stringify(s.backbone),backbone);previous=current;
   }
  }
 });

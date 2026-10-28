@@ -35,7 +35,7 @@ async function download(page,selector,name){
   if((await read()).key.mode!==mode){await click('keyButton');await page.locator('#keyMode').selectOption(mode);await click('convertMode');await click('confirmApply');console.log('convert',round,mode,(await read()).key,await page.locator('#status').textContent());}
   for(let root=0;root<12;root++){
    await click('keyButton');await page.locator('#keyTonic').selectOption(String(root));await click('applyKey');
-   await page.locator('#chartInput').fill(mode==='major'?'I/3 | vi | IV | V7':'i/b3 | bVI | iv | V7');await click('applyChart');const original=(await read()).backbone;
+   if(await page.locator('#advancedInput').count()&&!await page.locator('#chartInput').isVisible())await page.locator('#advancedInput summary').click();await page.locator('#chartInput').fill(mode==='major'?'I/3 | vi | IV | V7':'i/b3 | bVI | iv | V7');await click('applyChart');const original=(await read()).backbone;
    for(const level of ['low','medium','high']){await page.locator('#randomness').selectOption(level);await click('generate');const s=await read();assert.equal(s.key.root,root);assert.equal(s.key.mode,mode,JSON.stringify({round,root,mode,level,status:await page.locator('#status').textContent()}));assert.deepEqual(s.backbone,original);}
    await click('nextSong');const before=await read();await click('restore');assert.deepEqual((await read()).score,original.degrees);await click('undo');assert.deepEqual((await read()).score,before.score);
    await page.reload();await page.locator('.chord-event').first().waitFor();assert.equal((await read()).key.root,root);assert.equal((await read()).key.mode,mode);assert.deepEqual((await read()).backbone,original);transitions++;

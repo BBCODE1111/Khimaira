@@ -1,25 +1,28 @@
+import {mountChordPicker} from './chord-picker.js?v=genre-2';
+import {selectGenre,swingDescription,genreProfiles} from './genre-rhythm.js?v=genre-2';
 import {referenceNotes} from './melody-reference.js?v=18';
-import {mountPianoTools} from './piano-tools.js?v=key-functional-1';
+import {mountPianoTools} from './piano-tools.js?v=morph-1';
 import {arpModes,arpRates,arpPresets} from './arpeggiator.js?v=17';
-import {examplesForKey} from './keyed-examples.js?v=key-functional-1';
-import {createHarmony,migrateHarmony,applyHarmonyAction,effectiveKey,harmonyView} from './harmony-state.js?v=key-functional-1';
-import {formatDegreeChart,materializeChart,parseDegreeChart} from './degree-chart.js?v=key-functional-1';
+import {examplesForKey} from './keyed-examples.js?v=morph-1';
+import {createHarmony,migrateHarmony,applyHarmonyAction,effectiveKey,harmonyView} from './harmony-state.js?v=morph-1';
+import {formatDegreeChart,materializeChart,parseDegreeChart} from './degree-chart.js?v=morph-1';
 import {BeatPlayer,validTempo,clampTempo} from './tempo-player.js?v=17';
-import {insertCadence,invertChord,parallelColor} from './harmony-actions.js?v=key-functional-1';
+import {insertCadence,invertChord,parallelColor} from './harmony-actions.js?v=morph-1';
 import {playbackSlice,spaceToggles} from './transport.js?v=17';
-import {names,mod,parse,spellPitch,keyName,guitarShapes,scales,midiBytes,chordTones} from './music.js?v=key-functional-1';
-import {parseChart,chordList,serialize} from './solutions.js?v=key-functional-1';
-import {styles,styleLabels} from './style-engine.js?v=key-functional-1';
-import {performance as events,patterns,voicePlan} from './performance.js?v=key-functional-1';
-import {scaleNotes,scalePositions} from './scale-library.js?v=key-functional-1';
-import {guitarMelody,melodyShapes,melodyEvents} from './guitar-melody.js?v=key-functional-1';
+import {names,mod,parse,spellPitch,keyName,guitarShapes,scales,midiBytes,chordTones} from './music.js?v=morph-1';
+import {parseChart,chordList,serialize} from './solutions.js?v=morph-1';
+import {styles,styleLabels} from './style-engine.js?v=morph-1';
+import {performance as events,patterns,voicePlan,performanceLabel} from './performance.js?v=morph-1';
+import {scaleNotes,scalePositions} from './scale-library.js?v=morph-1';
+import {guitarMelody,melodyShapes,melodyEvents} from './guitar-melody.js?v=morph-1';
 import {Piano} from './piano.js?v=17';
 const $=id=>document.getElementById(id);let bars=parseChart('| C | Am | F | G |'),source=structuredClone(bars),selected=0,selectedChord=0,tab='scales',timer=null,run=0;
 let startBar=0,isPlaying=false,loading=false,player=null,playbackKind='score';
 let piano=null,scaleChoice='',lastScaleChord='',positionChoice=0,method='style',melodySeed=0,arrangement=[];
+let chordPicker=null;
 let pianoTools=null,harmony=createHarmony(),inputDirty=false,legacyRenderKey=null;
 const currentKey=()=>effectiveKey(harmony);
-let pianoSettings={pianoRevision:2,pianoPhrase:'original',pianoFills:'phrase',melodyFollow:'gentle',melodyText:'',ideaFamily:'auto'};
+let pianoSettings={genreRevision:2,pianoRevision:2,pianoPhrase:'original',pianoFills:'phrase',melodyFollow:'gentle',melodyText:'',ideaFamily:'auto'};
 const settings=['tempo','style','pattern','freedom','density','voicing','rate','gate','swing','human','randomness','arpMode','arpRate','arpOctaves','arpPhase','arpAccent','arpSeed','midiSplit','midiPedal','bassMode','balladEntry','arpFoundation'];
 for(const groupName of ['現代流行與和聲','黑暗／重型與另類','跨文化流行與舞曲','地域調式與器樂靈感']){const group=document.createElement('optgroup');group.label=groupName;Object.keys(styles).filter(s=>(styles[s].group||'現代流行與和聲')===groupName).forEach(s=>group.append(new Option(styleLabels[s]||s,s)));$('style').append(group);}for(const [title,include] of [['其他伴奏',id=>!id.startsWith('piano')&&!id.startsWith('texture')],['POP · 12 款流行伴奏',id=>id.startsWith('piano')],['TEXTURE · 6 款織體',id=>id.startsWith('texture')]]){const group=document.createElement('optgroup');group.label=title;Object.entries(patterns).filter(([id])=>(id==='arp'||!id.startsWith('arp'))&&include(id)).forEach(([id,label])=>group.append(new Option(label,id)));$('pattern').append(group);}Object.entries(arpModes).forEach(([id,[label]])=>$('arpMode').add(new Option(label,id)));['4','8','8T','16','24','32'].forEach(id=>$('arpRate').add(new Option(arpRates[id].label,id)));$('arpMode').value='upDown';$('arpRate').value='16';applyStyleDefaults();
 let statusTimer;const status=s=>{clearTimeout(statusTimer);$('status').textContent=s;statusTimer=setTimeout(()=>{$('status').textContent='';},6500);};
@@ -30,9 +33,9 @@ try{
  if(old&&(old.harmony||old.bars?.length<=16)){
   harmony=migrateHarmony(old);
   legacyRenderKey=old.legacyRenderKey||(!old.harmony?{root:+old.key||0,mode:old.mode||'major'}:null);
-  pianoSettings={...pianoSettings,...old.pianoSettings,pianoRevision:old.pianoSettings?.pianoRevision===2?2:1,pianoPhrase:old.pianoSettings?.pianoPhrase||'original'};
+  pianoSettings={...pianoSettings,...old.pianoSettings,genreRevision:old.pianoSettings?.genreRevision??1,pianoRevision:old.pianoSettings?.pianoRevision===2?2:1,pianoPhrase:old.pianoSettings?.pianoPhrase||'original'};
   for(const id of settings)if(old[id]!=null)$(id).value=old[id];
-  $('freedom').value=old.harmony&&['morph','color','recreate'].includes(old.freedom)?old.freedom:'morph';
+  $('freedom').value=old.harmony&&['morph','color'].includes(old.freedom)?old.freedom:'morph';
   const legacyArp={arpUp:'up',arpDown:'down',arpBounce:'upDown',arpRandom:'random',arpOctave:'up'};
   if(legacyArp[old.pattern]){$('pattern').value='arp';$('arpMode').value=legacyArp[old.pattern];$('arpRate').value=String(4/Number(old.rate||.5));$('arpOctaves').value=old.pattern==='arpOctave'?'2':'1';}
   if(!old.pattern||!$('pattern').value)$('pattern').value=styles[harmony.style].pattern;
@@ -52,12 +55,12 @@ function dispatch(action,{resetDraft=false,message='',resume=true}={}){
   if(action.type==='generate'&&inputDirty){next=applyHarmonyAction(next,{type:'load',text:$('chartInput').value});resetDraft=true;}
   next=applyHarmonyAction(next,action);harmonyView(next); // Validate derived chords before changing the live state.
   const playing=resume&&isPlaying&&playbackKind==='score',from=currentBar();stop();harmony=next;legacyRenderKey=null;projectHarmony();
-  if(['load','keep','undo'].includes(action.type)||!inputDirty&&['transpose','reinterpret','auto','convertMode'].includes(action.type))resetDraft=true;
+  if(['load','example','keep','undo','backboneEdit'].includes(action.type)||!inputDirty&&['transpose','reinterpret','auto','convertMode'].includes(action.type))resetDraft=true;
   if(resetDraft){inputDirty=false;syncInput();}
   selected=Math.min(selected,Math.max(0,bars.length-1));selectedChord=0;startBar=Math.min(startBar,Math.max(0,bars.length-1));
   if(action.type!=='style')syncLength();
   render();styleInfo();syncMethod();save();
-  if(message)status(message);if(playing)play(Math.min(from,bars.length-1));return true;
+  if(next.warning?.type==='variation-exhausted')status('目前骨幹與設定沒有更多合適的色彩變化；可調整樂風或變化幅度。');else if(message)status(message);if(playing)play(Math.min(from,bars.length-1));return true;
  }catch(e){status(e.message);return false;}
 }
 function commitScore(message='已更新播放譜；骨幹保留，可 RESTORE。'){dispatch({type:'replaceScore',bars},{message});}
@@ -76,7 +79,7 @@ function renderKey(){
  const origin=view.origin;$('scoreOrigin').textContent=({backbone:'BACKBONE · 骨幹',edit:'EDIT · 播放譜',legacy:'已載入存檔',conversion:'MODE · 調式轉換',example:'EXAMPLE · 範例',idea:'NEW IDEA · 重新創作',morph:'MORPH '+harmony.variation+' · '+($('randomness').selectedOptions[0]?.textContent||''),inspire:'INSPIRE · '+({example:'範例靈感',fusion:'範例 × 樂風',backbone:'骨幹延伸'})[origin.kind]})[origin.type]||'播放譜';
  $('sourceLine').textContent=serialize(source).replaceAll(':4','')+'  ·  '+formatDegreeChart(harmony.backbone.degrees,harmony.key,{bassNames:true});populateLibrary();
 }
-function render(){const functionalLabels=harmonyView(harmony).degreeLabels;renderKey();startBar=Math.min(startBar,bars.length-1);invalidateMelody();const grid=$('grid');grid.replaceChildren();bars.forEach((b,i)=>{const list=chordList(b);const el=document.createElement('div');el.className='bar';el.dataset.index=i;el.innerHTML=`<div class="bar-number"><button class="bar-cue" aria-label="從第 ${i+1} 小節開始" aria-pressed="${i===startBar}">BAR ${String(i+1).padStart(2,'0')}</button><span>4/4</span></div><div class="beat-ruler"><span>1</span><span>2</span><span>3</span><span>4</span></div><div class="chord-lane"></div><input class="bar-edit" aria-label="第 ${i+1} 小節和弦" placeholder="C:2 Dm7:1 G7:1" value="${safe(list.map(c=>c.symbol+':'+c.beats).join(' '))}"><div class="function">${safe(b.reason||'自由編輯')}</div>`;el.style.minWidth=Math.max(160,...list.map(c=>(c.symbol.length*8+24)*4/c.beats))+'px';let beat=0;list.forEach((c,j)=>{const btn=document.createElement('button');btn.className='chord-event'+(selected===i&&selectedChord===j?' chosen':'');btn.dataset.bar=i;btn.dataset.chord=j;btn.style.width=(c.beats/4*100)+'%';btn.style.setProperty('--chord-size',(c.beats<=1&&c.symbol.length>6?12:c.beats<=1&&c.symbol.length>4?15:c.beats<=1?19:c.symbol.length>8?18:25)+'px');btn.innerHTML=`<strong>${safe(c.symbol)}</strong><small class="degree">${safe(functionalLabels[i][j])}</small>`;btn.title=c.symbol+' · 第 '+(beat+1)+' 拍';btn.onfocus=()=>select(i,j);btn.onclick=()=>{select(i,j);openEditor();};el.querySelector('.chord-lane').append(btn);beat+=c.beats;});el.querySelector('.bar-cue').onclick=()=>cueBar(i);el.onclick=e=>{if(!e.target.closest('button,input'))cueBar(i);};const input=el.querySelector('input');const commit=()=>{try{if(!dispatch({type:'edit',bar:i,text:input.value},{message:'已編輯播放譜；骨幹保留，可 RESTORE。'}))input.setAttribute('aria-invalid','true');}catch(e){input.setAttribute('aria-invalid','true');status(e.message);}};input.onchange=commit;input.onkeydown=e=>{if(e.key==='Enter')input.blur();};grid.append(el);});updateCue();select(selected,selectedChord);syncArp();}
+function render(){const functionalLabels=harmonyView(harmony).degreeLabels;renderKey();startBar=Math.min(startBar,bars.length-1);invalidateMelody();const grid=$('grid');grid.replaceChildren();bars.forEach((b,i)=>{const list=chordList(b);const el=document.createElement('div');el.className='bar';el.dataset.index=i;el.innerHTML=`<div class="bar-number"><button class="bar-cue" aria-label="從第 ${i+1} 小節開始" aria-pressed="${i===startBar}">BAR ${String(i+1).padStart(2,'0')}</button><span>4/4</span></div><div class="beat-ruler"><span>1</span><span>2</span><span>3</span><span>4</span></div><div class="chord-lane"></div><input class="bar-edit" aria-label="第 ${i+1} 小節和弦" placeholder="C:2 Dm7:1 G7:1" value="${safe(list.map(c=>c.symbol+':'+c.beats).join(' '))}"><div class="function">${safe(b.reason||'自由編輯')}</div>`;el.style.minWidth=Math.max(160,...list.map(c=>(c.symbol.length*8+24)*4/c.beats+28))+'px';let beat=0;list.forEach((c,j)=>{const btn=document.createElement('button');btn.className='chord-event'+(selected===i&&selectedChord===j?' chosen':'');btn.dataset.bar=i;btn.dataset.chord=j;btn.style.width=(c.beats/4*100)+'%';btn.style.setProperty('--chord-size',(c.beats<1?12:c.beats<=1&&c.symbol.length>6?12:c.beats<=1&&c.symbol.length>4?15:c.beats<=1?19:c.symbol.length>8?18:25)+'px');btn.innerHTML=`<strong>${safe(c.symbol)}</strong><small class="degree">${safe(functionalLabels[i][j])}</small>`;btn.title=c.symbol+' · 第 '+(beat+1)+' 拍';btn.onfocus=()=>select(i,j);btn.onclick=()=>{select(i,j);openEditor();};el.querySelector('.chord-lane').append(btn);beat+=c.beats;});el.querySelector('.bar-cue').onclick=()=>cueBar(i);el.onclick=e=>{if(!e.target.closest('button,input'))cueBar(i);};const input=el.querySelector('input');const commit=()=>{try{if(!dispatch({type:'edit',bar:i,text:input.value},{message:'已編輯播放譜；骨幹保留，可 RESTORE。'}))input.setAttribute('aria-invalid','true');}catch(e){input.setAttribute('aria-invalid','true');status(e.message);}};input.onchange=commit;input.onkeydown=e=>{if(e.key==='Enter')input.blur();};grid.append(el);});updateCue();select(selected,selectedChord);syncArp();chordPicker?.decorate();}
 function pitchLabel(symbol,note){const c=parse(symbol),i=c.intervals.findIndex(n=>mod(c.root+n)===mod(note));return (i<0?names[mod(note)]:chordTones(symbol)[i])+(Math.floor(note/12)-1);}
 function diagram(frets){const positive=frets.filter(x=>x>0);const start=Math.max(1,positive.length?Math.min(...positive):1);let s=`<svg viewBox="0 0 260 150" role="img" aria-label="由低音弦至高音弦 ${frets.join(' ')}"><text x="8" y="49" fill="#52604d" font-size="12">${start}fr</text>`;for(let i=0;i<6;i++){const x=48+i*34;s+=`<line x1="${x}" y1="32" x2="${x}" y2="132" stroke="#8b9785"/><text x="${x}" y="20" text-anchor="middle" fill="#30402c" font-size="12">${frets[i]<0?'×':frets[i]===0?'○':''}</text>`;if(frets[i]>0)s+=`<circle cx="${x}" cy="${44+(frets[i]-start)*25}" r="9" fill="#66503c"/>`;}for(let f=0;f<5;f++)s+=`<line x1="48" y1="${32+25*f}" x2="218" y2="${32+25*f}" stroke="#8b9785"/>`;return s+'</svg>';}
 function scaleGraphic(scale,start,root){let s=`<svg viewBox="0 0 620 245" role="img" aria-label="${safe(scale.name)} 第 ${start} 至 ${start+4} 格六線指板"><text x="20" y="24" fill="#53634b" font-size="13">POSITION ${start}–${start+4} · 紅點 = 根音</text>`;for(let f=0;f<6;f++)s+=`<line x1="${75+f*100}" y1="55" x2="${75+f*100}" y2="205" stroke="#c4ccbd"/>`;[64,59,55,50,45,40].forEach((t,i)=>{let y=55+i*30;s+=`<text x="34" y="${y+5}" fill="#44513d" font-size="15">${['e','B','G','D','A','E'][i]}</text><line x1="75" y1="${y}" x2="575" y2="${y}" stroke="#6b7960" stroke-width="${1+i*.15}"/>`;for(let f=0;f<5;f++){const pitch=mod(t+start+f);if(scale.pcs.includes(pitch))s+=`<circle cx="${125+f*100}" cy="${y}" r="12" fill="${pitch===root?'#af573f':'#66503c'}"/><text x="${125+f*100}" y="${y+4}" text-anchor="middle" fill="white" font-size="12">${start+f}</text>`;}});for(let f=0;f<5;f++)s+=`<text x="${125+f*100}" y="235" text-anchor="middle" fill="#67735f" font-size="12">${start+f}</text>`;return s+'</svg>';}
@@ -87,6 +90,7 @@ function config(){return {ideaFamily:pianoSettings.ideaFamily,key:currentKey().r
 function performanceOptions(){return {...pianoSettings,key:legacyRenderKey||currentKey(),arpFoundation:$('arpFoundation').value,bpm:+$('tempo').value,bassMode:$('bassMode').value,balladEntry:$('balladEntry').value,loop:$('loop').checked,voicing:$('voicing').value,rate:+$('rate').value,gate:+$('gate').value/100,swing:+$('swing').value/100,human:+$('human').value/100,seed:42,arpMode:$('arpMode').value,arpRate:$('arpRate').value,arpOctaves:+$('arpOctaves').value,arpPhase:$('arpPhase').value,arpAccent:$('arpAccent').value,arpSeed:+$('arpSeed').value};}
 
 function syncArp(){
+ syncGenreLabel();
  pianoTools?.refresh();
  const enabled=$('pattern').value==='arp';$('arpPanel').hidden=!enabled;if(!enabled)return;
  const opts=performanceOptions(),rate=arpRates[opts.arpRate]||arpRates['16'];
@@ -103,33 +107,36 @@ document.querySelectorAll('[data-arp-preset]').forEach(button=>button.onclick=()
 });
 $('arpVariate').onclick=()=>{const resume=isPlaying;stop();$('arpSeed').value=(Number($('arpSeed').value)+1)>>>0;syncArp();save();status(['random','walk'].includes($('arpMode').value)?'已換一組隨機音序；試聽和 MIDI 使用相同變體。':'VARIATE 用於 RANDOM / WALK；目前模式維持固定音序。');if(resume)play();};
 
-function applyStyleDefaults(){const cfg=styles[$('style').value]||styles.Jazz;$('pattern').value=cfg.pattern;$('voicing').value=cfg.voicing;$('swing').value=['Jazz','Major blues','Minor blues','Lo-fi hip-hop'].includes($('style').value)?16:['Funk','Fusion','Neo-soul'].includes($('style').value)?8:0;}
+function activateGenre(){const cfg=selectGenre({swing:+$('swing').value},$('pattern').value);pianoSettings.genreRevision=cfg.genreRevision;$('swing').value=cfg.swing;}
+function syncGenreLabel(){$('applyPattern').hidden=pianoSettings.genreRevision>=2||!genreProfiles[$('pattern').value];for(const o of $('pattern').options)o.textContent=performanceLabel(o.value,o.value===$('pattern').value?pianoSettings.genreRevision:2);const label=$('swing').closest('label');if(label?.firstChild?.nodeType===3)label.firstChild.textContent=pianoSettings.genreRevision>=2?swingDescription($('pattern').value,$('swing').value):'SWING';}
+function applyStyleDefaults(){const cfg=styles[$('style').value]||styles.Jazz;$('pattern').value=cfg.pattern;$('voicing').value=cfg.voicing;$('swing').value=['Jazz','Major blues','Minor blues','Lo-fi hip-hop'].includes($('style').value)?16:['Funk','Fusion','Neo-soul'].includes($('style').value)?8:0;activateGenre();}
 function styleInfo(){const cfg=styles[$('style').value];$('styleNote').textContent=cfg.description;}
 function syncMethod(){document.querySelectorAll('[data-solution]').forEach(b=>b.classList.toggle('active',b.dataset.solution===method));$('methodLabel').textContent=({original:'原始進行',style:'風格改寫',color:'延伸色彩',cadence:'ii–V 接近',tritone:'三全音代理'})[method]+' · 更多設定';}
 $('chartInput').addEventListener('input',()=>{inputDirty=true;$('seedMood').hidden=true;$('chartInput').removeAttribute('aria-invalid');save();});
 $('inputFormat').onchange=()=>{try{if(inputDirty){const degrees=parseDegreeChart($('chartInput').value,harmony.key);$('chartInput').value=$('inputFormat').value==='roman'?formatDegreeChart(degrees,harmony.key):serialize(materializeChart(degrees,harmony.key)).replaceAll(':4','');}else syncInput();save();}catch(e){$('inputFormat').value=$('inputFormat').value==='roman'?'chords':'roman';status(e.message);}};
-$('applyChart').onclick=()=>{if(dispatch({type:'load',text:$('chartInput').value},{message:'已載入骨幹。GENERATE 發展樂風，INSPIRE 探索靈感。'}))$('chartInput').removeAttribute('aria-invalid');else $('chartInput').setAttribute('aria-invalid','true');};
+$('applyChart').onclick=()=>{if(dispatch({type:'load',text:$('chartInput').value},{message:'已載入骨幹。MORPH 發展樂風，INSPIRE 探索靈感。'}))$('chartInput').removeAttribute('aria-invalid');else $('chartInput').setAttribute('aria-invalid','true');};
 function generateFromInput(chosenMethod){method=chosenMethod;if(chosenMethod==='original'){dispatch({type:'restore'},{message:'已還原目前調性下的骨幹。'});return;}
- const options={...config(),length:+$('length').value,recreate:$('freedom').value==='recreate'};delete options.seed;
+ const options={...config(),length:+$('length').value,recreate:false};delete options.seed;
  dispatch({type:'generate',options},{message:'已從骨幹產生新的樂風變化；調性維持不變。'});
 }
 $('generate').onclick=()=>generateFromInput(method==='original'?'style':method);
 document.querySelectorAll('[data-solution]').forEach(btn=>btn.onclick=()=>generateFromInput(btn.dataset.solution));
 $('undo').onclick=()=>dispatch({type:'undo'},{message:'已復原上一個和聲操作。'});
 $('restore').onclick=()=>dispatch({type:'restore'},{message:'已還原目前調性下的骨幹；可 UNDO。'});
-$('clear').onclick=()=>dispatch({type:'replaceScore',bars:bars.map(()=>({chords:[]}))},{message:'已清空播放譜；RESTORE 可取回骨幹。'});
-$('useCurrent').onclick=()=>confirmAction('KEEP · 設為新骨幹？','目前播放譜會取代輸入骨幹，作為往後 GENERATE 與 RESTORE 的起點。可用 UNDO 復原。',()=>dispatch({type:'keep',confirmed:true},{message:'已將播放譜設為新骨幹。'}));
-$('length').onchange=()=>status('已設定長度；GENERATE 會重複骨幹到指定小節數。');
+$('clear').onclick=()=>dispatch({type:'backboneEdit',operation:'clearAll'},{resetDraft:true,message:'已清空骨幹；可 UNDO 復原。'});
+$('useCurrent').onclick=()=>confirmAction('KEEP · 設為新骨幹？','目前播放譜會取代輸入骨幹，作為往後 MORPH 與 RESTORE 的起點。可用 UNDO 復原。',()=>dispatch({type:'keep',confirmed:true},{message:'已將播放譜設為新骨幹。'}));
+$('length').onchange=()=>status('已設定長度；MORPH 會重複骨幹到指定小節數。');
 for(const id of settings.filter(id=>id!=='tempo'))$(id).onchange=()=>{
- if(['pattern','style'].includes(id))pianoSettings.pianoRevision=2;
- if(id==='style'){const style=$('style').value;method='style';applyStyleDefaults();dispatch({type:'style',style},{message:'已選樂風；GENERATE 改變骨幹風格，INSPIRE 提供新想法。'});return;}
+ if(['pattern','style'].includes(id))pianoSettings.pianoRevision=2;if(id==='pattern')activateGenre();
+ if(id==='style'){const style=$('style').value;method='style';applyStyleDefaults();dispatch({type:'style',style},{message:'已選樂風；MORPH 改變骨幹風格，INSPIRE 提供新想法。'});return;}
  const resume=isPlaying&&playbackKind==='score',from=currentBar();stop();syncArp();save();if(resume)play(from);
 };
+$('applyPattern').onclick=()=>{stop();activateGenre();syncArp();save();status('已套用目前演奏方式的節奏與建議 Swing。');};
 $('styleGroove').onclick=()=>{stop();applyStyleDefaults();syncArp();save();status('已套用 '+$('style').value+' 的演奏與配置；MIDI 會使用同一組音符。');};
 function currentPool(){return examplesForKey(harmony.style,currentKey());}
-function populateLibrary(){const selected=$('library').value,items=currentPool();$('library').replaceChildren();items.forEach(p=>$('library').add(new Option(p.title,p.id)));if(items.some(p=>p.id===selected))$('library').value=selected;$('loadPreset').disabled=!items.length;$('library').disabled=!items.length;$('presetNote').textContent=items.length?items.length+' 組相容範例 · LOAD 原樣載入並移至目前主音，骨幹保留。':'此樂風沒有相容的範例；INSPIRE 會從骨幹延伸，或改選其他樂風。';}
-$('loadPreset').onclick=()=>{const p=currentPool().find(p=>p.id===$('library').value);if(p&&dispatch({type:'example',id:p.id},{message:'已載入 '+p.title+'；骨幹保留，可 RESTORE。'})){$('seedMood').hidden=false;$('seedMood').textContent='EXAMPLE · '+p.title;}};
-$('nextSong').onclick=()=>{if(dispatch({type:'inspire',options:config()},{message:'已探索新的靈感；調性與骨幹保留。'})){$('seedMood').hidden=false;$('seedMood').textContent=$('scoreOrigin').textContent;}};
+function populateLibrary(){const selected=$('library').value,items=currentPool();$('library').replaceChildren();items.forEach(p=>$('library').add(new Option(p.title,p.id)));if(items.some(p=>p.id===selected))$('library').value=selected;$('loadPreset').disabled=!items.length;$('library').disabled=!items.length;$('presetNote').textContent=items.length?items.length+' 組相容範例 · LOAD 依目前調性載入，設為新骨幹；可 UNDO。':'此樂風沒有相容的範例；INSPIRE 會從骨幹延伸，或改選其他樂風。';}
+$('loadPreset').onclick=()=>{const p=currentPool().find(p=>p.id===$('library').value);if(p&&dispatch({type:'example',id:p.id},{message:'已載入 '+p.title+'；已設為新骨幹，可 UNDO。'})){$('seedMood').hidden=false;$('seedMood').textContent='EXAMPLE · '+p.title;}};
+$('nextSong').onclick=()=>{if(dispatch({type:'inspire',options:config()},{message:'已探索新的靈感；按 KEEP 可採用為新骨幹，再用 MORPH 發展。'})){$('seedMood').hidden=false;$('seedMood').textContent=$('scoreOrigin').textContent;}};
 $('voicingTab').onclick=()=>{tab='chords';$('voicingTab').classList.add('active');$('scaleTab').classList.remove('active');reference();};$('scaleTab').onclick=()=>{tab='scales';$('scaleTab').classList.add('active');$('voicingTab').classList.remove('active');reference();};
 $('resolve').onclick=()=>{try{const result=insertCadence(bars,selected,selectedChord,{loop:$('loop').checked});dispatch({type:'replaceScore',bars:result.bars},{message:'已插入 ii–V，解決到 '+result.target+'；骨幹保留。'});}catch(e){status(e.message);}};
 function editHarmony(transform,message){try{const symbol=transform(selectedSymbol());stop();bars[selected].chords[selectedChord].symbol=symbol;commitScore(message);}catch(e){status(e.message);}}
@@ -172,7 +179,7 @@ async function previewScale(scale,c){
  await startPerformance({notes,beats:notes.length*.5,startBar:0},{label:scale.name+' · 上行試聽',kind:'scale'});
 }
 function currentBar(){return Math.max(0,Math.min(bars.length-1,Math.floor(Number($('position').dataset.beat||0)/4)));}
-async function play(from=startBar){await startPerformance(playbackSlice(events(bars,$('pattern').value,performanceOptions()),startBar,bars.length),{label:patterns[$('pattern').value],kind:'score',initialBeat:Math.max(0,from-startBar)*4});}
+async function play(from=startBar){await startPerformance(playbackSlice(events(bars,$('pattern').value,performanceOptions()),startBar,bars.length),{label:performanceLabel($('pattern').value,pianoSettings.genreRevision),kind:'score',initialBeat:Math.max(0,from-startBar)*4});}
 async function startPerformance(clip,{label,kind,initialBeat=0}){
  stop();applyTempo(true);if(!clip.notes.length){status('起播點後沒有音符，請選擇其他小節或生成和弦。');return;}
  const token=run;loading=true;playbackKind=kind;$('position').textContent='LOADING PIANO';
@@ -214,6 +221,7 @@ $('copyChords').onclick=async()=>{
  const text=numeric?formatDegreeChart(harmony.score,harmony.key,{bassNames:true}):serialize(bars).replaceAll(':4','');
  try{await navigator.clipboard.writeText(text);status('已複製 '+text);}catch{$('copyOutput').hidden=false;$('copyOutput').value=text;$('copyOutput').select();status('請複製文字欄中的和弦。');}
 };
+chordPicker=mountChordPicker({state:()=>({...harmony,key:currentKey()}),dispatch,select});
 projectHarmony();syncLength();updateTempoHint();syncMethod();styleInfo();syncInput();render();save();
 
 // Collapse only the secondary tools once the mobile score sticks; focus reveals them.
@@ -221,7 +229,7 @@ const score=document.querySelector('.score'),scoreSentinel=document.createElemen
 scoreSentinel.setAttribute('aria-hidden','true');score.before(scoreSentinel);
 new IntersectionObserver(([entry])=>score.classList.toggle('compact-tools',!entry.isIntersecting&&entry.boundingClientRect.top<0)).observe(scoreSentinel);
 
-pianoTools=mountPianoTools($('pianoTools'),{patternControl:$('pattern'),phraseAfter:$('pattern').closest('label'),getState:()=>({...pianoSettings,style:$('style').value,pattern:$('pattern').value}),setState:patch=>{if(patch.pattern)$('pattern').value=patch.pattern;else Object.assign(pianoSettings,patch);},onChange:kind=>{if(['pattern','pianoPhrase'].includes(kind))pianoSettings.pianoRevision=2;const resume=isPlaying&&playbackKind==='score',bar=currentBar();stop();save();syncArp();if(resume)play(bar);}});
+pianoTools=mountPianoTools($('pianoTools'),{patternControl:$('pattern'),phraseAfter:$('pattern').closest('label'),getState:()=>({...pianoSettings,style:$('style').value,pattern:$('pattern').value}),setState:patch=>{if(patch.pattern)$('pattern').value=patch.pattern;else Object.assign(pianoSettings,patch);},onChange:kind=>{if(['pattern','pianoPhrase'].includes(kind))pianoSettings.pianoRevision=2;if(kind==='pattern')activateGenre();const resume=isPlaying&&playbackKind==='score',bar=currentBar();stop();save();syncArp();if(resume)play(bar);}});
 $('pianoDetails').addEventListener('toggle',()=>{if($('pianoDetails').open)pianoTools.refresh();});
 
 for(const id of ['style','pattern'])$(id).addEventListener('change',()=>{if($('pianoDetails').open)pianoTools.refresh();});

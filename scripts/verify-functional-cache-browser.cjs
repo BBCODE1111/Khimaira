@@ -32,7 +32,7 @@ async function download(page,selector,name){
  const site=await serve(old);let browser;
  try{
   browser=await chromium.launch({headless:true,channel:'chrome'});const page=await browser.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  const load=async text=>{await page.locator('#chartInput').fill(text);await page.locator('#applyChart').click();return page.locator('#keyLabel').textContent();};
+  const load=async text=>{if(await page.locator('#advancedInput').count()&&!await page.locator('#chartInput').isVisible())await page.locator('#advancedInput summary').click();await page.locator('#chartInput').fill(text);await page.locator('#applyChart').click();return page.locator('#keyLabel').textContent();};
   await page.goto(site.url);await page.locator('.chord-event').first().waitFor();assert.equal(await load('Dm | G | C | A7'),'D minor');
   const originalChords=await page.locator('.chord-event strong').allTextContents();site.setRoot(khimaira);await page.reload();await page.locator('.chord-event').first().waitFor();
   assert.equal(await page.locator('#keyLabel').textContent(),'D minor');assert.deepEqual(await page.locator('.chord-event strong').allTextContents(),originalChords);

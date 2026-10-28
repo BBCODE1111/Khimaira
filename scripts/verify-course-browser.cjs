@@ -64,7 +64,7 @@ async function download(page,selector,name){
       });
       const upload={name:'original-course-reference.mid',mimeType:'audio/midi',buffer:Buffer.from(reference)};
       if(name==='khimaira'){
-        await page.locator('#chartInput').fill('| C | Am | F | G |');await page.locator('#applyChart').click();
+        if(await page.locator('#advancedInput').count()&&!await page.locator('#chartInput').isVisible())await page.locator('#advancedInput summary').click();await page.locator('#chartInput').fill('| C | Am | F | G |');await page.locator('#applyChart').click();
         await page.locator('#pianoDetails summary').click();
         await page.setInputFiles('[data-piano="file"]',upload);
         await page.waitForFunction(()=>document.querySelector('[data-piano="melodyText"]').value.includes('C5'));

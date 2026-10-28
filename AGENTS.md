@@ -12,3 +12,7 @@
 - 現行演奏規格改以 `docs/piano-audit-20261027.md` 為準。舊 pianoRevision 1 使用凍結演奏；新規則需通過拍號辨識度、人聲式樂句差異、低音域保護及 CC64 實際延音稽核，不只檢查音符不為空。
 
 - 修改調性判定、級數、GENERATE 前必讀 docs/key-detection-theory.md。
+
+- 修改任何演奏方式（performance.js、piano-patterns、arpeggiator）前必讀 docs/genre-rhythm-theory.md。2026-10-28 使用者要求：小節格線錯誤修正適用所有存檔；舊存檔保留音型名稱與參數，新樂風模板只在新選取音型時啟用；ARP 相位與自動化契約保留。
+
+- 2026-10-28 MORPH 契約：範例 LOAD 依目前 KEY 載入並設為新骨幹，可 UNDO。MORPH 保留每個原和弦的起音位置、根音與指定低音，只上色／在尾端加入解決到下一個實際目標的經過和弦；不得呼叫重作進行或減密度刪掉原和弦。屬功能取自共用 analyzeHarmony，禁止把 V／次屬染成 maj7。INSPIRE 是預覽，KEEP 才採用，RESTORE 回目前骨幹。驗收見 docs/morph-backbone/README.md。

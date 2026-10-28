@@ -1,4 +1,4 @@
-import {parse,mod} from './music.js?v=key-functional-1';
+import {parse,mod} from './music.js?v=morph-1';
 
 export function voicingCandidates(symbol,voicing='close'){
  const c=parse(symbol);if(!c)return [];

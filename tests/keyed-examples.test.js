@@ -17,13 +17,13 @@ test('all style examples filter major/minor and transpose exactly to each of 12 
  }
  assert.ok(examples>1000);
 });
-test('selected key survives style, exact LOAD, alternating INSPIRE/fusion and GENERATE; backbone remains original',()=>{
+test('selected key survives style, exact LOAD, alternating INSPIRE/fusion and GENERATE; LOAD adopts the keyed backbone; INSPIRE remains a preview',()=>{
  for(const mode of ['major','minor'])for(const style of Object.keys(styles)){
   let s=createHarmony({text:mode==='major'?'F | Dm | Bb | C':'Fm | Db | Bbm | C7',key:{root:5,mode},locked:true});
-  const backbone=structuredClone(s.backbone),key=structuredClone(effectiveKey(s));s=act(s,{type:'style',style});assert.deepEqual(effectiveKey(s),key);
+  let backbone=structuredClone(s.backbone);const key=structuredClone(effectiveKey(s));s=act(s,{type:'style',style});assert.deepEqual(effectiveKey(s),key);
   const pool=examplesForKey(style,key);
   if(pool.length){
-   s=act(s,{type:'example',id:pool[0].id});assert.equal(serialize(harmonyView(s).bars),serialize(parseChart(pool[0].chart)));assert.deepEqual(s.backbone,backbone);
+   s=act(s,{type:'example',id:pool[0].id});assert.equal(serialize(harmonyView(s).bars),serialize(parseChart(pool[0].chart)));assert.deepEqual(s.backbone.degrees,s.score);backbone=structuredClone(s.backbone);
    for(const kind of ['example','fusion']){const old=structuredClone(s);s=act(s,{type:'inspire',kind});assert.equal(s.origin.kind,kind);assert.deepEqual(effectiveKey(s),key);assert.deepEqual(s.backbone,backbone);assert.deepEqual(act(s,{type:'undo'}),old);}
   }else {s=act(s,{type:'inspire'});assert.equal(s.origin.kind,'backbone');assert.deepEqual(effectiveKey(s),key);assert.deepEqual(s.backbone,backbone);}
   s=act(s,{type:'generate'});assert.deepEqual(effectiveKey(s),key);assert.deepEqual(s.backbone,backbone);

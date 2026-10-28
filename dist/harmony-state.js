@@ -1,12 +1,13 @@
-import {parseChart,chordList,serialize} from './solutions.js?v=key-functional-1';
-import {parse} from './music.js?v=key-functional-1';
-import {normalizeKey,parseDegreeChart,chartToDegrees,materializeChart,sameDegrees,formatDegreeChart,degreeLabels} from './degree-chart.js?v=key-functional-1';
-import {detectKey} from './key-detection.js?v=key-functional-1';
-import {mutate,styles} from './style-engine.js?v=key-functional-1';
-import {styleTonality} from './backbone-mutation.js?v=key-functional-1';
-import {examplesForKey,nextKeyedExample} from './keyed-examples.js?v=key-functional-1';
+import {editBackbone} from './chord-input.js?v=genre-2';
+import {parseChart,chordList,serialize} from './solutions.js?v=morph-1';
+import {parse} from './music.js?v=morph-1';
+import {normalizeKey,parseDegreeChart,chartToDegrees,materializeChart,sameDegrees,formatDegreeChart,degreeLabels} from './degree-chart.js?v=morph-1';
+import {detectKey} from './key-detection.js?v=morph-1';
+import {mutate,styles} from './style-engine.js?v=morph-1';
+import {styleTonality} from './backbone-mutation.js?v=morph-1';
+import {examplesForKey,nextKeyedExample} from './keyed-examples.js?v=morph-1';
 
-import {convertDegreeMode} from './mode-conversion.js?v=key-functional-1';
+import {convertDegreeMode} from './mode-conversion.js?v=morph-1';
 
 export const HARMONY_SCHEMA=1;
 const copy=x=>structuredClone(x);
@@ -19,11 +20,17 @@ export function createHarmony({text='| C | Am | F | G |',key={root:0,mode:'major
  const initial={schema:HARMONY_SCHEMA,key:normalizeKey(key),keyMode:locked?'locked':'auto',style,variation:0,history:[],candidates:[],warning:null,origin:{type:'backbone'}};
  return loadInput(initial,text);
 }
-function loadInput(s,text){
+function loadInput(s,text,{editing=false}={}){
  const provisional=parseDegreeChart(text,s.key),actual=materializeChart(provisional,s.key);
  const detection=namedInput(text)?detectKey(actual):{primary:null,candidates:[]};
  let key=s.key;
- if(s.keyMode==='auto'&&detection.primary)key=normalizeKey(detection.primary);
+ // Incomplete tap entry is not yet a harmonic phrase. Still analyse it,
+ // but retain the user's palette until a completed progression or a strong
+ // observed cadence provides enough evidence. Typed LOAD remains explicit.
+ const count=actual.reduce((n,b)=>n+b.chords.length,0),complete=actual.every(b=>b.chords.length);
+ const strong=detection.primary?.analysis?.events.some(c=>['ii-V-I','V-I','subV-I','iv-I'].includes(c.cadence));
+ const ready=!editing||(count>=2&&complete)||(count>=3&&strong);
+ if(s.keyMode==='auto'&&detection.primary&&ready)key=normalizeKey(detection.primary);
  const degrees=chartToDegrees(actual,key),mismatch=s.keyMode==='locked'&&detection.primary&&!keyEqual(detection.primary,key);
  return {...s,key,candidates:detection.candidates.map(normalizeKey),warning:mismatch?{type:'key-mismatch',suggested:normalizeKey(detection.primary)}:null,
   backbone:{degrees,originalDegrees:copy(degrees),enteredKey:copy(key)},score:copy(degrees),variation:0,origin:{type:'backbone'},inputFormat:namedInput(text)?'chords':'roman'};
@@ -48,14 +55,18 @@ export function applyHarmonyAction(current,action){
  let s=copy(current);s.warning=null;
  switch(action.type){
   case 'load':s=loadInput(s,action.text);break;
+  case 'backboneEdit':{
+   const actual=editBackbone(materializeChart(s.backbone.degrees,s.key),action,effectiveKey(s));
+   s=loadInput(s,serialize(actual),{editing:true});break;
+  }
   case 'transpose':{
    const key=normalizeKey(action.key);
    if(key.mode!==s.key.mode&&key.mode!==effectiveKey(s).mode)throw Error('大小調轉換需使用獨立、已確認的調式轉換動作。');
-   s.key=key;s.keyMode='locked';s.candidates=[];break;
+   s.key=key;s.candidates=[];break;
   }
   case 'reinterpret':{
    const key=normalizeKey(action.key),backbone=materializeChart(s.backbone.degrees,s.key),score=materializeChart(s.score,s.key);
-   s.backbone.degrees=chartToDegrees(backbone,key);s.score=chartToDegrees(score,key);s.key=key;s.keyMode='locked';s.candidates=[];break;
+   s.backbone.degrees=chartToDegrees(backbone,key);s.score=chartToDegrees(score,key);s.key=key;s.candidates=[];break;
   }
   case 'auto':{
    const detected=detectKey(materializeChart(s.backbone.degrees,s.key));
@@ -68,7 +79,7 @@ export function applyHarmonyAction(current,action){
    const from=effectiveKey(s).mode;
    s.backbone.degrees=convertDegreeMode(s.backbone.degrees,from,action.mode);
    s.score=convertDegreeMode(s.score,from,action.mode);
-   s.key=normalizeKey({root:s.key.root,mode:action.mode});s.keyMode='locked';s.candidates=[];s.origin={type:'conversion'};break;
+   s.key=normalizeKey({root:s.key.root,mode:action.mode});s.candidates=[];s.origin={type:'conversion'};break;
   }
   case 'style':s.style=action.style;break;
   case 'restore':s.score=copy(s.backbone.degrees);s.origin={type:'backbone'};break;
@@ -81,10 +92,12 @@ export function applyHarmonyAction(current,action){
   }
   case 'replaceScore':s.score=chartToDegrees(action.bars,s.key);s.origin=action.origin||{type:'edit'};break;
   case 'example':{
-   // LOAD is exact (apart from transposition); it never replaces the backbone.
+   // Explicit LOAD adopts the keyed example as the new backbone; undo keeps the previous one.
    const p=examplesForKey(s.style,effectiveKey(s)).find(p=>p.id===action.id);
    if(!p)throw Error('這個範例不適用目前調式，請選擇清單中的範例。');
-   s.score=copy(p.degrees);s.origin={type:'example',id:p.id};break;
+   s.score=chartToDegrees(parseChart(p.chart),s.key);
+   s.backbone={degrees:copy(s.score),originalDegrees:copy(s.score),enteredKey:copy(s.key)};
+   s.variation=0;s.candidates=[];s.origin={type:'example',id:p.id};break;
   }
   case 'inspire':{
    const p=nextKeyedExample(s.style,effectiveKey(s),s.lastInspirationId);
@@ -104,7 +117,7 @@ export function applyHarmonyAction(current,action){
    if(!Number.isInteger(requestedLength)||requestedLength<1||requestedLength>16)throw Error('小節數必須為 1–16。');
    const filled=source.some(b=>b.chords.length);
    let basis=source;
-   if(!filled||options.recreate===true){
+   if(!filled){
     const pool=examplesForKey(s.style,effectiveKey(s)),p=pool[(Number(options.seed??s.variation+1))%Math.max(1,pool.length)];
     basis=p?parseChart(p.chart):materializeChart(parseDegreeChart(s.key.mode==='minor'?'i | bVI | iv | V7':'I | vi | IV | V7',s.key),s.key);
    }
@@ -116,7 +129,7 @@ export function applyHarmonyAction(current,action){
      freedom:'morph',recreate:false});
     if(serialize(candidate)!==previous)break;
    }
-   s.variation=seed;s.score=chartToDegrees(candidate,s.key);s.origin={type:!filled||options.recreate?'idea':'morph',variation:seed,level:options.randomness||'medium'};
+   s.variation=seed;s.score=chartToDegrees(candidate,s.key);s.origin={type:!filled?'idea':'morph',variation:seed,level:options.randomness||'medium'};
    if(symbols(s.score,s.key)===previous)s.warning={type:'variation-exhausted',attempts:9};
    break;
   }

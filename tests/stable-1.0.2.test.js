@@ -6,7 +6,7 @@ test('density one keeps the resolving dominant, including secondary, slash and s
  for(const [input,expected] of [['| F#m7 B7 | Emaj7 |','B7'],['| Dm7 G7/B | C |','G7/B'],['| Dm7 Db7 | C |','Db7']]){
   const original=parseChart(input),before=serialize(original),out=reduceDensity(original,{loop:false});assert.equal(out[0].chords[0].symbol,expected);assert.equal(out[0].chords[0].beats,4);assert.equal(serialize(original),before);
  }
- const out=mutate(parseChart('| F#m7 B7 | Emaj7 |'),{key:4,method:'color',density:1,randomness:'low'});assert.equal(parse(out[0].chords[0].symbol).root,11);
+ const out=mutate(parseChart('| F#m7 B7 | Emaj7 |'),{key:4,method:'color',density:1,randomness:'low'});assert.deepEqual(out[0].chords.map(c=>parse(c.symbol).root),[6,11]); // MORPH density limits additions; it cannot erase an authored ii.
  assert.equal(reduceDensity(parseChart('| Dm7 G7 | | C |'))[0].chords[0].symbol,'Dm7');
 });
 test('American pop IV suspension is sus2 in every key',()=>{

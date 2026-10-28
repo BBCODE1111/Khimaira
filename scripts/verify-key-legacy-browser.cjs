@@ -44,7 +44,7 @@ async function download(page,selector,name){
     if(i){assert.deepEqual([...midi.subarray(22,26)],[0,255,81,3]);const state=await page.evaluate(()=>JSON.parse(localStorage.getItem('khimaira-v5')));assert.equal(state.harmony.key.root,5);assert.deepEqual(state.legacyRenderKey,{root:0,mode:'major'});assert.equal(state.pianoSettings.pianoRevision,pianoRevision);
      await page.reload();await page.locator('.chord-event').first().waitFor();await download(page,'#dockMidi','recall-'+name);assert.deepEqual(fs.readFileSync(path.join(output,'recall-'+name)),midi);
      // Typing a draft and then selecting a key must not discard unsubmitted work.
-     await page.locator('#chartInput').fill('Bb | Gm | Eb | F');await page.locator('#transposeUp').click();assert.equal(await page.locator('#chartInput').inputValue(),'Bb | Gm | Eb | F');
+     if(await page.locator('#advancedInput').count()&&!await page.locator('#chartInput').isVisible())await page.locator('#advancedInput summary').click();await page.locator('#chartInput').fill('Bb | Gm | Eb | F');await page.locator('#transposeUp').click();assert.equal(await page.locator('#chartInput').inputValue(),'Bb | Gm | Eb | F');
     }
     await page.close();
    }

@@ -19,7 +19,7 @@ test('low mutation respects supplied roots; free high mutation changes structure
  const before=structuredClone(input);
  for(const style of Object.keys(darkStyles)){
   const low=mutate(input,{style,mode:'minor',randomness:'low',seed:1});low.forEach((b,i)=>assert.equal(parse(b.chords[0].symbol).root,parse(input[i].chords[0].symbol).root));
-  const variants=new Set;for(let seed=0;seed<4;seed++){const out=mutate(input,{style,mode:'minor',randomness:'high',seed});variants.add(serialize(out));assert.ok(out.every(b=>b.chords.every(c=>!/(maj9|m11|13|69)/.test(c.symbol))));}
+  const variants=new Set;for(let seed=0;seed<4;seed++){const out=mutate(input,{style,mode:'minor',randomness:'high',seed,recreate:true});variants.add(serialize(out));assert.ok(out.every(b=>b.chords.every(c=>!/(maj9|m11|13|69)/.test(c.symbol))));}
   assert.equal(variants.size,4,style);
  }
  assert.deepEqual(input,before);
