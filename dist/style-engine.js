@@ -5,6 +5,9 @@ import {songs} from './song-pool.js?v=17';
 import {worldStyles} from './world-styles.js?v=17';
 import {worldMutation} from './world-generator.js?v=piano-audit-1';
 import {harmonyStudies,learnedIdea} from './harmony-knowledge.js?v=18';
+import {detectKey} from './key-detection.js';
+import {normalizeKey} from './degree-chart.js';
+import {anchoredMutation} from './backbone-mutation.js';
 export const styles={
 Jazz:{description:'功能替代、次屬和弦、ii–V、三全音／backdoor，讓 3rd 與 7th 連接。',pattern:'jazz',voicing:'rootless',phrases:[['Cmaj9 Ebdim7','Dm9 G13','Em7 A7b9','Dm9 Db7#11'],['Em9 A7alt','Dm9 G13','Fm9 Bb13','C69 G7alt'],['C69','F#m7b5 B7b9','Em9 A7alt','Dm9 G13']],T:['Cmaj9','Em9 A7alt','C69 Ebdim7'],R:['Am9','Em7 A7alt','Dm9 G13'],S:['Fmaj9','Fm9 Bb13','Dm9 G13'],D:['G13','Dm9 Db7#11','G7sus4 G7alt']},
 Gospel:{description:'斜線低音、減七經過和弦、IV–iv、sus 解決與 plagal 色彩。',pattern:'gospel',voicing:'open',phrases:[['C69 E7/G#','Am9 C7/G','Fmaj9 Fm6','C/G G7sus4'],['Cmaj9/E','Fmaj9 F#dim7','C/G A7b9','Dm9 G13'],['C69','Bb/C C7','Fmaj9 Fm6','C/G G7']],T:['C69/E','Cmaj9 E7/G#','C/G'],R:['Am9 C7/G','C7/G','Em7 A7b9'],S:['Fmaj9 Fm6','Fmaj9 F#dim7','Dm9/G'],D:['G7sus4 G13','C/G G7','Db9 C69']},
@@ -170,7 +173,19 @@ export function reduceDensity(bars,{loop=true}={}){
  }
  return out;
 }
-export function mutate(source,{style='Jazz',key=0,mode='major',freedom='free',density=2,seed=0,randomness='medium',method='style',loop=true,ideaFamily='auto'}={}){
+export function mutate(source,options={}){
+ const filled=source.some(b=>chordList(b).length),method=options.method||'style';
+ if(method==='original')return structuredClone(source);
+ // `free` remains an explicit legacy API spelling for recompose, never a default.
+ const recreate=options.recreate===true||['free','recreate'].includes(options.freedom);
+ const key=normalizeKey(options.tonality||(!recreate&&filled?detectKey(source).primary:null)||{root:options.key||0,mode:options.mode||'major'});
+ if(filled&&!recreate&&['style','color'].includes(method)){
+  const result=anchoredMutation(source,{...options,tonality:key},{styles,tint,cadenceTo,seeded});
+  return method==='color'&&options.density===1?reduceDensity(result,options):result;
+ }
+ return legacyMutation(source,{...options,key:key.root,mode:key.mode,freedom:recreate?'free':'color'});
+}
+function legacyMutation(source,{style='Jazz',key=0,mode='major',freedom='free',density=2,seed=0,randomness='medium',method='style',loop=true,ideaFamily='auto'}={}){
  if(method==='original')return structuredClone(source);
  const cfg=styles[style]||styles.Jazz,styleSeed=[...style].reduce((n,c)=>n+c.charCodeAt(0),0),random=seeded(seed+styleSeed),count=source.length||4,filled=source.some(b=>chordList(b).length),level=randomness;
  const songCandidates=songs.filter(s=>s.style===style&&s.mode===mode);

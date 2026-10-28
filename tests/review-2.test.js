@@ -20,17 +20,17 @@ test('cadences reject passing diminished chords and preserve existing ii–V tai
  const iiV=parseChart('| Dm7:2 G7:2 |')[0].chords;assert.deepEqual(insertApproach(iiV,'C'),iiV);
  const tail=parseChart('| C:2 Am:2 |')[0].chords,out=insertApproach(tail,'F');assert.deepEqual(out[0],tail[0]);assert.equal(out.reduce((s,c)=>s+c.beats,0),4);
 });
-test('minor mode retargets secondary dominants and keeps inversion degrees and IV–iv',()=>{
+test('explicit minor conversion retargets secondary dominants; mutation never applies it implicitly',()=>{
  const converted=minorizeChart(parseChart('| C/G | E9/G# | Am9 | Fmaj7 Fm6 | G/B | C |'));
  assert.deepEqual(symbols(converted),['Cm/G','Eb7/G','Abmaj9','Fmaj7','Fm6','G/B','Cm']);
  const jazz=minorizeChart(parseChart('| C | B7b9 | Em9 | G7 |'));
  assert.equal(symbols(jazz)[1],'Bb7');assert.equal(symbols(jazz)[2],'Ebmaj9');
  const manual=mutate(parseChart('| C | Am | F | G |'),{mode:'minor',method:'color',randomness:'low'});
- assert.equal(parse(manual[0].chords[0].symbol).minor,true);assert.equal(parse(manual[1].chords[0].symbol).root,8);
+ assert.equal(parse(manual[0].chords[0].symbol).minor,false);assert.equal(parse(manual[1].chords[0].symbol).root,9);
 });
-test('medium generation reconstructs on odd and even seeds; style color stays idiomatic',()=>{
+test('explicit medium recompose reconstructs on odd and even seeds; style color stays idiomatic',()=>{
  const input=parseChart('| C | Am | F | G |');
- for(const seed of [0,1,2,3])assert.ok(mutate(input,{style:'Jazz',seed}).every(b=>b.reason.includes('句型重構')));
+ for(const seed of [0,1,2,3])assert.ok(mutate(input,{style:'Jazz',seed,recreate:true}).every(b=>b.reason.includes('句型重構')));
  for(const style of ['Rock','EDM'])assert.ok(!parse(tint('G',style,'medium',()=>.99)).intervals.includes(10));
  for(const c of ['C','Dm','G'])assert.ok(!/add9|maj9|^G9/.test(tint(c,'Classical','high',()=>.99)));
  assert.ok(parse(tint('C','Major blues','medium',()=>0)).intervals.includes(10));
