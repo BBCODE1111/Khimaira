@@ -19,7 +19,7 @@ test('resolved and unresolved dominant chains retain functional labels through a
    const s=createHarmony({text:bars.map(b=>b.chords[0].symbol).join(' | ')});
    const changed=act(s,{type:'generate',options:{randomness:'high',seed:1}});
    assert.deepEqual(changed.key,s.key);assert.deepEqual(changed.backbone,s.backbone);
-   harmonyView(changed).bars.slice(0,4).forEach((bar,i)=>assert.equal(parse(bar.chords[0].symbol).root,parse(bars[i].chords[0].symbol).root));
+   harmonyView(changed).bars.slice(0,4).forEach((bar,i)=>assert.deepEqual(bar.chords[0].morph.source,{bar:i,chord:0,onset:0}));
   }
  }
 });
@@ -42,7 +42,7 @@ test('authored tonic spellings survive labels, copied Roman text, reload, MORPH 
   for(const state of [s,act(s,{type:'generate'})]){
    const labels=degreeLabels(state.score,state.key),text=formatDegreeChart(state.score,state.key);
    assert.doesNotMatch(labels.flat().join(' '),/bb|##/);
-   assert.deepEqual(parseDegreeChart(text,state.key),state.score);
+   assert.deepEqual(parseDegreeChart(text,state.key),state.score.map(b=>({chords:b.chords.map(({morph,...c})=>c)})));
    assert.equal(text,'| '+labels.map((bar,i)=>bar.map((label,j)=>label+(state.score[i].chords[j].beats===4?'':':'+state.score[i].chords[j].beats)).join(' ')).join(' | ')+' |');
   }
   if(tonic==='Gb'){

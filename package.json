@@ -6,7 +6,18 @@
     "test": "node --test tests/*.test.js",
     "music:sync": "node scripts/sync-music-core.mjs",
     "music:check": "node scripts/sync-music-core.mjs --check",
-    "start": "python3 -m http.server 5173 --directory dist"
+    "start": "python3 -m http.server 5173 --directory dist",
+    "lint": "eslint dist packages scripts tests eslint.config.js",
+    "assets:sync": "node scripts/sync-web-assets.mjs",
+    "assets:check": "node scripts/sync-web-assets.mjs --check",
+    "test:browser": "node scripts/run-browser-ci.cjs",
+    "verify:web": "npm run music:check && npm run assets:check && npm run lint && npm test && npm run test:browser"
   },
-  "description": "Khimaira奇美拉 - 和弦怪物. MORPH YOUR CHORDS like the legendary monster"
+  "description": "Khimaira奇美拉 - 和弦怪物. MORPH YOUR CHORDS like the legendary monster",
+  "devDependencies": {
+    "@axe-core/playwright": "4.11.0",
+    "eslint": "10.14.0",
+    "globals": "16.5.0",
+    "playwright": "1.56.1"
+  }
 }

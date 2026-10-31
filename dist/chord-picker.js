@@ -1,20 +1,22 @@
-import {chordChoices,extraChordChoices,quickProgressions} from './chord-input.js?v=genre-2';
-import {parse,spellPitch,chordTones} from './music.js?v=morph-1';
-import {materializeChart} from './degree-chart.js?v=morph-1';
+import {rootPicker} from './root-picker.js?v=1.0.3';
+import {chordChoices,extraChordChoices,quickProgressions} from './chord-input.js?v=1.0.3';
+import {parse,spellPitch,chordTones} from './music.js?v=1.0.3';
+import {materializeChart} from './degree-chart.js?v=1.0.3';
 export function mountChordPicker({state,dispatch,select,editScore}){
- const panel=document.createElement('section');panel.id='chordPicker';panel.className='chord-picker';panel.hidden=true;panel.setAttribute('aria-label','點按編輯骨幹');
+ const panel=document.createElement('section');panel.id='chordPicker';panel.className='chord-picker';panel.hidden=true;panel.setAttribute('role','dialog');panel.setAttribute('aria-label','點按編輯骨幹');
  document.getElementById('grid').after(panel);
- let activeBar=0,activeChord=0;
+ let activeBar=0,activeChord=0,trigger=null;
+ const close=()=>{panel.hidden=true;(trigger?.isConnected?trigger:document.getElementById('editBackbone'))?.focus();};
  const button=(label,fn,attrs={})=>{const b=document.createElement('button');b.type='button';b.textContent=label;for(const [k,v] of Object.entries(attrs))b.setAttribute(k,v);b.onclick=fn;return b;};
- const act=(operation,extra={})=>{const ok=dispatch({type:'backboneEdit',operation,bar:activeBar,chord:activeChord,...extra},{resetDraft:true,message:'已更新骨幹；GENERATE 從這組進行變化，可 UNDO。'});if(ok)open(activeBar,activeChord,false);};
+ const act=(operation,extra={})=>{const ok=dispatch({type:'backboneEdit',operation,bar:activeBar,chord:activeChord,...extra},{resetDraft:true,message:'已更新骨幹；GENERATE 從這組進行變化，可 UNDO。'});if(ok){open(activeBar,activeChord,false);panel.querySelector('.root-picker [aria-pressed="true"]')?.focus({preventScroll:true});}};
  const choose=symbol=>{act('select',{symbol});};
  function open(bar,chord=0,focus=true){
-  activeBar=bar;activeChord=chord;const s=state(),key=s.key,source=materializeChart(s.backbone.degrees,key);
+  if(focus)trigger=document.activeElement;activeBar=bar;activeChord=chord;const s=state(),key=s.key,source=materializeChart(s.backbone.degrees,key);
   activeChord=Math.min(activeChord,Math.max(0,(source[bar]?.chords.length||1)-1));
   panel.replaceChildren();panel.hidden=false;
   const header=document.createElement('div');header.className='picker-heading';const title=document.createElement('strong');title.textContent=`BAR ${bar+1} · 編輯骨幹`;
   const barSelect=document.createElement('select');barSelect.setAttribute('aria-label','編輯骨幹小節');source.forEach((_,i)=>barSelect.add(new Option(`BAR ${i+1}`,i)));barSelect.value=bar;barSelect.onchange=()=>open(+barSelect.value,0,false);
-  header.append(title,barSelect,button('關閉',()=>{panel.hidden=true;document.querySelector(`[data-bar="${bar}"]`)?.focus();},{'aria-label':'關閉和弦選擇'}));panel.append(header);
+  header.append(title,barSelect,button('關閉',close,{'aria-label':'關閉和弦選擇'}));panel.append(header);
   if(source[bar]?.chords.length>1){const halves=document.createElement('div');halves.className='picker-halves';source[bar].chords.forEach((c,i)=>halves.append(button(`${i+1} · ${c.symbol}`,()=>open(bar,i,false),{'aria-pressed':String(i===activeChord),'data-half':i})));panel.append(halves);}
   const grid=document.createElement('div');grid.className='picker-choices';const choices=chordChoices(key);
   for(const c of choices)grid.append(button(`${c.symbol}  ${c.label}`,()=>choose(c.symbol),{'data-choice':c.symbol}));panel.append(grid);
@@ -30,8 +32,9 @@ export function mountChordPicker({state,dispatch,select,editScore}){
   const bass=document.createElement('select');bass.setAttribute('aria-label','轉位低音');bass.add(new Option('根音',''));for(let i=0;i<12;i++)bass.add(new Option('/'+spellPitch(i,key),i));bass.value=c.bassName?c.bass:'';
   controls.append(root,quality,bass,button('套用和弦',()=>choose(root.selectedOptions[0].textContent+quality.value+(bass.value!==''?'/'+bass.selectedOptions[0].textContent.slice(1):'')),{'data-picker-action':'apply'}));
   const inversions=document.createElement('div');inversions.className='picker-choices';const tones=chordTones(current);for(const i of [1,2])if(tones[i])inversions.append(button(`${c.rootName+c.q}/${tones[i]}`,()=>choose(c.rootName+c.q+'/'+tones[i])));
-  more.append(controls,inversions);panel.append(more);
-  if(focus){grid.querySelector('button')?.focus({preventScroll:true});panel.scrollIntoView({block:'nearest',behavior:'smooth'});}
+  const roots=rootPicker(key,c.root,value=>{root.value=value;quality.focus();});
+  header.after(roots,controls);more.append(inversions);panel.append(more);
+  if(focus){roots.querySelector('button')?.focus({preventScroll:true});panel.scrollIntoView({block:'nearest',behavior:'smooth'});}
  }
  function decorate(){
   const s=state();let chips=document.getElementById('quickProgressions');if(!chips){chips=document.createElement('div');chips.id='quickProgressions';chips.className='quick-progressions';document.getElementById('grid').before(chips);}
@@ -45,6 +48,6 @@ export function mountChordPicker({state,dispatch,select,editScore}){
   });
   if(!panel.hidden)open(Math.min(activeBar,Math.max(0,s.backbone.degrees.length-1)),activeChord,false);
  }
- document.addEventListener('keydown',e=>{if(e.key==='Escape')panel.hidden=true;});
- return {open,decorate,close:()=>{panel.hidden=true;}};
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden){e.preventDefault();close();}});
+ return {open,decorate,close};
 }

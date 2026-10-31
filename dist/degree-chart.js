@@ -1,4 +1,4 @@
-import {parse,mod,keyName,spellInterval,analyzeHarmony} from './music.js?v=morph-1';
+import {parse,mod,keyName,spellInterval,analyzeHarmony} from './music.js?v=1.0.3';
 
 // Chromatic Roman notation is major-referenced in BOTH modes: Cm–Ab–Bb is
 // i–bVI–bVII. Quality is explicit, so changing tonic never changes chord type.
@@ -57,23 +57,29 @@ export function parseRoman(token,key={}){
  if(parts.length)throw Error('無法辨識級數 '+token);
  return chord;
 }
-export function resolveChordToken(token,key={}){return parse(token)?token:degreeToChord(parseRoman(token,key),key);}
+function tokenDegree(token,key){
+ if(parse(token))return chordToDegree(token,key);
+ if(!/^[b#♭♯]*[ivIV]/.test(token)&&/^[A-Ha-h]/.test(token))throw Error(token+' 不是可辨識的和弦名稱。範例：Am、G7、Cmaj7；Am 是小和弦，AM 是大和弦。');
+ return parseRoman(token,key);
+}
+export function resolveChordToken(token,key={}){return degreeToChord(tokenDegree(token,key),key);}
 export function chartToDegrees(bars,key={}){
- return bars.map(b=>({chords:(b.chords||[]).map(c=>({...chordToDegree(c.symbol,key),beats:c.beats}))}));
+ return bars.map(b=>({chords:(b.chords||[]).map(c=>({...chordToDegree(c.symbol,key),beats:c.beats,...(c.morph?{morph:structuredClone(c.morph)}:{})}))}));
 }
 export function materializeChart(bars,key={}){
- return bars.map(b=>({chords:b.chords.map(c=>({symbol:degreeToChord(c,key),beats:c.beats}))}));
+ return bars.map(b=>({chords:b.chords.map(c=>({symbol:degreeToChord(c,key),beats:c.beats,...(c.morph?{morph:structuredClone(c.morph)}:{})}))}));
 }
 export function parseDegreeChart(text,key={}){
- key=normalizeKey(key);let t=text.trim().replace(/[.。]+$/,'').trim();if(t.startsWith('|'))t=t.slice(1);if(t.endsWith('|'))t=t.slice(0,-1);
+ key=normalizeKey(key);let t=text.trim();if(!/(?:^|[|\s])N\.C\.$/i.test(t))t=t.replace(/[.。]+$/,'').trim();if(t.startsWith('|'))t=t.slice(1);if(t.endsWith('|'))t=t.slice(0,-1);
  const bars=t.split('|');if(bars.length>16)throw Error('目前最多支援 16 小節。');
  return bars.map(bar=>{
+  if(/^(?:N\.C\.|NC)$/i.test(bar.trim()))return {chords:[]};
   const tokens=bar.trim().split(/\s+|,(?![^()]*\))/).filter(Boolean);if(tokens.length>4)throw Error('每小節最多四個和弦。');
   const chords=tokens.map((token,i)=>{
    const [symbol,duration,...rest]=token.split(':');if(rest.length)throw Error('無法辨識拍數 '+token);
    const beats=duration===undefined?(tokens.length===3?[2,1,1][i]:4/tokens.length):Number(duration);
    if(!Number.isFinite(beats)||beats<=0)throw Error('拍數必須大於零。');
-   return {...(parse(symbol)?chordToDegree(symbol,key):parseRoman(symbol,key)),beats};
+   return {...tokenDegree(symbol,key),beats};
   });
   if(chords.length&&Math.abs(chords.reduce((n,c)=>n+c.beats,0)-4)>1e-8)throw Error('每小節的拍數合計須為 4。');
   return {chords};
@@ -101,4 +107,7 @@ export function formatDegreeChart(bars,key={root:0,mode:'major'},{bassNames=fals
   return label+(c.beats===4?'':':'+c.beats);
  }).join(' ')).join(' | ')+' |';
 }
-export function sameDegrees(a,b){return JSON.stringify(a)===JSON.stringify(b);}
+export function sameDegrees(a,b){
+ const musical=chart=>chart.map(bar=>({chords:bar.chords.map(({morph,...chord})=>chord)}));
+ return JSON.stringify(musical(a))===JSON.stringify(musical(b));
+}

@@ -1,9 +1,9 @@
-import {parse,mod} from './music.js?v=morph-1';
+import {parse,mod} from './music.js?v=1.0.3';
 
 export function voicingCandidates(symbol,voicing='close'){
  const c=parse(symbol);if(!c)return [];
  let ints=[...c.intervals];
- // Bass supplies the root; extensions need space above the guide tones.
+ // Bass supplies the root; inner extensions are allowed. Protect register and #9 below.
  if(ints.some(n=>n>=13)||voicing==='rootless'&&ints.length>=4)ints=ints.filter(n=>n!==0);
  if(ints.includes(21)&&ints.includes(4))ints=ints.filter(n=>n!==17);
  if(ints.length>5)ints=ints.filter(n=>n!==7);

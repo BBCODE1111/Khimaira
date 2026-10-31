@@ -1,19 +1,19 @@
-import {editBackbone} from './chord-input.js?v=genre-2';
-import {parseChart,chordList,serialize} from './solutions.js?v=morph-1';
-import {parse} from './music.js?v=morph-1';
-import {normalizeKey,parseDegreeChart,chartToDegrees,materializeChart,sameDegrees,formatDegreeChart,degreeLabels} from './degree-chart.js?v=morph-1';
-import {detectKey} from './key-detection.js?v=morph-1';
-import {mutate,styles} from './style-engine.js?v=morph-1';
-import {styleTonality} from './backbone-mutation.js?v=morph-1';
-import {examplesForKey,nextKeyedExample} from './keyed-examples.js?v=morph-1';
+import {editBackbone} from './chord-input.js?v=1.0.3';
+import {parseChart,chordList,serialize} from './solutions.js?v=1.0.3';
+import {parse} from './music.js?v=1.0.3';
+import {normalizeKey,parseDegreeChart,chartToDegrees,materializeChart,sameDegrees,formatDegreeChart,degreeLabels} from './degree-chart.js?v=1.0.3';
+import {detectKey} from './key-detection.js?v=1.0.3';
+import {mutate,styles} from './style-engine.js?v=1.0.3';
+import {styleTonality,modalConflict} from './backbone-mutation.js?v=1.0.3';
+import {examplesForKey,nextKeyedExample} from './keyed-examples.js?v=1.0.3';
 
-import {convertDegreeMode} from './mode-conversion.js?v=morph-1';
+import {convertDegreeMode} from './mode-conversion.js?v=1.0.3';
 
 export const HARMONY_SCHEMA=1;
 const copy=x=>structuredClone(x);
 const keyEqual=(a,b)=>a.root===b.root&&a.mode===b.mode;
 const symbols=(degrees,key)=>serialize(materializeChart(degrees,key));
-const namedInput=text=>text.split(/\||\s+|,(?![^()]*\))/).filter(Boolean).every(t=>parse(t.split(':')[0]));
+const namedInput=text=>text.split(/\||\s+|,(?![^()]*\))/).filter(Boolean).every(t=>parse(t.split(':')[0])||/^(?:NC|N\.C\.)$/i.test(t));
 const snapshot=s=>{const out=copy(s);delete out.history;return out;};
 const tonalMode=mode=>mode==='major'||mode==='minor';
 // LOCK freezes the underlying tonal key; modal colour belongs to the style.
@@ -66,7 +66,7 @@ export function applyHarmonyAction(current,action){
  }
  let s=copy(current);s.warning=null;
  switch(action.type){
-  case 'load':s=loadInput(s,action.text);break;
+  case 'load':if(!action.text.trim())throw Error('請先輸入和弦，例如 C | Am | F | G；休止請用 N.C.。');s=loadInput(s,action.text);break;
   case 'backboneEdit':{
    const actual=editBackbone(materializeChart(s.backbone.degrees,s.key),action,effectiveKey(s));
    s=loadInput(s,serialize(actual),{editing:true});break;
@@ -135,7 +135,9 @@ export function applyHarmonyAction(current,action){
     const pool=examplesForKey(s.style,effectiveKey(s)),p=pool[(Number(options.seed??s.variation+1))%Math.max(1,pool.length)];
     basis=p?parseChart(p.chart):materializeChart(parseDegreeChart(s.key.mode==='minor'?'i | bVI | iv | V7':'I | vi | IV | V7',s.key),s.key);
    }
-   const expanded=Array.from({length:requestedLength},(_,i)=>copy(basis[i%basis.length]||{chords:[]}));
+   const expanded=Array.from({length:filled?source.length:requestedLength},(_,i)=>copy(basis[i%basis.length]||{chords:[]}));
+   const conflict=modalConflict(expanded,s.style,styles[s.style],effectiveKey(s));
+   if(conflict){s.warning={type:'modal-incompatible',...conflict};break;}
    const previous=symbols(s.score,s.key);let candidate,seed=Number(options.seed??s.variation+1);
    if(!Number.isSafeInteger(seed)||seed<0)throw Error('Invalid variation seed');
    for(let attempt=0;attempt<=8;attempt++,seed++){
@@ -144,7 +146,8 @@ export function applyHarmonyAction(current,action){
     if(serialize(candidate)!==previous)break;
    }
    s.variation=seed;s.score=chartToDegrees(candidate,s.key);s.origin={type:!filled?'idea':'morph',variation:seed,level:options.randomness||'medium'};
-   if(symbols(s.score,s.key)===previous)s.warning={type:'variation-exhausted',attempts:9};
+   if(filled&&requestedLength!==source.length)s.warning={type:'length-preserved',length:source.length,requested:requestedLength};
+   else if(symbols(s.score,s.key)===previous)s.warning={type:'variation-exhausted',attempts:9};
    break;
   }
   default:throw Error('Unknown harmony action: '+action.type);

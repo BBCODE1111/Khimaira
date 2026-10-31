@@ -86,7 +86,7 @@ function decodeTracks(bytes){
  while(p<bytes.length){assert.equal(new TextDecoder().decode(bytes.slice(p,p+4)),'MTrk');const size=new DataView(bytes.buffer,bytes.byteOffset+p+4,4).getUint32(0);p+=8;const end=p+size;let tick=0;const notes=[],active=new Map();let name='';
   while(p<end){let d=0,b;do{b=bytes[p++];d=(d<<7)|(b&127);}while(b&128);tick+=d;const status=bytes[p++];
    if(status===255){const type=bytes[p++],len=bytes[p++];if(type===3)name=new TextDecoder().decode(bytes.slice(p,p+len));p+=len;continue;}
-   if(status===0xc0){p++;continue;}const note=bytes[p++],velocity=bytes[p++];if(status===0x90){assert.ok(!active.has(note));active.set(note,{note,velocity,start:tick});}else {assert.equal(status,0x80);assert.ok(active.has(note));const n=active.get(note);assert.ok(tick>n.start);notes.push({...n,end:tick});active.delete(note);}
+   if((status&0xf0)===0xc0){p++;continue;}const note=bytes[p++],velocity=bytes[p++];if((status&0xf0)===0x90){assert.ok(!active.has(note));active.set(note,{note,velocity,start:tick});}else {assert.equal(status&0xf0,0x80);assert.ok(active.has(note));const n=active.get(note);assert.ok(tick>n.start);notes.push({...n,end:tick});active.delete(note);}
   }assert.equal(active.size,0);tracks.push({name,notes,tick});
  }return tracks;
 }

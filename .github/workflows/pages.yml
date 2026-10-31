@@ -20,8 +20,14 @@ jobs:
       pages: read
     steps:
       - uses: actions/checkout@v6
-      - name: Verify harmony and playback
-        run: node --test tests/*.test.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Verify website before deployment
+        run: npm run verify:web
       - uses: actions/configure-pages@v5
       - name: Upload website only
         uses: actions/upload-pages-artifact@v4

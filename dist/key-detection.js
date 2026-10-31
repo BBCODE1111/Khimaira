@@ -1,5 +1,5 @@
-import {analyzeHarmony,mod,parse} from './music.js?v=morph-1';
-import {normalizeKey} from './degree-chart.js?v=morph-1';
+import {analyzeHarmony,mod,parse} from './music.js?v=1.0.3';
+import {normalizeKey} from './degree-chart.js?v=1.0.3';
 
 // Krumhansl–Kessler pitch-class profiles (Krumhansl 1990). Published numeric
 // research data; Pearson correlation implemented here, no third-party code.
@@ -44,5 +44,10 @@ export function detectKey(bars,{loop=true,sections}={}){
  if(ranked[0].unexplainedRatio>.35){const i=ranked.findIndex(k=>k.unexplainedRatio<=.2&&ranked[0].score-k.score<.12);if(i>0)ranked.unshift(...ranked.splice(i,1));}
  const best=ranked[0],relative=k=>k.mode!==best.mode&&k.root===mod(best.root+(best.mode==='major'?9:3));
  const candidates=ranked.filter(k=>best.score-k.score<=(relative(k)?.12:.085)).sort((a,b)=>a===best?-1:b===best?1:Number(relative(b))-Number(relative(a))||b.score-a.score).slice(0,3);
+ // IV–V has an implied tonic, not an observed arrival; retain the bVII–I reading.
+ if(best.analysis.events.some(c=>c.impliedTonic?.strength==='IV-V')){
+  const alternative=ranked.find(k=>k.root===mod(best.root+7)&&k.mode==='major');
+  if(alternative&&!candidates.includes(alternative)){if(candidates.length>=3)candidates.pop();candidates.push(alternative);}
+ }
  return {primary:best,candidates,ambiguous:candidates.length>1,ranked,analysis:best.analysis};
 }

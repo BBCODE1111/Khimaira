@@ -1,9 +1,9 @@
 /**
- * Shared music theory 1.1.2. Canonical source; generated deployment copies are
+ * Shared music theory 1.1.3. Canonical source; generated deployment copies are
  * checked by scripts/sync-music-core.mjs. No UI, playback or generation imports.
  * Profiles preserve the two apps' existing contracts, including known differences.
  */
-export const MUSIC_CORE_VERSION = '1.1.2';
+export const MUSIC_CORE_VERSION = '1.1.3';
 export const names=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
 export const mod=n=>((n%12)+12)%12;
 const pc=s=>mod(({C:0,D:2,E:4,F:5,G:7,A:9,B:11})[s[0]]+[...s.slice(1)].reduce((n,a)=>n+(a==='#'?1:a==='b'?-1:0),0));
@@ -11,6 +11,7 @@ const qualities={'maj7#11':[0,4,7,11,18],'maj9#11':[0,4,7,11,14,18],'6/9':[0,4,7
 Object.assign(qualities,{'11':[0,4,7,10,14,17],maj11:[0,4,7,11,14,17],maj13:[0,4,7,11,14,21],m13:[0,3,7,10,14,17,21],madd9:[0,3,7,14],'9sus4':[0,5,7,10,14]});
 function intervalsFor(q, seirenCompatibility) {
   if (seirenCompatibility && q === '7b5') return null;
+  if (!seirenCompatibility && q === '7sus2') return [0,2,7,10];
   if (qualities[q]) return qualities[q];
   const match = q.match(/^([^()]+|)\(([^()]+)\)$/);
   if (!match || !qualities[match[1]] || (seirenCompatibility && match[1] === '7b5')) return null;
@@ -44,6 +45,8 @@ export function createTheory(profile) {
       .replace(/^min/,'m').replace(/^Δ/,'maj').replace(/^ø7?$/,'m7b5').replace(/^°7$/,'dim7');
     if (!seirenCompatibility) {
       q = q.replace(/^°$/,'dim').replace(/^\+$/,'aug').replace(/^sus$/,'sus4')
+        .replace(/^(?:7#5|aug7|\+7)$/,'7(#5)').replace(/^mM7$/,'mMaj7')
+        .replace(/^o7$/,'dim7').replace(/^9#11$/,'9(#11)').replace(/^7sus$/,'7sus4').replace(/^\(add9\)$/,'add9')
         .replace(/^-/,'m').replace(/^m\(maj7\)$/,'mMaj7').replace(/^(2|add2)$/,'add9').replace(/^maj$/,'');
     }
     const intervals = intervalsFor(q, seirenCompatibility);

@@ -14,9 +14,15 @@ function checkAnchors(source,out,density){
   for(const original of bar.chords){
    let time=0;const anchor=out[i].chords.find(c=>{const found=Math.abs(at-time)<1e-8;time+=c.beats;return found;});
    assert.ok(anchor,original.symbol+' at '+at);const a=parse(original.symbol),b=parse(anchor.symbol);
-   assert.equal(b.root,a.root);assert.equal(b.bass,a.bass);assert.ok(anchor.beats>=original.beats*.75);
-   if(a.bassName)assert.equal(b.bassName,a.bassName);
-   for(const seventh of [10,11])if(a.intervals.includes(seventh))assert.ok(b.intervals.includes(seventh));
+   if(!anchor.morph){assert.equal(anchor.symbol,original.symbol);at+=original.beats;continue;}
+   assert.deepEqual(anchor.morph.source,{bar:i,chord:bar.chords.indexOf(original),onset:at});
+   assert.ok(anchor.beats>0);
+   if(['color','retained-target'].includes(anchor.morph.technique)){
+    assert.equal(b.root,a.root);assert.equal(b.bass,a.bass);
+    for(const seventh of [10,11])if(a.intervals.includes(seventh))assert.ok(b.intervals.includes(seventh));
+   }else if(anchor.morph.technique==='inversion'){
+    assert.equal(b.root,a.root);assert.ok(b.pcs.includes(b.bass));
+   }else assert.ok(['parallel','ii-V'].includes(anchor.morph.technique));
    at+=original.beats;
   }
  });
@@ -54,14 +60,14 @@ test('approaches resolve to the actual next anchor; minor iiø–V, subV #11, lo
  const pair=mutate(source,{style:'Jazz',tonality:{root:2,mode:'major'},method:'cadence',randomness:'high',density:3,loop:false});
  assert.deepEqual(pair[0].chords.slice(1).map(c=>c.symbol),['G#m7b5','C#7b9']);assert.equal(pair.at(-1).chords.length,1);
  const sub=mutate(source,{style:'Jazz',tonality:{root:2,mode:'major'},method:'tritone',randomness:'high',density:2,loop:true});
- sub.forEach((b,i)=>{const c=parse(b.chords.at(-1).symbol),target=parse(source[(i+1)%4].chords[0].symbol);assert.equal(mod(c.root-target.root),1);assert.ok(c.intervals.includes(10));assert.match(c.q,/#11/);});
+ sub.filter(b=>b.chords.length>1).forEach(b=>{const i=sub.indexOf(b),c=parse(b.chords.at(-1).symbol),target=parse(source[(i+1)%4].chords[0].symbol);assert.equal(mod(c.root-target.root),1);assert.ok(c.intervals.includes(10));assert.match(c.q,/#11/);});
  const rest=parseChart('C | | F:1 G:1 Am:1 Bdim:1 | C/G | Dm7 | G7 | C');
  for(const density of [1,2,3])for(const method of ['style','color','cadence','tritone']){
   const out=mutate(rest,{style:'Jazz',tonality:{root:0,mode:'major'},randomness:'high',density,method,loop:false});checkAnchors(rest,out,density);
   assert.equal(out[0].chords.length,1);assert.equal(out[1].chords.length,0);assert.equal(out[5].chords.length,1);assert.equal(out[6].chords.length,1);
  }
 });
-test('all styles and methods preserve authored multi-chord anchors, altered chords, inversions and pedals',()=>{
+test('all styles and methods preserve authored positions and traceable multi-chord mappings',()=>{
  const source=parseChart('Fmaj7/A:2 Em7/G:2 | Dm7/F:1.5 G7/B:2.5 | C/E | A7b9/C# | Dm7b5/Ab | G7#11/F | C/G | | C/E:1 G/B:1 Am/C:1 F/A:1');
  for(const style of Object.keys(styles))for(const method of ['style','color','cadence','tritone'])for(const density of [1,2,3])for(let seed=0;seed<4;seed++){
   const out=mutate(source,{style,method,density,seed,randomness:'high',tonality:{root:0,mode:'major'}});checkAnchors(source,out,density);

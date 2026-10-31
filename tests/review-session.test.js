@@ -76,7 +76,7 @@ test('valid v3/v4/v5 sessions migrate without quarantine and preserve performanc
 });
 test('editing a MORPH passing chord changes only that slot; RESTORE and UNDO retain both versions',()=>{
  const original=createHarmony();
- const morphed=act(original,{type:'generate',options:{randomness:'high',density:3,seed:1}});
+ const morphed=act(original,{type:'generate',options:{randomness:'high',density:3,seed:1,method:'cadence'}});
  const bars=harmonyView(morphed).bars;
  assert.ok(bars[0].chords.length>1);
  const expected=structuredClone(bars);expected[0].chords[1].symbol='Em';

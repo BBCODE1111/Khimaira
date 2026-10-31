@@ -10,7 +10,8 @@ const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json
 const read=page=>page.evaluate(()=>JSON.parse(localStorage.getItem('khimaira-v5')));
 
 (async()=>{
- const output=await fs.mkdtemp(path.join(os.tmpdir(),'khimaira-session-'));
+ const output=process.env.KHIMAIRA_BROWSER_OUTPUT?path.join(process.env.KHIMAIRA_BROWSER_OUTPUT,'session'):await fs.mkdtemp(path.join(os.tmpdir(),'khimaira-session-'));
+ await fs.mkdir(output,{recursive:true});
  const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url,'http://localhost');
   const file=path.resolve(root,'.'+(url.pathname==='/'?'/index.html':decodeURIComponent(url.pathname)));
@@ -18,7 +19,7 @@ const read=page=>page.evaluate(()=>JSON.parse(localStorage.getItem('khimaira-v5'
   try{const data=await fs.readFile(file);res.writeHead(200,{'Content-Type':mime[path.extname(file)]||'application/octet-stream'});res.end(data);}
   catch{res.writeHead(404).end();}
  });
- await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+ await new Promise(resolve=>{server.listen(0,'127.0.0.1',resolve);});
  let browser;
  const errors=[];
  try{
@@ -64,7 +65,7 @@ const read=page=>page.evaluate(()=>JSON.parse(localStorage.getItem('khimaira-v5'
   assert.equal(await blocked.evaluate(()=>localStorage.getItem('khimaira-v5')),'{unbacked');
   await blocked.close();
   await page.evaluate(()=>localStorage.clear());await page.reload();await page.locator('.chord-event').first().waitFor();
-  await page.selectOption('#randomness','high');await page.click('#generate');
+  await page.selectOption('#randomness','high');await page.locator('#harmonyOptions summary').click();await page.locator('[data-solution="cadence"]').click();
   const morphed=(await read(page)).harmony;
   assert.ok(morphed.score[0].chords.length>1);
   await page.locator('.chord-event[data-bar="0"][data-chord="1"]').click();
@@ -94,6 +95,6 @@ const read=page=>page.evaluate(()=>JSON.parse(localStorage.getItem('khimaira-v5'
   assert.deepEqual(errors,[]);
   console.log(`PASS: 3 modal paths, 4 corrupt saves, quota protection, passing-chord edit/UNDO/RESTORE, explicit backbone edit, mobile editor. Artifacts: ${output}`);
  }finally{
-  await browser?.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));
+  await browser?.close();server.closeAllConnections();await new Promise(resolve=>{server.close(resolve);});
  }
 })().catch(error=>{console.error(error);process.exitCode=1;});

@@ -1,10 +1,10 @@
-import {examplePool,nextExample} from './example-pool.js?v=morph-1';
-import {styles} from './style-engine.js?v=morph-1';
-import {parseChart,serialize} from './solutions.js?v=morph-1';
-import {parse} from './music.js?v=morph-1';
-import {normalizeKey,chartToDegrees,materializeChart} from './degree-chart.js?v=morph-1';
-import {styleTonality} from './backbone-mutation.js?v=morph-1';
-import {detectKey} from './key-detection.js?v=morph-1';
+import {examplePool,nextExample} from './example-pool.js?v=1.0.3';
+import {styles} from './style-engine.js?v=1.0.3';
+import {parseChart,serialize} from './solutions.js?v=1.0.3';
+import {parse} from './music.js?v=1.0.3';
+import {normalizeKey,chartToDegrees,materializeChart} from './degree-chart.js?v=1.0.3';
+import {styleTonality} from './backbone-mutation.js?v=1.0.3';
+import {detectKey} from './key-detection.js?v=1.0.3';
 
 export function exampleTonality(example){
  const cfg=styles[example.style]||{},key=normalizeKey({root:example.key||0,mode:example.mode==='minor'?'minor':'major'});

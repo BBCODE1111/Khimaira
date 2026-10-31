@@ -15,4 +15,4 @@
 
 - 修改任何演奏方式（performance.js、piano-patterns、arpeggiator）前必讀 docs/genre-rhythm-theory.md。2026-10-28 使用者要求：小節格線錯誤修正適用所有存檔；舊存檔保留音型名稱與參數，新樂風模板只在新選取音型時啟用；ARP 相位與自動化契約保留。
 
-- 2026-10-28 MORPH 契約：範例 LOAD 依目前 KEY 載入並設為新骨幹，可 UNDO。MORPH 保留每個原和弦的起音位置、根音與指定低音，只上色／在尾端加入解決到下一個實際目標的經過和弦；不得呼叫重作進行或減密度刪掉原和弦。屬功能取自共用 analyzeHarmony，禁止把 V／次屬染成 maj7。INSPIRE 是預覽，KEEP 才採用，RESTORE 回目前骨幹。驗收見 docs/morph-backbone/README.md。
+- 2026-10-31 使用者批准的 MORPH 新契約（取代 10/28 根音／低音不變限制）：MORPH 改整組，個別走 EDIT、INVERT、COLOR、ii–V → NEXT。保留小節數、骨幹順序及起拍；允許轉位、同級平行大小調互換（含 Am→Ab、Em→Eb 等根音改變）、導向下一骨幹目標的 ii–V 替換。每個輸出須帶骨幹來源位置，接近／替換須帶實際解決目標；至少保留骨幹的解決目標。幅度控制手法數量，地域調式不得新增音集外音。GENERATE 不移調；有骨幹時不依長度選單截斷或重複。LOAD 依 KEY 設為可 UNDO 新骨幹；INSPIRE 預覽、KEEP 採用、RESTORE 回骨幹。屬功能仍取共用 analyzeHarmony，不把 V／次屬染成 maj7。詳見 docs/morph-backbone/README.md 與 docs/reviews/CONFIRMED-THEORY.md。

@@ -1,1 +1,7 @@
-{"product":"KHIMAIRA Web","version":"1.0.2","channel":"stable","date":"2026-10-27","tag":"web-v1.0.2"}
+{
+  "product": "KHIMAIRA Web",
+  "version": "1.0.3",
+  "channel": "release-candidate",
+  "date": "2026-10-31",
+  "tag": "web-v1.0.3"
+}

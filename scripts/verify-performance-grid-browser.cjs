@@ -17,7 +17,7 @@ async function serve(root){
     if(!file.startsWith(root+path.sep)){res.writeHead(403).end();return;}
     fs.readFile(file,(error,data)=>{if(error){res.writeHead(404).end();return;}res.writeHead(200,{'Content-Type':mime[path.extname(file)]||'application/octet-stream'});res.end(data);});
   });
-  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+  await new Promise(resolve=>{server.listen(0,'127.0.0.1',resolve);});
   return {server,url:`http://127.0.0.1:${server.address().port}/`};
 }
 async function download(page,selector,name){
@@ -74,5 +74,5 @@ async function download(page,selector,name){
    await page.screenshot({path:path.join(output,`split-grid-${width}-full.png`),fullPage:true});
   }
   assert.deepEqual(errors,[]);fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({report,errors},null,2));console.log(JSON.stringify(report,null,2));
- }finally{await browser?.close();site.server.closeAllConnections();await new Promise(resolve=>site.server.close(resolve));}
+ }finally{await browser?.close();site.server.closeAllConnections();await new Promise(resolve=>{site.server.close(resolve);});}
 })().catch(e=>{console.error(e);process.exitCode=1;});

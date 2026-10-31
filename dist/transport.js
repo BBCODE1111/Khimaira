@@ -8,5 +8,5 @@ export function playbackSlice(notes,startBar,totalBars){
 }
 export function spaceToggles(event){
  const target=event.target;
- return event.code==='Space'&&!event.repeat&&!event.altKey&&!event.ctrlKey&&!event.metaKey&&!event.shiftKey&&!target?.closest?.('input,textarea,select,a,summary,[contenteditable],dialog');
+ return event.code==='Space'&&!event.repeat&&!event.altKey&&!event.ctrlKey&&!event.metaKey&&!event.shiftKey&&!target?.closest?.('button,[role="button"],input,textarea,select,a,summary,[contenteditable],dialog');
 }

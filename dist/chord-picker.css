@@ -2,3 +2,26 @@
 @media(max-width:600px){.chord-picker{position:fixed;z-index:1000;left:0;right:0;bottom:0;margin:0;border-radius:16px 16px 0 0;padding:16px 16px max(18px,env(safe-area-inset-bottom));max-height:72dvh;overflow-y:auto;box-shadow:0 -15px 50px #0009}.picker-choices{grid-template-columns:repeat(3,minmax(0,1fr))}.picker-heading{position:sticky;top:-16px;background:#102b3b;padding:8px 0;z-index:1}.picker-actions button{flex:1}.quick-progressions button{flex:1}}
 #chordPicker button{text-transform:none!important;font-family:'DM Sans',sans-serif!important;letter-spacing:.2px!important;font-size:13px}body:has(#chordPicker:not([hidden])) #status{visibility:hidden}
 @media(max-width:600px){.picker-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}.picker-actions button{padding:10px 8px}.picker-actions select{width:100%;min-width:0}.picker-halves button{min-width:100px}}
+.root-picker{display:grid;grid-template-columns:repeat(6,minmax(44px,1fr));gap:6px;margin:12px 0}.root-picker button{min-width:44px;min-height:44px;padding:6px;font:16px 'DM Sans',sans-serif!important;text-transform:none!important;letter-spacing:0!important}.root-picker [aria-pressed=true]{background:#b89c6b;color:#102331}
+#quickProgressions button,.degree{font-family:'DM Sans',sans-serif!important;text-transform:none!important}
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+button,select,summary{min-width:44px;min-height:44px}
+.score-hint,.workflow span,.studio-heading span,.bar-number span{font-size:11px!important}
+@media(max-width:600px){
+ #grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;gap:8px;min-width:0;width:100%}
+ #grid .bar{min-width:0!important;width:100%;box-sizing:border-box;touch-action:pan-y;padding:8px}
+ #grid .chord-lane{display:flex;flex-wrap:wrap;height:auto;min-height:90px;gap:2px}
+ #grid .chord-event{min-width:44px;min-height:64px;flex-grow:1;max-width:100%;overflow-wrap:anywhere}
+ #grid .chord-event strong{font-size:clamp(12px,4vw,18px);white-space:normal}
+ #grid .degree{font-size:11px;white-space:normal;overflow-wrap:anywhere}
+ .key-controls{flex-wrap:wrap;max-width:100%}.key-controls button,.score-actions button{min-width:44px!important;min-height:44px!important}
+ #status{position:static!important;transform:none!important;width:auto!important;max-width:100%;margin:12px 0;box-sizing:border-box}
+ #status:empty{display:none}.editor-fields{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #chordEditor{width:calc(100% - 24px);max-width:100%;box-sizing:border-box;padding:12px}
+}
+@media(max-width:600px){
+ body button,body select,body summary{min-height:44px!important;min-width:44px!important}
+ .score{position:relative!important;top:auto!important}
+ .sectionhead{flex-wrap:wrap}.score-actions{flex-wrap:wrap}
+ .root-picker button{background-image:none!important}
+}

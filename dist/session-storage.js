@@ -1,6 +1,6 @@
-import {createHarmony,migrateHarmony,harmonyView,HARMONY_SCHEMA} from './harmony-state.js?v=morph-1';
-import {materializeChart} from './degree-chart.js?v=morph-1';
-import {styles} from './style-engine.js?v=morph-1';
+import {createHarmony,migrateHarmony,harmonyView,HARMONY_SCHEMA} from './harmony-state.js?v=1.0.3';
+import {materializeChart} from './degree-chart.js?v=1.0.3';
+import {styles} from './style-engine.js?v=1.0.3';
 
 const keys=['khimaira-v5','khimaira-v4','khimaira-v3','chord-advisor-v2','chord-advisor-v1'];
 const object=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);

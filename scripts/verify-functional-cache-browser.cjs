@@ -17,7 +17,7 @@ async function serve(root){
     if(!file.startsWith(root+path.sep)){res.writeHead(403).end();return;}
     fs.readFile(file,(error,data)=>{if(error){res.writeHead(404).end();return;}res.writeHead(200,{'Content-Type':mime[path.extname(file)]||'application/octet-stream','Cache-Control':file.endsWith('.js')?'public, max-age=3600':'no-store'});res.end(data);});
   });
-  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+  await new Promise(resolve=>{server.listen(0,'127.0.0.1',resolve);});
   return {server,url:`http://127.0.0.1:${server.address().port}/`,setRoot:next=>root=next};
 }
 async function download(page,selector,name){
@@ -38,5 +38,5 @@ async function download(page,selector,name){
   assert.equal(await page.locator('#keyLabel').textContent(),'D minor');assert.deepEqual(await page.locator('.chord-event strong').allTextContents(),originalChords);
   for(const [text,key] of [['Dm | G | C | A7','C major'],['C | E7 | Am | D7 | G7 | C','C major'],['F#m7 | B7 | Emaj7 | C#7','E major']])assert.equal(await load(text),key);
   assert.deepEqual(errors,[]);const result={oldErrorReproduced:true,upgradedSameOriginWithOneHourJSCaching:true,savedKeyAndPitchesPreservedUntilExplicitLoad:true,newKeysCorrect:true,errors};fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(result,null,2));console.log(result);
- }finally{await browser?.close();site.server.closeAllConnections();await new Promise(resolve=>site.server.close(resolve));}
+ }finally{await browser?.close();site.server.closeAllConnections();await new Promise(resolve=>{site.server.close(resolve);});}
 })().catch(e=>{console.error(e);process.exitCode=1;});
