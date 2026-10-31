@@ -60,7 +60,7 @@ test('R02-13 semitone major-seventh vamp has lower-root major candidate in every
 });
 test('R02-11/12 current documentation, version and deployment assets agree',()=>{
  const read=file=>readFileSync(new URL('../'+file,import.meta.url),'utf8'),doc=read('README.md'),version=JSON.parse(read('dist/version.json'));
- assert.equal(version.version,'1.0.4');assert.equal(version.tag,'web-v1.0.4');assert.match(doc,/49 種樂風/);assert.doesNotMatch(doc,/48 種樂風|無 tempo 事件/);assert.match(doc,/歷史紀錄/);
+ assert.equal(version.version,'1.0.5');assert.equal(version.tag,'web-v1.0.5');assert.match(doc,/49 種樂風/);assert.doesNotMatch(doc,/48 種樂風|無 tempo 事件/);assert.match(doc,/歷史紀錄/);
  for(const file of ['khimaira.webp','mark.svg'])assert.equal(existsSync(new URL('../dist/'+file,import.meta.url)),false);
 });
 

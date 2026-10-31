@@ -8,7 +8,7 @@ KHIMAIRA 是給作曲、編曲與吉他手的和聲探索工具。輸入一條�
 
 ![KHIMAIRA](docs/screenshots/odyssey-desktop.png)
 
-本輪待發布網站：**1.0.4**（預定 tag `web-v1.0.4`；尚未建立 tag 或部署）。版本與資產 query 由 `dist/version.json` 驅動，執行 `npm run assets:sync` 同步、`assets:check` 驗證；共用模組 query 使用 canonical package 版本。
+本輪網站：**1.0.5 候選版**（`web-v1.0.5`）。手機譜面與討論交接見 [本輪紀錄](docs/reviews/MOBILE-FOLLOW-20261031.md)。版本與資產 query 由 `dist/version.json` 驅動，執行 `npm run assets:sync` 同步、`assets:check` 驗證；共用模組 query 使用 canonical package 版本。
 
 前一版網頁穩定基準：**1.0.2**（`web-v1.0.2`，2026-10-27）。[修正與驗證紀錄](docs/stable-20261027/REPORT.md)。原生外掛另行開發與驗證。
 
@@ -185,15 +185,22 @@ GitHub Pages 發布 `dist/` 的靜態網站。推送至 `main` 時，GitHub Acti
 
 先 `npm ci`，再 `npx playwright install chromium`（Linux CI 使用 `--with-deps`）。一條指令 `npm run verify:web` 依序檢查共用來源、資產 query、ESLint 正確性規則、全部 Node 測試與瀏覽器流程；任一失敗退出非零並阻擋 Pages artifact／部署。`package-lock.json` 已產生，CI 使用 npm ci。
 
-瀏覽器只測網站，輸出到系統暫存目錄，不需要 Seiren 或歷史 release checkout。可單跑 `npm run test:browser`；Chrome 改用 `CHROME_CHANNEL=chrome`。`node scripts/verify-morph-browser.cjs --output /tmp/khimaira-morph` 可指定輸出，`--seiren /path/to/Seiren` 另加跨產品 smoke；這兩個參數獨立，輸出不能放在 checkout。本輪依使用者要求未啟動瀏覽器，腳本準備不等於流程通過。
+瀏覽器只測網站，輸出到系統暫存目錄，不需要 Seiren 或歷史 release checkout。可單跑 `npm run test:browser`；Chrome 改用 `CHROME_CHANNEL=chrome`。`node scripts/verify-morph-browser.cjs --output /tmp/khimaira-morph` 可指定輸出，`--seiren /path/to/Seiren` 另加跨產品 smoke；這兩個參數獨立，輸出不能放在 checkout。先前 R01/R02 的未驗證註記保留在各輪紀錄；最新實跑結果見本輪紀錄。
 
 MORPH 新契約與教材立場見 [已確認清單](docs/reviews/CONFIRMED-THEORY.md)。MIDI 分軌固定 Bass ch3、Chords ch2，CC64 開關不改聲道；合併預設維持 ch1。`generate`／`solve` 舊公開 API 仍供既有相容與測試使用，這輪不以「死碼清理」移除輸出契約，也不改 plugin。
 
 
-## 第 2 輪網站 1.0.4
+## 第 2 輪網站 1.0.4（歷史紀錄）
 
 MORPH 保留小節、骨幹順序與起拍，允許轉位、同級平行大小調互換（含根音變動）與指向下一骨幹的 ii–V；原有屬功能鏈及其解決目標受保護。和弦格顯示來源、手法及目標，單格還原會回復該來源的全部時值。進階和聲可獨立關閉三種手法；預設保留低音線時不新增轉位／ii–V，平行互換仍按低音音位對應。
 
 最近六次 MORPH 可選擇比較，A 為骨幹、B 為選定結果，按 PLAY 試聽，KEEP 採用並重建骨幹。LOAD／KEEP／改判或大小調轉換會清除不再適用的比較記錄；UNDO 可復原。手機固定列包含 MORPH、目前整組和弦與結果訊息，長譜可在摘要內捲動。
 
 1.0.4 的 `web-v1.0.4` 是預定標籤，尚未提交、建 tag 或部署；主持人需在發布 commit 建立標籤並驗證部署 SHA。既有 1.0.3 遠端缺 tag 的補建亦由主持人在 sandbox 外處理，本輪不操作 `.git`。未使用的 `khimaira.webp`、`mark.svg` 已移出部署資產。
+
+
+## 1.0.5 手機讀譜與操作
+
+手機恢復頂部精簡和弦譜：左右滑動，播放時標示當前小節與和弦並水平跟隨；手動橫滑暫停跟隨，按「回到播放」恢復。頁面本身不會被播放拉動。底部保留 MORPH、PLAY、STOP、LOOP、MIDI 與 KEY，移除重複的整組文字摘要。
+
+「和弦工具」可展開最近六次 MORPH、A/B、KEEP 與複製。手機點和弦可看來源、手法、目標並還原該來源；原和聲、生成、存檔與 MIDI 規則不變。一般區塊底色透明度提高，置頂譜面與底部列維持較深的模糊底色及可讀對比；減少透明效果偏好使用實色。

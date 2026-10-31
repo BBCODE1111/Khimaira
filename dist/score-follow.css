@@ -1,0 +1,55 @@
+/* 2026-10-31: readable glass panels, compact score and user-controlled following. */
+:root{--panel:#0b1c2da6;--glass:#071927d9}
+.panel:not(.score){background:var(--panel);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.score-shell{position:sticky;top:0;z-index:850}
+.score-shell .score{position:relative;top:auto}
+.score{background:var(--glass)}
+.score-shell>.transport{background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.score-tools{padding:10px 16px;margin-top:12px}
+.score-tools>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font:13px 'DM Sans',sans-serif;color:#d5dfdf}
+.score-tools>summary::before{content:'＋';margin-right:8px}
+.score-tools[open]>summary::before{content:'−'}
+.score-tools .morph-history,.score-tools .chart-tools{padding-inline:0}
+.sectionhead #scoreFollow{margin-left:auto;font:12px 'DM Sans',sans-serif;letter-spacing:0;padding:8px}
+.chord-event,.chord-event strong,.chord-event .degree{transition:none}
+.bar.playing{box-shadow:inset 0 0 0 2px #dfc48f;background:#35516b66}
+.chord-event.sounding strong,.chord-event.sounding .degree{color:#122335!important}
+.chord-event.sounding{background:#e5d4b1;color:#122335;box-shadow:inset 0 0 0 2px #f6e6c5}
+#editorProvenance{padding:10px 12px;margin-bottom:12px;border:1px solid #a18a6680;background:#0b1c2d80}
+#editorTrace{font:13px/1.6 'DM Sans',sans-serif;margin:0 0 8px;color:#edf2f6}
+#editorRestoreSource{font:12px 'DM Sans',sans-serif;letter-spacing:0}
+@media(max-width:600px){
+ html{scroll-padding-top:184px;scroll-padding-bottom:180px}
+ main{padding-bottom:calc(180px + env(safe-area-inset-bottom))}
+ .score-shell{display:contents}
+ /* The fixed transport is a sibling, so score blur cannot trap it on Safari. */
+ .score{position:sticky!important;top:0!important;z-index:850;background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+ .score .sectionhead{padding:6px 8px 0;flex-wrap:nowrap;gap:6px}
+ .score .sectionhead h2,.score .score-hint{display:none}
+ .sectionhead #scoreFollow{margin:0 auto 0 0;white-space:nowrap;min-width:88px;font-size:12px}
+ .score-actions{flex-wrap:nowrap;gap:4px;margin:0}
+ .score-actions button:not(.chord-event){padding:6px!important;font-size:10px!important;min-width:44px}
+ #grid{display:flex!important;grid-template-columns:none;overflow-x:auto;overflow-y:hidden;gap:0;width:100%;box-sizing:border-box;padding:4px 8px 10px;touch-action:pan-x pan-y;overscroll-behavior-x:contain}
+ #grid .bar{flex:0 0 46%;width:auto;min-width:max(160px,var(--bar-min-width,160px))!important;padding:0 6px;touch-action:pan-x pan-y}
+ #grid .bar:has(.chord-event:nth-child(2)){min-width:max(250px,var(--bar-min-width,160px))!important}
+ #grid .bar:has(.chord-event:nth-child(3)){min-width:max(340px,var(--bar-min-width,160px))!important}
+ #grid .bar:has(.chord-event:nth-child(4)){min-width:max(430px,var(--bar-min-width,160px))!important}
+ #grid .bar-number{height:44px}
+ #grid .chord-lane{flex-wrap:nowrap;height:58px;min-height:58px;gap:0}
+ #grid .chord-event{flex-shrink:0;flex-grow:0;min-width:44px;min-height:58px;height:58px;box-sizing:border-box;padding:4px}
+ #grid .chord-event strong{font-size:clamp(12px,4.2vw,18px);line-height:1.15}
+ #grid .degree{font-size:11px;line-height:1.1;margin-top:3px}
+ #grid .morph-trace,#grid .morph-restores{display:none}
+ .transport{background:#0b2032dc;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding-top:6px;gap:4px}
+ .transport #dockSummary{display:none}
+ .transport #dockStatus{grid-row:1;max-height:36px;line-height:18px;font-size:12px}
+ .transport .key-controls{grid-row:2}
+ .transport>button{grid-row:3}
+ .transport .key-controls button{min-height:44px;padding:5px 8px}
+ .transport>button:not(.bar-cue){min-height:44px;padding-block:7px!important}
+ .score-tools .chart-tools{grid-template-columns:minmax(0,1fr) 100px 55px}
+ .score-tools .morph-history span{font-size:12px;line-height:1.5}
+}
+@media(prefers-reduced-transparency:reduce){
+ .panel:not(.score),.score,.transport{background:#102639;backdrop-filter:none;-webkit-backdrop-filter:none}
+}

@@ -1,5 +1,5 @@
-import {parseMelody,readMelodyMidi,melodyText} from './melody-reference.js?v=1.0.4';
-import {pianoPatterns,pianoRecommendations} from './piano-patterns.js?v=1.0.4';
+import {parseMelody,readMelodyMidi,melodyText} from './melody-reference.js?v=1.0.5';
+import {pianoPatterns,pianoRecommendations} from './piano-patterns.js?v=1.0.5';
 import {texturePatterns,normalizePhraseMode} from './piano-motion.js?v=2.0.0';
 const allPianoPatterns={...pianoPatterns,...texturePatterns};
 export function mountPianoTools(container,{getState,setState,onChange,blankUsesExamples=false,patternControl=null,phraseAfter=null}){

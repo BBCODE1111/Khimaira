@@ -1,8 +1,8 @@
-import {styles} from './style-engine.js?v=1.0.4';
-import {songs} from './song-pool.js?v=1.0.4';
-import {parseChart,serialize} from './solutions.js?v=1.0.4';
-import {studyMood,moodCategory,exampleTitle} from './example-titles.js?v=1.0.4';
-import {contrastExamples,moodOrder} from './contrast-examples.js?v=1.0.4';
+import {styles} from './style-engine.js?v=1.0.5';
+import {songs} from './song-pool.js?v=1.0.5';
+import {parseChart,serialize} from './solutions.js?v=1.0.5';
+import {studyMood,moodCategory,exampleTitle} from './example-titles.js?v=1.0.5';
+import {contrastExamples,moodOrder} from './contrast-examples.js?v=1.0.5';
 export function examplePool(style){
  const cfg=styles[style];if(!cfg)return [];
  const order=cfg.moodOrder||moodOrder;

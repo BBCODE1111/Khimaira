@@ -1,10 +1,10 @@
-import {rootPicker} from './root-picker.js?v=1.0.4';
-import {chordChoices,extraChordChoices,quickProgressions} from './chord-input.js?v=1.0.4';
-import {parse,spellPitch,chordTones} from './music.js?v=1.0.4';
-import {materializeChart} from './degree-chart.js?v=1.0.4';
+import {rootPicker} from './root-picker.js?v=1.0.5';
+import {chordChoices,extraChordChoices,quickProgressions} from './chord-input.js?v=1.0.5';
+import {parse,spellPitch,chordTones} from './music.js?v=1.0.5';
+import {materializeChart} from './degree-chart.js?v=1.0.5';
 export function mountChordPicker({state,dispatch,select,editScore}){
  const panel=document.createElement('section');panel.id='chordPicker';panel.className='chord-picker';panel.hidden=true;panel.setAttribute('role','dialog');panel.setAttribute('aria-label','點按編輯骨幹');
- document.getElementById('grid').after(panel);
+ document.querySelector('.score-shell').after(panel);
  let activeBar=0,activeChord=0,trigger=null;
  const close=()=>{panel.hidden=true;(trigger?.isConnected?trigger:document.getElementById('editBackbone'))?.focus();};
  const button=(label,fn,attrs={})=>{const b=document.createElement('button');b.type='button';b.textContent=label;for(const [k,v] of Object.entries(attrs))b.setAttribute(k,v);b.onclick=fn;return b;};
@@ -37,7 +37,7 @@ export function mountChordPicker({state,dispatch,select,editScore}){
   if(focus){roots.querySelector('button')?.focus({preventScroll:true});panel.scrollIntoView({block:'nearest',behavior:'smooth'});}
  }
  function decorate(){
-  const s=state();let chips=document.getElementById('quickProgressions');if(!chips){chips=document.createElement('div');chips.id='quickProgressions';chips.className='quick-progressions';document.getElementById('grid').before(chips);}
+  const s=state();let chips=document.getElementById('quickProgressions');if(!chips){chips=document.createElement('div');chips.id='quickProgressions';chips.className='quick-progressions';document.querySelector('.quick-entry').prepend(chips);}
   chips.replaceChildren();chips.hidden=s.backbone.degrees.some(b=>b.chords.length);
   if(!chips.hidden)for(const [name] of quickProgressions)chips.append(button(name,()=>act('quick',{name})));
   document.querySelectorAll('#grid .bar').forEach((bar,i)=>{

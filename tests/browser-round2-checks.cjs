@@ -15,6 +15,7 @@ module.exports=async function round2Checks(page){
  const restoring=page.locator('.morph-restores button').first();
  await restoring.click();assert.equal((await read(page)).origin.type,'edit');await page.click('#undo');
  assert.deepEqual((await read(page)).score,result.score);
+ await page.locator('#scoreTools').evaluate(e=>{e.open=true;});
  await page.click('#compareA');assert.deepEqual((await read(page)).score,result.backbone.degrees);
  await page.selectOption('#morphHistory','0');const b=await read(page);assert.deepEqual(b.score,result.morphHistory[0].score);
  await page.click('#useCurrent');await page.click('#confirmApply');assert.deepEqual((await read(page)).backbone.degrees,b.score);
@@ -32,7 +33,7 @@ module.exports=async function round2Checks(page){
   const elapsed=await page.evaluate(async()=>{
    const start=performance.now();document.getElementById('dockMorph').click();
    await new Promise(resolve=>{requestAnimationFrame(()=>resolve());});
-   for(const id of ['dockSummary','dockStatus','dockMorph']){
+   for(const id of ['grid','dockStatus','dockMorph']){
     const e=document.getElementById(id),r=e.getBoundingClientRect();
     if(r.top<0||r.bottom>innerHeight||!e.textContent.trim())throw Error(id+' outside viewport or empty');
    }
@@ -40,7 +41,8 @@ module.exports=async function round2Checks(page){
   });assert.ok(elapsed<500,'MORPH feedback '+elapsed+' ms');
   assert.notDeepEqual((await read(page)).score,before.score);
   const expected=await page.evaluate(()=>[...document.querySelectorAll('.chord-event strong')].map(e=>e.textContent));
-  const summary=await page.textContent('#dockSummary');for(const symbol of expected)assert.ok(summary.includes(symbol));
+  const summary=await page.textContent('#grid');for(const symbol of expected)assert.ok(summary.includes(symbol));
+  assert.equal(await page.locator('#dockSummary').isVisible(),false);
   const misses=await page.evaluate(()=>{
    const ids=['play','stop','loopButton','dockMidi','transposeDown','keyButton','transposeUp','keyLock','dockMorph'],misses=[];
    const maximum=document.documentElement.scrollHeight-innerHeight;

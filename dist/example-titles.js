@@ -1,5 +1,5 @@
-import {darkStudyMoods} from './dark-styles.js?v=1.0.4';
-import {harmonyStudies} from './harmony-knowledge.js?v=1.0.4';
+import {darkStudyMoods} from './dark-styles.js?v=1.0.5';
+import {harmonyStudies} from './harmony-knowledge.js?v=1.0.5';
 // Short, original listening cues, never source-song names.
 export const studyMoods={
  Jazz:['輕快・街角','苦甜・酒吧','緊張・樓梯'],

@@ -99,10 +99,11 @@ const read=page=>page.evaluate(()=>JSON.parse(localStorage.getItem('khimaira-v5'
   const modules=new Map();for(const entry of urls){const u=new URL(entry);if(!modules.has(u.pathname))modules.set(u.pathname,new Set());modules.get(u.pathname).add(u.search);}
   for(const [name,queries] of modules)assert.equal(queries.size,1,name);
   await require('./browser-round2-checks.cjs')(page);
+  await require('./browser-score-follow.cjs')(page,output);
   for(const [width,height] of [[375,667],[390,844]]){
    await page.setViewportSize({width,height});
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
-   assert.ok(await page.locator('#grid').evaluate(e=>e.scrollWidth<=e.clientWidth+1));
+   assert.ok(await page.locator('#grid').evaluate(e=>e.scrollWidth>e.clientWidth),'score scrolls horizontally within the viewport');
    const rects=await page.locator('#undo,#restore,#useCurrent,#clear,#transposeDown,#transposeUp,#keyButton,#keyLock').evaluateAll(es=>es.map(e=>({id:e.id,w:e.getBoundingClientRect().width,h:e.getBoundingClientRect().height})));
    for(const r of rects)assert.ok(r.w>=44&&r.h>=44,JSON.stringify(r));
    await page.locator('.chord-event').first().click();await page.locator('#editorRoots [data-root="6"]').click();await page.selectOption('#editQuality','m');await page.click('#editorApply');
