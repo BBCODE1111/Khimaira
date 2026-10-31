@@ -23,3 +23,10 @@ Parallel borrowing is currently defined for diatonic triads, sevenths and suppor
 Regional/modal styles disable tonal borrowing/replacement and only generate in their pitch collection. If an authored source contains incompatible chord or bass tones, the website does not generate: it retains the existing score and explains the conflict, suggesting EDIT or a compatible LOAD. It never silently retunes a backbone into a regional scale. RESTORE always returns the backbone. A populated backbone ignores a different length selector with an explicit notice; the length selector applies to empty generation only.
 
 Current checks: `node --test tests/morph-backbone.test.js tests/morph-contract-v2.test.js`; full release gate: `npm run verify:web`. Browser CI is prepared for the host/CI runner; this sandbox session does not run browsers. Prior 279/279 included native integration and must not be compared with the website-only baseline (288 tests before this continuation). See `docs/reviews/ROUND1-CONTINUATION.md` for current counts and limitations.
+
+
+## 2026-10-31 round 2 / web 1.0.4
+
+Existing dominant targets (including loop targets) now remain literal arrivals; their incoming dominants retain function and may still be coloured, inverted or expanded to a same-target ii–V. Parallel slash basses follow the same chord-tone position. The UI exposes independent technique switches and defaults to preserving the bass line; this still permits degree-based parallel conversion. The raw API keeps its previous default unless `preserveBass: true` is supplied.
+
+Visible source/technique/target traces support restoring one whole source slot. Six recent MORPH results can be compared against the backbone and adopted with KEEP. Mobile fixed controls include MORPH, the current chart summary and feedback. Local Node validation is 315/315; browser, release tags and deployment remain unverified in this sandbox. See [round 2 evidence](../reviews/ROUND2-IMPLEMENTATION.md).

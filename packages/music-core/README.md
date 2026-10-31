@@ -1,6 +1,6 @@
 # Khimaira / Seiren 共用樂理維護
 
-共用核心版本：1.1.3。此次只搬移基礎樂理，保留兩個產品原本的音樂輸出與相容差異。
+共用核心版本：1.1.4。此次只搬移基礎樂理，保留兩個產品原本的音樂輸出與相容差異。
 
 ## 單一來源與發布
 
@@ -88,3 +88,5 @@ node scripts/verify-shared-music-browser.cjs ../Seiren /tmp/chord-core-browser
 
 
 2026-10-31 續：1.1.3 只擴充 khimaira-v1 的 C7#5／Caug7／C+7、CmM7、Co7、C9#11、C7sus2、C7sus、C(add9) 語法。seiren-v1 的接受範圍不變；N.C. 是 Khimaira 譜面全小節休止，不是共用和弦解析器的假和弦。只同步本 checkout；SEIREN 尚未同步或跑完整回歸。新 MORPH 僅在 Khimaira 產品模組，沒有覆蓋 Seiren 生成或旋律策略。
+
+2026-10-31 第 2 輪：1.1.4 僅增加 khimaira-v1 的 ma7、maj7#5 別名；seiren-v1 維持原接受範圍。僅同步此 checkout，SEIREN 尚未同步／驗證；MORPH、判調候選與 UI 修改皆為 Khimaira 產品策略。

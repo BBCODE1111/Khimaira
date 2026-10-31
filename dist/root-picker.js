@@ -1,4 +1,4 @@
-import {spellPitch} from './music.js?v=1.0.3';
+import {spellPitch} from './music.js?v=1.0.4';
 
 // A visible, keyboard-accessible chromatic palette shared by both editors.
 export function rootPicker(key, value, onChange) {

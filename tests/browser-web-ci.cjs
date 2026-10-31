@@ -98,6 +98,7 @@ const read=page=>page.evaluate(()=>JSON.parse(localStorage.getItem('khimaira-v5'
   const urls=await page.evaluate(()=>performance.getEntriesByType('resource').map(r=>r.name).filter(n=>/\.js(?:\?|$)/.test(n)));
   const modules=new Map();for(const entry of urls){const u=new URL(entry);if(!modules.has(u.pathname))modules.set(u.pathname,new Set());modules.get(u.pathname).add(u.search);}
   for(const [name,queries] of modules)assert.equal(queries.size,1,name);
+  await require('./browser-round2-checks.cjs')(page);
   for(const [width,height] of [[375,667],[390,844]]){
    await page.setViewportSize({width,height});
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));

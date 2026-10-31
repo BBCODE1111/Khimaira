@@ -1,5 +1,5 @@
-import {analyzeHarmony,mod,parse} from './music.js?v=1.0.3';
-import {normalizeKey} from './degree-chart.js?v=1.0.3';
+import {analyzeHarmony,mod,parse} from './music.js?v=1.0.4';
+import {normalizeKey} from './degree-chart.js?v=1.0.4';
 
 // Krumhansl–Kessler pitch-class profiles (Krumhansl 1990). Published numeric
 // research data; Pearson correlation implemented here, no third-party code.
@@ -48,6 +48,17 @@ export function detectKey(bars,{loop=true,sections}={}){
  if(best.analysis.events.some(c=>c.impliedTonic?.strength==='IV-V')){
   const alternative=ranked.find(k=>k.root===mod(best.root+7)&&k.mode==='major');
   if(alternative&&!candidates.includes(alternative)){if(candidates.length>=3)candidates.pop();candidates.push(alternative);}
+ }
+ // A two-chord major-seventh semitone vamp also permits an I–bII reading.
+ // Do not invent a dominant relation for the bII major seventh.
+ const events=best.analysis.events;
+ if(events.length===2){
+  const chords=events.map(c=>parse(c.symbol));
+  if(chords.every(c=>c?.intervals.includes(4)&&c.intervals.includes(11))){
+   const tonic=chords.find((c,i)=>mod(chords[1-i].root-c.root)===1);
+   const alternative=tonic&&ranked.find(k=>k.root===tonic.root&&k.mode==='major');
+   if(alternative&&!candidates.includes(alternative)){if(candidates.length>=3)candidates.pop();candidates.push(alternative);}
+  }
  }
  return {primary:best,candidates,ambiguous:candidates.length>1,ranked,analysis:best.analysis};
 }

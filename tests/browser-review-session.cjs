@@ -70,7 +70,7 @@ const read=page=>page.evaluate(()=>JSON.parse(localStorage.getItem('khimaira-v5'
   assert.ok(morphed.score[0].chords.length>1);
   await page.locator('.chord-event[data-bar="0"][data-chord="1"]').click();
   assert.equal(await page.locator('#chordEditor').isVisible(),true);
-  await page.selectOption('#editRoot','4');await page.selectOption('#editQuality','m');await page.selectOption('#editBass','');await page.click('#editorApply');
+  await page.click('#editorRoots [data-root="4"]');await page.selectOption('#editQuality','m');await page.selectOption('#editBass','');await page.click('#editorApply');
   const edited=(await read(page)).harmony;
   assert.deepEqual(edited.backbone,morphed.backbone);assert.deepEqual(edited.key,morphed.key);
   assert.deepEqual(edited.score.slice(1),morphed.score.slice(1));

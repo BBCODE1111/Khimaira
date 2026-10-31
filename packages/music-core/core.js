@@ -3,7 +3,7 @@
  * checked by scripts/sync-music-core.mjs. No UI, playback or generation imports.
  * Profiles preserve the two apps' existing contracts, including known differences.
  */
-export const MUSIC_CORE_VERSION = '1.1.3';
+export const MUSIC_CORE_VERSION = '1.1.4';
 export const names=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
 export const mod=n=>((n%12)+12)%12;
 const pc=s=>mod(({C:0,D:2,E:4,F:5,G:7,A:9,B:11})[s[0]]+[...s.slice(1)].reduce((n,a)=>n+(a==='#'?1:a==='b'?-1:0),0));
@@ -44,7 +44,7 @@ export function createTheory(profile) {
     let q = match[2].replace(/^M$/,'').replace(/^M(?=7|9)/,'maj')
       .replace(/^min/,'m').replace(/^Δ/,'maj').replace(/^ø7?$/,'m7b5').replace(/^°7$/,'dim7');
     if (!seirenCompatibility) {
-      q = q.replace(/^°$/,'dim').replace(/^\+$/,'aug').replace(/^sus$/,'sus4')
+      q = q.replace(/^ma7$/,'maj7').replace(/^maj7#5$/,'maj7(#5)').replace(/^°$/,'dim').replace(/^\+$/,'aug').replace(/^sus$/,'sus4')
         .replace(/^(?:7#5|aug7|\+7)$/,'7(#5)').replace(/^mM7$/,'mMaj7')
         .replace(/^o7$/,'dim7').replace(/^9#11$/,'9(#11)').replace(/^7sus$/,'7sus4').replace(/^\(add9\)$/,'add9')
         .replace(/^-/,'m').replace(/^m\(maj7\)$/,'mMaj7').replace(/^(2|add2)$/,'add9').replace(/^maj$/,'');

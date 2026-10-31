@@ -104,3 +104,82 @@ test('trace metadata survives recall but does not make an identical score restor
  traced[0].chords[0].morph={source:{bar:0,chord:0,onset:0},technique:'retained-target'};
  assert.ok(sameDegrees(s.score,traced));assert.equal(harmonyView({...s,score:traced}).canRestore,false);
 });
+
+import {analyzeHarmony} from '../dist/music.js';
+import {styles} from '../dist/style-engine.js';
+import {styleTonality} from '../dist/backbone-mutation.js';
+const dominantCharts=[
+ 'C | E7 | Am | D7 | G7 | C','C | A7 | Dm | G7','Dm7 | G7 | Cmaj7 | A7',
+ 'Cmaj7 | Am7 | D7 | G7','Em7 | A7 | Dm7 | G7 | C','C | C7 | F | Fm | C',
+ 'Am | Dm | E7 | Am','F#m7 | B7 | Emaj7 | C#7','C7 | F7 | C7 | A7 | Dm7 | G7 | C7 | G7',
+ 'C/E:2 A7:2 | Dm:2 D7:2 | G7 | C'
+];
+test('R02-01: 10 dominant chains × 49 styles × 3 levels × 30 seeds retain actual resolution',()=>{
+ let cases=0,links=0;
+ for(const chart of dominantCharts){
+  const source=parseChart(chart),rows=analyzeHarmony(source,key).events;
+  for(const style of Object.keys(styles))for(const randomness of ['low','medium','high'])for(let seed=0;seed<30;seed++){
+   const out=mutate(source,{style,tonality:styleTonality(style,styles[style],key),randomness,seed,density:3});
+   const events=out.flatMap(b=>b.chords);
+   for(const row of rows.filter(r=>r.relation==='dominant'&&r.target!=null)){
+    const sources=source.flatMap((b,bar)=>b.chords.map((c,chord)=>({bar,chord,...c})));
+    const a=sources[row.index],t=sources[row.target],slot=events.filter(c=>c.morph.source.bar===a.bar&&c.morph.source.chord===a.chord);
+    const actual=events[(events.indexOf(slot.at(-1))+1)%events.length];
+    assert.equal(parse(actual.symbol).root,parse(t.symbol).root,`${chart}; ${style}/${randomness}/${seed}; ${serialize(out)}`);
+    if(slot[0].morph.technique==='ii-V'){assert.equal(slot.length,2);assert.equal(mod(parse(slot[1].symbol).root-parse(t.symbol).root),7);assert.equal(slot[1].morph.target.bar,t.bar);assert.equal(slot[1].morph.target.chord,t.chord);}
+    else assert.ok(parse(slot[0].symbol).intervals.includes(4),'retained dominant keeps its third');links++;
+   }
+   cases++;
+  }
+ }
+ assert.equal(cases,44100);console.log('R02-01:',cases,'cases;',links,'dominant resolutions');
+});
+test('R02-02: slash parallel maps chord positions; 200 seeded charts lose zero authored bass positions',()=>{
+ for(const [a,b] of [['C/G','Cm/G'],['C/E','Cm/Eb'],['G/B','Gm/Bb'],['Am/E','Ab/Eb'],['C/D','Cm/D']])assert.equal(parallelDegreeChord(a,key),b);
+ let parallel=0;
+ for(const chart of ['C | G/B | Am | C/G | F | C/E | Dm | G','C/E | Am/E | F/A | G/B | C/G | F | Dm | C'])for(let seed=0;seed<100;seed++){
+  const source=parseChart(chart),out=mutate(source,{style:'Mandopop',tonality:key,randomness:'high',seed,preserveBass:true});
+  for(const c of out.flatMap(b=>b.chords)){
+   assert.ok(!['inversion','ii-V','approach'].includes(c.morph.technique));
+   const a=source[c.morph.source.bar].chords[c.morph.source.chord];
+   if(c.morph.technique==='parallel'&&parse(a.symbol).bassName){parallel++;assert.equal(c.symbol,parallelDegreeChord(a.symbol,key));assert.ok(parse(c.symbol).bassName);}
+  }
+ }
+ assert.ok(parallel>0);console.log('R02-02: 200 charts;',parallel,'slash parallel conversions; lost: 0');
+});
+test('R02-02 switches independently suppress techniques without prohibiting approved parallel borrowing',()=>{
+ const source=parseChart('C | Am | Em | F | G | C');
+ for(const [option,technique] of [['inversion','inversion'],['parallel','parallel'],['iiV','ii-V']])for(let seed=0;seed<30;seed++){
+  const out=mutate(source,{style:'Jazz',tonality:key,randomness:'high',seed,techniques:{[option]:false}});
+  assert.ok(out.flatMap(b=>b.chords).every(c=>c.morph.technique!==technique&&(option!=='iiV'||c.morph.technique!=='approach')));
+ }
+ const results=Array.from({length:30},(_,seed)=>mutate(source,{style:'Jazz',tonality:key,randomness:'high',seed,preserveBass:true})).flatMap(b=>b.flatMap(bar=>bar.chords));
+ assert.ok(results.some(c=>c.symbol==='Ab'));assert.ok(results.some(c=>c.symbol==='Eb'));
+});
+test('R02-03: four dance styles keep both tonal modes and collection; other 45 projections unchanged',()=>{
+ const dance=['Reggaeton','Dancehall','Latin Pop','Amapiano'],modes={'Dorian folk':'dorian','Phrygian dominant':'hijaz','Major blues':'major-blues','Minor blues':'minor-blues'};
+ for(const mode of ['major','minor'])for(const style of Object.keys(styles)){
+  const k={...key,mode},actual=styleTonality(style,styles[style],k);
+  assert.equal(actual.mode,dance.includes(style)?mode:styles[style].world?styles[style].scaleIds[0]:modes[style]||mode);
+  if(!dance.includes(style))continue;
+  const s=createHarmony({text:mode==='major'?'C | Am | F | G':'Cm | Ab | Fm | Gm',style,key:k,locked:true});
+  const out=act(s,{type:'generate',options:{randomness:'high',seed:1}}),allowed=mode==='major'?[0,2,4,5,7,9,11]:[0,2,3,5,7,8,10];
+  assert.notEqual(out.warning?.type,'modal-incompatible');assert.equal(harmonyView(out).tonality.mode,mode);
+  assert.notEqual(serialize(harmonyView(out).bars),serialize(harmonyView(s).bars));
+  for(const c of harmonyView(out).bars.flatMap(b=>b.chords))assert.ok([...parse(c.symbol).pcs,parse(c.symbol).bass].every(n=>allowed.includes(n)));
+ }
+});
+test('R02-08: no redundant ii–V after existing ii, no collapsed authored neighbours',()=>{
+ for(const text of ['Dm7 | G7 | Cmaj7 | A7','C:2 C/E:2 | F:2 F#dim7:2 | C/G:2 G7:2 | C','C:2 C:2 | F | G | C'])for(const style of Object.keys(styles))for(const randomness of ['medium','high'])for(let seed=0;seed<30;seed++){
+  const source=parseChart(text),flat=source.flatMap(b=>b.chords),out=mutate(source,{style,tonality:key,randomness,seed,density:3});
+  for(const bar of out)bar.chords.forEach((c,i)=>{
+   const previous=bar.chords[i-1];if(!previous||previous.symbol!==c.symbol)return;
+   const a=previous.morph.source,b=c.morph.source;
+   assert.equal(source[a.bar].chords[a.chord].symbol,source[b.bar].chords[b.chord].symbol,serialize(out));
+  });
+  for(const c of out.flatMap(b=>b.chords).filter(c=>c.morph.part==='ii')){
+   const a=c.morph.source,index=source.slice(0,a.bar).reduce((n,b)=>n+b.chords.length,0)+a.chord,previous=parse(flat[(index+flat.length-1)%flat.length].symbol);
+   assert.ok(!previous.minor||previous.root!==parse(c.symbol).root,serialize(out));
+  }
+ }
+});

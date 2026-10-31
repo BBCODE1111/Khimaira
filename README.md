@@ -8,21 +8,21 @@ KHIMAIRA 是給作曲、編曲與吉他手的和聲探索工具。輸入一條�
 
 ![KHIMAIRA](docs/screenshots/odyssey-desktop.png)
 
-本輪待發布網站：**1.0.3**（預定 tag `web-v1.0.3`；尚未建立 tag 或部署）。版本與資產 query 由 `dist/version.json` 驅動，執行 `npm run assets:sync` 同步、`assets:check` 驗證；共用模組 query 使用 canonical package 版本。
+本輪待發布網站：**1.0.4**（預定 tag `web-v1.0.4`；尚未建立 tag 或部署）。版本與資產 query 由 `dist/version.json` 驅動，執行 `npm run assets:sync` 同步、`assets:check` 驗證；共用模組 query 使用 canonical package 版本。
 
 前一版網頁穩定基準：**1.0.2**（`web-v1.0.2`，2026-10-27）。[修正與驗證紀錄](docs/stable-20261027/REPORT.md)。原生外掛另行開發與驗證。
 
 ## 2026-10-28 調性與骨幹更新
 
-KEY 統一放在播放欄。輸入 LOAD 建立骨幹；GENERATE 把骨幹發展成所選樂風；INSPIRE 提供同調式的範例或範例變化；範例 LOAD 原樣移至目前主音。MORPH 與 INSPIRE 保留骨幹；範例 LOAD 成為新骨幹，RESTORE 可回家；KEEP 需確認，可 UNDO。
+KEY 統一放在播放欄。輸入 LOAD 建立骨幹；MORPH 把骨幹發展成所選樂風；INSPIRE 提供同調式的範例或範例變化；範例 LOAD 原樣移至目前主音。MORPH 與 INSPIRE 保留骨幹；範例 LOAD 成為新骨幹，RESTORE 可回家；KEEP 需確認，可 UNDO。
 
 AUTO 依輸入判定；選主音會移調，保留原本 AUTO／LOCK 狀態。Also fits 是保留音高的改判，與移調分開。大小調轉換是獨立確認動作。網站 MIDI 匯出包含使用者目前速度。新版保留舊存檔演奏，支援名稱／級數輸入。外掛 1.4 另行開發，未隨網站部署。
 
 ## 從四個和弦開始
 
-1. 輸入 `| C | Am | F | G |`，可直接按「GENERATE」。想聽原樣時按「LOAD」；留白則依樂風生成。
+1. 輸入 `| C | Am | F | G |`，可直接按「MORPH」。想聽原樣時按「LOAD」；留白則依樂風生成。
 2. 在播放欄選調；在生成區選樂風、空白生成的小節數與變化幅度，再按生成；已有骨幹的 MORPH 保持原小節數。速度放在演奏區。
-3. 展開「進階和聲」可選 Mutation、和弦密度與保留根音；再按相同手法或 **GENERATE** 就會換一組變體。
+3. 展開「進階和聲」可選 和弦密度、轉位／平行／ii–V 開關與保留低音線；再按相同手法或 **MORPH** 就會換一組變體。
 4. 低隨機性保留原來的根音與功能；中度加入延伸與句型改寫；高度增加轉位、同級平行大小調互換及導向下一骨幹目標的 ii–V 替換；每個變化保留來源對應與骨幹起拍。局部 ii–V 依下一個目標和弦產生：選 C 後按 **ii–V → NEXT**，`| C | Am |` 會變成 `| C:2 Bm7b5:1 E7b9:1 | Am |`。目標可在同小節；空間不足時保留原譜並提示。最後一小節只有在 LOOP 開啟時連回開頭。
 5. 點擊和弦譜上的任何和弦，用選擇器換根音、種類、斜線低音與延伸音。可以分割一個和弦、移除和弦、Undo，或把結果設為新起點。
 6. 按 PLAY 從起播點試聽；播放中再按 PLAY 會重新開始，按 STOP 停止。空白鍵可直接切換播放／停止；輸入欄內的空白鍵仍用於打字，焦點在按鈕時保留按鈕的空白鍵操作。點 BAR 編號設定起播小節，播放中點另一小節可跳轉。LOOP 從選定小節循環至結尾。
@@ -42,9 +42,9 @@ AUTO 依輸入判定；選主音會移調，保留原本 AUTO／LOCK 狀態。Al
 - **Soul / R&B / Neo-soul**：延伸和聲、borrowed iv、次屬與有呼吸的演奏。
 - **Funk / Lo-fi / Chill**：以休止、音長、重音、留白與聲部配置建立不同節奏感。
 
-目前提供 48 種樂風；演奏包含精準長音、swing comping、Bossa、Deep House、Funk、Lo-fi、各式 arpeggio，以及古典分解。音符時間、音長與力度的調整會寫入 MIDI。
+目前提供 49 種樂風；演奏包含精準長音、swing comping、Bossa、Deep House、Funk、Lo-fi、各式 arpeggio，以及古典分解。音符時間、音長與力度的調整會寫入 MIDI。
 
-範例採「Ex1 · 明亮・輕快」、「Ex2 · 憂鬱・深夜」等簡短標題，不顯示歌名。48 種樂風各有 7～13 組，共 382 組範例：包含 38 組參考短句、既有風格練習，168 組原創明亮／憂鬱／夢幻／張力練習，以及 48 組黑暗／重型練習。
+範例採「Ex1 · 明亮・輕快」、「Ex2 · 憂鬱・深夜」等簡短標題，不顯示歌名。49 種樂風各有 7～13 組，共 382 組範例：包含 38 組參考短句、既有風格練習，168 組原創明亮／憂鬱／夢幻／張力練習，以及 48 組黑暗／重型練習。
 
 INSPIRE 先帶你比較四個方向，再交錯探索其餘範例；完整輪過後才回到開頭。LOAD 和 INSPIRE 共用同一份清單，不會只在幾首參考進行中重複。播放中按 INSPIRE 會從新範例第一小節接著試聽，保留 BPM；新範例會套用相應的音長與配置，之後仍可手動調整。
 
@@ -71,7 +71,7 @@ INSPIRE 先帶你比較四個方向，再交錯探索其餘範例；完整輪過
 | Reggaeton、Dancehall、Latin pop | Dembow 啟發落點、離拍 vamp、3–3–2 和聲節奏 |
 | Flamenco、愛爾蘭／凱爾特 Dorian | 安達魯西亞終止、Dorian i–IV 與空五度 |
 
-地域預設使用固定調式；「調性」選擇主音，「大小調」顯示「調式 · 依樂風」。吉他工具優先顯示該樂風的音階、完整音名與五個把位，也標出和弦衝突音。一般自由改寫會遵守預設音集；使用者明確選取 ii–V、三全音代理或保留根音時，可進入融合和聲。
+地域樂風預設使用固定調式；Reggaeton、Dancehall、Latin Pop、Amapiano 跟隨底層大小調；「調性」選擇主音，「大小調」顯示「調式 · 依樂風」。吉他工具優先顯示該樂風的音階、完整音名與五個把位，也標出和弦衝突音。MORPH 遵守對應音集；不相容骨幹會提示，手法選擇不繞過音集限制。
 
 這些是以研究為基礎的**原創現代伴奏練習**，採十二平均律與 4/4；音階相同不代表文化或旋律句法相同。印度項目未重建完整 raga、meend 或 tala，Hijaz 未模擬細部音準，北美項目不代表所有族群。夏威夷吉他圖仍為 EADGBE 標準調弦；演奏與 MIDI 只提供音高節奏，沒有鼓組或 log-drum 音色。
 
@@ -168,7 +168,7 @@ GitHub Pages 發布 `dist/` 的靜態網站。推送至 `main` 時，GitHub Acti
 - 和弦依調性選擇升降記號，次屬和弦依目標字母級數拼字；支援 `Csus`、`C+`、`C°`、`Cm(maj7)`、`C-7`、`C7b5`、`Cadd2`、`C2`、`Cmaj`。
 - b9／9／11／13 的上聲部省略根音，延伸音可置於內聲部；保留三音、七音及關鍵張力，b9 避免貼根音，#9 保持在三音上方，並遵守低音與上聲部音域保護，上聲部最多五音、最低 E3；低音與上聲部至少隔一個八度。減和弦目標使用 iiø–V7b9。
 - 和弦格顯示羅馬級數；`KEY − / +` 將目前譜與原始進行移調半音，UNDO 同時還原調性與來源。COPY 可複製和弦名或羅馬級數及拍數。
-- 上方 `MIDI ⇣` 匯出目前演奏；03 區保留 SUSTAIN，並可選合併或 **Bass / Chords 分軌**（SMF Type 1，480 PPQ，無 tempo 事件）。ARP 全部屬上聲部，分軌時低音軌為空。
+- 上方 `MIDI ⇣` 匯出目前演奏；03 區保留 SUSTAIN，並可選合併或 **Bass / Chords 分軌**（SMF Type 1，480 PPQ，含目前 BPM 的 tempo 事件）。ARP 全部屬上聲部，分軌時低音軌為空。
 - MIDI 力度採標準 127 比例；Funk／Fusion 與一般 16 分分解套用 Swing。Lo-fi 全部上聲部依生成時 BPM 延後 30ms，低音準時；播放中變速仍以拍點為基準。Rock 改為低音八分、和弦在第 2、4 拍加重。
 - 演奏細節新增 Jazz 根音／2-feel／4-feel，以及 Ballad 上聲部晚半拍的選項。
 - 初次啟動套用 Jazz 的演奏方式與配置；已有手動設定保持。LOOP 有亮底與指示燈，PLAY 播放時維持亮底 PLAY，可再次按下重新播放；停止使用 STOP，空白鍵切換播放／停止。手機主要按鈕與小節起播鍵至少 44px。
@@ -176,7 +176,7 @@ GitHub Pages 發布 `dist/` 的靜態網站。推送至 `main` 時，GitHub Acti
 
 完整修正與驗證範圍見 [評測修正紀錄](docs/review-20261026/REPORT.md)。外掛來源已整合至 [plugin/](plugin/README.md)，手動 Actions **Build KHIMAIRA Plug-in** 可建置 Universal macOS 與 Windows 安裝包。
 
-## MORPH 更新（2026-10-28）
+## MORPH 更新（2026-10-28，歷史紀錄，已由 10/31 契約取代）
 
 範例 LOAD 直接成為新骨幹；MORPH 保留根音、順序與指定低音，以樂風上色並加入接向下一個目標的經過和弦。RESTORE 回到載入的骨幹，UNDO 可回到 LOAD 前。INSPIRE 是預覽，KEEP 才採用。詳見 [發布紀錄](docs/morph-backbone/README.md)。
 
@@ -188,3 +188,12 @@ GitHub Pages 發布 `dist/` 的靜態網站。推送至 `main` 時，GitHub Acti
 瀏覽器只測網站，輸出到系統暫存目錄，不需要 Seiren 或歷史 release checkout。可單跑 `npm run test:browser`；Chrome 改用 `CHROME_CHANNEL=chrome`。`node scripts/verify-morph-browser.cjs --output /tmp/khimaira-morph` 可指定輸出，`--seiren /path/to/Seiren` 另加跨產品 smoke；這兩個參數獨立，輸出不能放在 checkout。本輪依使用者要求未啟動瀏覽器，腳本準備不等於流程通過。
 
 MORPH 新契約與教材立場見 [已確認清單](docs/reviews/CONFIRMED-THEORY.md)。MIDI 分軌固定 Bass ch3、Chords ch2，CC64 開關不改聲道；合併預設維持 ch1。`generate`／`solve` 舊公開 API 仍供既有相容與測試使用，這輪不以「死碼清理」移除輸出契約，也不改 plugin。
+
+
+## 第 2 輪網站 1.0.4
+
+MORPH 保留小節、骨幹順序與起拍，允許轉位、同級平行大小調互換（含根音變動）與指向下一骨幹的 ii–V；原有屬功能鏈及其解決目標受保護。和弦格顯示來源、手法及目標，單格還原會回復該來源的全部時值。進階和聲可獨立關閉三種手法；預設保留低音線時不新增轉位／ii–V，平行互換仍按低音音位對應。
+
+最近六次 MORPH 可選擇比較，A 為骨幹、B 為選定結果，按 PLAY 試聽，KEEP 採用並重建骨幹。LOAD／KEEP／改判或大小調轉換會清除不再適用的比較記錄；UNDO 可復原。手機固定列包含 MORPH、目前整組和弦與結果訊息，長譜可在摘要內捲動。
+
+1.0.4 的 `web-v1.0.4` 是預定標籤，尚未提交、建 tag 或部署；主持人需在發布 commit 建立標籤並驗證部署 SHA。既有 1.0.3 遠端缺 tag 的補建亦由主持人在 sandbox 外處理，本輪不操作 `.git`。未使用的 `khimaira.webp`、`mark.svg` 已移出部署資產。

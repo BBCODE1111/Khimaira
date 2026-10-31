@@ -375,6 +375,13 @@
    "expected": [
     "Cb"
    ]
+  },
+  {
+   "chart": "Cmaj7 | Dbmaj7",
+   "expected": [
+    "C"
+   ],
+   "candidateOnly": true
   }
  ]
 }

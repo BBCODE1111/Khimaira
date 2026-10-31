@@ -1,10 +1,11 @@
-import {parse,mod,analyzeHarmony} from './music.js?v=1.0.3';
-import {parallelDegreeChord,invertForMorph} from './morph-techniques.js?v=1.0.3';
-import {worldScales} from './world-styles.js?v=1.0.3';
+import {parse,mod,analyzeHarmony} from './music.js?v=1.0.4';
+import {parallelDegreeChord,invertForMorph} from './morph-techniques.js?v=1.0.4';
+import {worldScales} from './world-styles.js?v=1.0.4';
 
 export function styleTonality(style,cfg,key){
  const modes={'Dorian folk':'dorian','Phrygian dominant':'hijaz','Major blues':'major-blues','Minor blues':'minor-blues'};
- return {...key,mode:cfg.world?cfg.scaleIds[0]:modes[style]||key.mode};
+ const tonalDance=['Reggaeton','Dancehall','Latin Pop','Amapiano'].includes(style);
+ return {...key,mode:cfg.world&&!tonalDance?cfg.scaleIds[0]:modes[style]||key.mode};
 }
 export function harmonicFunction(symbol,key){
  const c=parse(symbol);if(!c)return 'rest';const d=mod(c.root-key.root);
@@ -57,6 +58,7 @@ export function anchoredMutation(source,options,tools){
   const original=parse(symbol);let candidate=parse(color(symbol,i,level==='high'));
   const role=analysis[i],dominant=role?.relation==='dominant'||role?.impliedTonic;
   const minorTarget=role?.target!=null?analysis[role.target].minor:role?.impliedTonic?.mode==='minor';
+  if(role?.relation==='dominant'&&!candidate?.intervals.includes(4))return symbol;
   if(dominant&&!original.intervals.includes(11)&&candidate?.intervals.includes(11))return symbol;
   if(original.minor&&!original.intervals.includes(11)&&candidate?.intervals.includes(11))return symbol;
   if(dominant&&minorTarget&&original.intervals.includes(4)&&[14,21].some(n=>candidate?.intervals.includes(n)&&!original.intervals.includes(n)))
@@ -70,7 +72,9 @@ export function anchoredMutation(source,options,tools){
  const requested=['cadence','tritone'].includes(method);
  const jazzLike=['Jazz','Gospel','Fusion','Bossa nova','Soul','R&B','Lo-fi hip-hop','Neo-soul','Mandopop','Ballad','K-pop','Nu-disco','Classical','Japanese rock','American pop','Chill'].includes(style);
  const limit=Math.max(1,Math.min(3,Number(options.density)||2));
- const approaches=!modal&&options.freedom!=='color'&&method!=='color'&&(requested||jazzLike);
+ const techniques=options.techniques||{};
+ const preserveBass=options.preserveBass===true;
+ const approaches=techniques.iiV!==false&&!preserveBass&&!modal&&options.freedom!=='color'&&method!=='color'&&(requested||jazzLike);
  // Every generated event carries a source address, even after degree storage.
  const plans=[];
  source.forEach((bar,barIndex)=>{let onset=0;bar.chords.forEach((c,chord)=>{
@@ -83,6 +87,13 @@ export function anchoredMutation(source,options,tools){
  const cadenceArrival=analysis.findLast(row=>row.cadence);
  const arrivalIndex=cadenceArrival?(cadenceArrival.index+1)%count:count-1;
  const protectedTargets=new Set([count-1,arrivalIndex]); // Include the actual cadence arrival, including loop I.
+ // Retain every functional arrival, including the loop boundary. A dominant
+ // may be coloured/inverted or expanded to ii–V, but cannot become parallel v.
+ const dominantSources=new Set();
+ for(const row of analysis)if(row.relation==='dominant'&&row.target!=null){protectedTargets.add(row.target);dominantSources.add(row.index);}
+ // Retained arrivals must be settled before checking neighbouring candidates.
+ if(plans.length&&mutable&&level!=='low')for(const index of protectedTargets){const target=plans[index];target.symbol=target.original.symbol;target.technique='retained-target';}
+ const duplicatesNeighbour=(i,symbol)=>[plans[i-1],plans[i+1]].some(other=>other&&other.bar===plans[i].bar&&!other.replacement&&other.original.symbol!==plans[i].original.symbol&&other.symbol===symbol);
  let used=0;const reserved=new Map();
  for(let n=0;n<count&&used<budget;n++){
   const i=(start+n)%count,p=plans[i];
@@ -90,24 +101,26 @@ export function anchoredMutation(source,options,tools){
   const next=plans[i+1]||(options.loop!==false?plans[0]:null);
   const adjacent=next&&(next.bar===p.bar||next.bar===p.bar+1&&next.chord===0||p.bar===source.length-1&&next.bar===0);
   const choice=(seed+i)%3;
-  const parallel=parallelDegreeChord(p.original.symbol,key);
+  const parallel=techniques.parallel===false||dominantSources.has(i)?null:parallelDegreeChord(p.original.symbol,key);
   const cadence=adjacent&&tools.cadenceTo(next.original.symbol,{rich:level==='high'});
+  const previous=plans[i-1]||(options.loop!==false?plans.at(-1):null);
+  const redundantII=cadence&&previous&&parse(previous.original.symbol).minor&&parse(previous.original.symbol).root===parse(cadence[0]).root;
   const room=limit-source[p.bar].chords.length-(reserved.get(p.bar)||0);
-  if(choice===2&&next?.technique==='color'&&approaches&&cadence&&p.original.beats>=2&&room>=1&&next!==p){
+  if(choice===2&&!redundantII&&['color','retained-target'].includes(next?.technique)&&approaches&&cadence&&p.original.beats>=2&&room>=1&&next!==p){
    // Replace this slot by ii–V, then retain the NEXT authored target literally.
    // Never create two neighbouring approaches with the same root.
    p.replacement=cadence;p.technique='ii-V';p.target=next;reserved.set(p.bar,(reserved.get(p.bar)||0)+1);
    next.symbol=next.original.symbol;next.technique='retained-target';
    protectedTargets.add(plans.indexOf(next));used++;
-  }else if(choice===1&&parallel){
+  }else if(choice===1&&parallel&&!duplicatesNeighbour(i,parallel)){
    p.symbol=parallel;p.technique='parallel';used++;
   }else{
-   const inverted=invertForMorph(p.symbol);
-   if(inverted!==p.symbol){p.symbol=inverted;p.technique='inversion';used++;}
+   const inverted=preserveBass||techniques.inversion===false?p.symbol:invertForMorph(p.symbol);
+   if(inverted!==p.symbol&&!duplicatesNeighbour(i,inverted)){p.symbol=inverted;p.technique='inversion';used++;}
   }
  }
- // Protect the final target from colour that removes its third.
- if(plans.length&&mutable&&level!=='low')for(const index of [count-1,arrivalIndex]){const target=plans[index];target.symbol=target.original.symbol;target.technique='retained-target';}
+ // Colour/inversion must not collapse distinct authored neighbours.
+ for(let i=1;i<plans.length;i++){const a=plans[i-1],b=plans[i];if(a.bar===b.bar&&!a.replacement&&!b.replacement&&a.symbol===b.symbol&&a.original.symbol!==b.original.symbol){a.symbol=a.original.symbol;b.symbol=b.original.symbol;a.technique=b.technique='retained-target';}}
  const address=p=>({bar:p.bar,chord:p.chord,onset:p.onset});
  let ordinal=0;
  return source.map((bar,barIndex)=>{

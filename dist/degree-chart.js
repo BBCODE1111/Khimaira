@@ -1,4 +1,4 @@
-import {parse,mod,keyName,spellInterval,analyzeHarmony} from './music.js?v=1.0.3';
+import {parse,mod,keyName,spellInterval,analyzeHarmony} from './music.js?v=1.0.4';
 
 // Chromatic Roman notation is major-referenced in BOTH modes: Cm–Ab–Bb is
 // i–bVI–bVII. Quality is explicit, so changing tonic never changes chord type.
@@ -76,7 +76,7 @@ export function parseDegreeChart(text,key={}){
   if(/^(?:N\.C\.|NC)$/i.test(bar.trim()))return {chords:[]};
   const tokens=bar.trim().split(/\s+|,(?![^()]*\))/).filter(Boolean);if(tokens.length>4)throw Error('每小節最多四個和弦。');
   const chords=tokens.map((token,i)=>{
-   const [symbol,duration,...rest]=token.split(':');if(rest.length)throw Error('無法辨識拍數 '+token);
+   const [symbol,duration,...rest]=token.split(':');if(/^(?:N\.C\.|NC)$/i.test(symbol))throw Error('N.C. 目前只能佔整小節，請以 | N.C. | 輸入。');if(rest.length)throw Error('無法辨識拍數 '+token);
    const beats=duration===undefined?(tokens.length===3?[2,1,1][i]:4/tokens.length):Number(duration);
    if(!Number.isFinite(beats)||beats<=0)throw Error('拍數必須大於零。');
    return {...tokenDegree(symbol,key),beats};

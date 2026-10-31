@@ -1,6 +1,6 @@
-import {parse,names,mod,spellInterval} from './music.js?v=1.0.3';
-import {chordList} from './solutions.js?v=1.0.3';
-import {insertApproach} from './style-engine.js?v=1.0.3';
+import {parse,names,mod,spellInterval} from './music.js?v=1.0.4';
+import {chordList} from './solutions.js?v=1.0.4';
+import {insertApproach} from './style-engine.js?v=1.0.4';
 
 // Resolve to the next sounding event. Never skip a rest or overwrite a target.
 export function insertCadence(bars,barIndex,chordIndex,{loop=false}={}){
