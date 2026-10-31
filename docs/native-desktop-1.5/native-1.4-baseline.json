@@ -1,0 +1,210 @@
+[
+  {
+    "path": "CMakeLists.txt",
+    "sha256": "96ca7f217a27cc65791f6b8948be3e822811a496ae6a8feee484d98940857c15"
+  },
+  {
+    "path": "README.md",
+    "sha256": "44404018036587f9b2f396d60e5916635c670146532cd61b89bf6ed9bf0086ea"
+  },
+  {
+    "path": "package-lock.json",
+    "sha256": "fc5dbe10c1a68531a2f604cb7767b983703d0d2d315258050dac453aa622252c"
+  },
+  {
+    "path": "package.json",
+    "sha256": "c89045d56566fb74b8604874c735ff69d222f449264b437bdc78d3e9239c5c07"
+  },
+  {
+    "path": "native/seiren.js",
+    "sha256": "cc893d127056d07202387f3f46628a3b13b112b0c54b8453bacfcf089eead3e2"
+  },
+  {
+    "path": "native/midi-notes.js",
+    "sha256": "198b916dccf385a282dd53e96b88725b890439a78f4dc177826f4632f5e01e60"
+  },
+  {
+    "path": "native/khimaira.js",
+    "sha256": "b056802dfa38c4777e8acd0bc1d4d98612bc84ff927891b10f91baa7b05afa97"
+  },
+  {
+    "path": "native/entry.js",
+    "sha256": "6c768065bd271f53d546ede835ad550a2c1f6d013525a193eaa6e9fad223bb5d"
+  },
+  {
+    "path": "web/temple-blue.png",
+    "sha256": "d1bdae7c3c6c3e2660990670ebd164861dd8f3506d0a007dcc9de06231b2215b"
+  },
+  {
+    "path": "web/greek-relics.png",
+    "sha256": "38301a43bff477cd092da9c7ce2165503d010989d2d1e0f31855cd3d63475be2"
+  },
+  {
+    "path": "web/plugin.css",
+    "sha256": "158d7883030263a56623c903796141fa9d1189c6973d34fc774fa7675c08f449"
+  },
+  {
+    "path": "web/index.html",
+    "sha256": "f4dee93364f744c084c420c8667b7d0587be2a27d6ac6ccbdb67558fb8c0b674"
+  },
+  {
+    "path": "web/pattern.js",
+    "sha256": "46af9d9372a7faa8eaae40899feb5ebc1585783b699ff3c2f86b13e23edfeeca"
+  },
+  {
+    "path": "web/session.js",
+    "sha256": "2459779be60b4106e360bf7b74e38e31f2059d943b12e40a564cc9b44544342f"
+  },
+  {
+    "path": "web/mark.svg",
+    "sha256": "72d5acff2a818da7509e169639f1188ceaf8444c7758375e6f395b9211d4702b"
+  },
+  {
+    "path": "web/khimaira.png",
+    "sha256": "4ee47c7c2b57645cbd4a5e504e714de842d3028730f26e4eba9fcc6b772e286f"
+  },
+  {
+    "path": "web/plugin.js",
+    "sha256": "e47cb6c2db97b462c43c3182c7977a278ba8e3af60e99ad7e61f97dc2b971891"
+  },
+  {
+    "path": "Source/HostTimeline.h",
+    "sha256": "cfc42d8546975932b9900238d74ec87131cdc2d356433d1a57f71ed08f0ff9cb"
+  },
+  {
+    "path": "Source/PluginEditor.h",
+    "sha256": "4c083e96b529f748176915a0a7b16a274a04fdda31f64c8516134d8d479bc1c1"
+  },
+  {
+    "path": "Source/PluginProcessor.h",
+    "sha256": "c07a627f89f24591c112ec6d01e7c499b30bec4ef46a349ba07ec73955d095b0"
+  },
+  {
+    "path": "Source/ProductLookAndFeel.h",
+    "sha256": "0e90d6130e01776baa1fa03aa67a8c14b477640dda5f7b86d8e1b75f6f536c40"
+  },
+  {
+    "path": "Source/ChordPicker.h",
+    "sha256": "2230ccb4a9fd8cb9c4e0245fd8921bb24bce843bf72770c6a31d582e6c1807b9"
+  },
+  {
+    "path": "Source/Arpeggiator.h",
+    "sha256": "f4e746b7f05863ba554c725e02ff69234ede9d6c61e046da7ea4b3386d6ee746"
+  },
+  {
+    "path": "Source/Sequence.h",
+    "sha256": "f0192c7485260f740068c670aeb3f5eb86b8d4079fce62258e22284bd876f39f"
+  },
+  {
+    "path": "Source/NativeEngine.h",
+    "sha256": "1ac6ea6878658a813c05cecf98314f37ebb8fae26c9eed30b83c121723fd86f8"
+  },
+  {
+    "path": "Source/PluginProcessor.cpp",
+    "sha256": "904be77e8e6c7763b1e058889f35ad441a7d9aa2c3f7609811b7c4da3cea7435"
+  },
+  {
+    "path": "Source/PluginEditor.cpp",
+    "sha256": "64cae70f75a1ebaed3a6b1cf028f80dbf26bcb599078c0e1459fa22853de6b3f"
+  },
+  {
+    "path": "Source/StartPosition.h",
+    "sha256": "01cd5918d802ddfef852d1c5317ccbe250981df5ba35b5bb767a6e7b1688337a"
+  },
+  {
+    "path": "tests/session.test.mjs",
+    "sha256": "2ff1f51021193e142661eac066d1227de76dc1be0ea0a5b4b555d0851b2d5b02"
+  },
+  {
+    "path": "tests/SchedulerTests.cpp",
+    "sha256": "ad6b7b584ebb4429ed3ab0144c6c1aacd0032bf9a3c268812ed83de55094cdce"
+  },
+  {
+    "path": "tests/Vst3Smoke.cpp",
+    "sha256": "7aaea799241db502884d5d876adcf83531a43b831ce56bb7fe83f52e7b8b5653"
+  },
+  {
+    "path": "tests/native-contract.test.mjs",
+    "sha256": "1d0ecc4834f2493930bdea11b1a9bfd31db918ec4fdd3a1d57dbbf0d701dc24e"
+  },
+  {
+    "path": "tests/HostSmoke.cpp",
+    "sha256": "6607718b324353839da61af7d6c93df6526e974ebe827d9e0e1e19ebd991321d"
+  },
+  {
+    "path": "tests/harmony-engine.test.mjs",
+    "sha256": "aece16c3a4a0fa4277fc8340807686cbb194a2659d8d8f3f0b25d2957b53098d"
+  },
+  {
+    "path": "tests/native/ArpRealtime.cpp",
+    "sha256": "9714d93edae61d8e3766eda58adee2e1ef3015370126f84ba46893a56572f6e8"
+  },
+  {
+    "path": "tests/native/NativeSmoke.cpp",
+    "sha256": "7d07c6fa7ad13b79fd3f38e9cecf91f523ef5b6ef6a26670b4e16217661751eb"
+  },
+  {
+    "path": "tests/native/Transport.cpp",
+    "sha256": "965b79a9b60207d04449f58c58c746282fe43e7f205e66cebd9b85e5d44360ba"
+  },
+  {
+    "path": "tests/native/ArpParity.cpp",
+    "sha256": "44fa9a7951bafd59cee5e0ca7817f4de08eab8245868b4cd2dd88e5df9735159"
+  },
+  {
+    "path": "tests/native/AuHost.mm",
+    "sha256": "a2d60930bc0d42d47ccf5f6121e95de11a3346004c0cd5b4dd2fa5fd23426581"
+  },
+  {
+    "path": "scripts/pack.py",
+    "sha256": "26e8c90afef99a45e13cad4499545dc7f9e60bb4be3d9c10e55dfa97b189dc58"
+  },
+  {
+    "path": "scripts/bundle-native.mjs",
+    "sha256": "e91e2dfcbe98ac0b932be369f5fe3e0ea99813ff6230cd79c856a14e946ee497"
+  },
+  {
+    "path": "scripts/verify-key-migration.mjs",
+    "sha256": "53b99e29b99d71a7569155e5acc1d900a62bde86f76af80e99b4a0e9363336e7"
+  },
+  {
+    "path": "scripts/arp-fixtures.mjs",
+    "sha256": "13af63e073d5bb4aab73b1a0e30f4e1dfff70dfefc8fec179a3bc8d085c436b3"
+  },
+  {
+    "path": "scripts/fixtures.mjs",
+    "sha256": "13b78d4539901c97d48331c74bf4681c393f27dbde10ef8042c5f18db04d3f89"
+  },
+  {
+    "path": "scripts/verify-logic.mjs",
+    "sha256": "7c79b39cdaeac9f8ba589737334ad3c9fc044192f9a775c20b4aacc193092b32"
+  },
+  {
+    "path": "installer/\u5b89\u88dd\u8aaa\u660e Install Guide.txt",
+    "sha256": "504a69a83d8ba608f4db5ab44fb4e6a1ef99122534f666d8513a54674753d8ea"
+  },
+  {
+    "path": "installer/mac/distribution.xml",
+    "sha256": "d8263e04e4ab0689b1662dff9d0855086a21827d1ab86f83346c1ef2a3ff94e9"
+  },
+  {
+    "path": "installer/mac/build_pkg.sh",
+    "sha256": "708f5cf38c7f2e52ac503473c645eb16857e8131e6f1fe4aa010cba831a9c905"
+  },
+  {
+    "path": "installer/mac/scripts-au/postinstall",
+    "sha256": "dabb7e4eabdc81d73d800dd73ca4e1dfc27c4d5e4365eb2126cf30d21ff228df"
+  },
+  {
+    "path": "installer/mac/resources/conclusion.html",
+    "sha256": "d8cddfe79486578e31caf4d31511408191e01803b3bbbd9ce43ca524f0d51661"
+  },
+  {
+    "path": "installer/mac/resources/welcome.html",
+    "sha256": "d8cddfe79486578e31caf4d31511408191e01803b3bbbd9ce43ca524f0d51661"
+  },
+  {
+    "path": "installer/windows/khimaira.iss",
+    "sha256": "8513f4ac74ce6eb97eb545d810573fef4a27e20aea1e328d1ace05e8bf9f612f"
+  }
+]

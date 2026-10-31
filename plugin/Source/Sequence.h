@@ -1,4 +1,5 @@
 #pragma once
+#include "Arpeggiator.h"
 #include <array>
 #include <atomic>
 #include <algorithm>
@@ -10,6 +11,7 @@ namespace khimaira {
 struct Note { double beat=0, duration=1; int pitch=60; double velocity=.7; };
 struct Event { double beat=0; int pitch=60; double velocity=0; bool on=false; };
 struct Sequence {
+ ArpPlan arpPlan;
  static constexpr int maxNotes=8192,ticksPerQuarter=480;
  static std::pair<double,double> playbackBounds(const Note& n,double length){
   const int lastTick=(int)std::llround(length*ticksPerQuarter);

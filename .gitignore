@@ -11,3 +11,7 @@ node_modules/
 
 /build-plugin/
 /plugin/fonts/
+
+/build-desktop/
+/build-native/
+/releases/

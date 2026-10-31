@@ -1,6 +1,13 @@
 import path from 'node:path';
+import fs from 'node:fs';
+import os from 'node:os';
+import {execFileSync} from 'node:child_process';
 import {pathToFileURL} from 'node:url';
-const stage=path.resolve(process.argv[2]||'build-plugin/v12/webstage');
+// Standalone regression: build the legacy fixture from this checkout rather
+// than silently depending on an old, untracked build-plugin directory.
+const fixture=process.argv[2]?null:fs.mkdtempSync(path.join(os.tmpdir(),'khimaira-session-'));
+const stage=process.argv[2]?path.resolve(process.argv[2]):path.join(fixture,'stage');
+if(fixture){execFileSync('python3',[decodeURIComponent(new URL('../scripts/pack.py',import.meta.url).pathname),stage,path.join(fixture,'ui.zip')]);process.on('exit',()=>fs.rmSync(fixture,{recursive:true,force:true}));}
 const load=name=>import(pathToFileURL(path.join(stage,name)));
 
 const {performance}=await load('engine/performance.js');

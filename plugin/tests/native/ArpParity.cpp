@@ -1,0 +1,5 @@
+#include "../../Source/Arpeggiator.h"
+#include <fstream>
+#include <iostream>
+#include <stdexcept>
+int main(int argc,char** argv){if(argc<2)return 2;std::ifstream in(argv[1]);int cases=0;in>>cases;if(!in)return 3;try{for(int c=0;c<cases;c++){khimaira::ArpParameters p;khimaira::ArpPlan plan;int expected;in>>p.mode>>p.rate>>p.octaves>>p.accent>>p.phase>>p.seed>>p.gate>>p.swing>>p.human>>plan.length>>plan.count;for(int i=0;i<plan.count;i++){auto& s=plan.segments[i];in>>s.beat>>s.beats>>s.count;for(int j=0;j<s.count;j++)in>>s.notes[j];}in>>expected;std::vector<khimaira::ArpNote> notes;khimaira::ArpCursor cursor;cursor.reset(p);while(cursor.next(plan,p,[&](auto n){notes.push_back(n);})){}if((int)notes.size()!=expected)throw std::runtime_error("count case "+std::to_string(c));for(auto a:notes){khimaira::ArpNote e;in>>e.beat>>e.duration>>e.pitch>>e.velocity;if(a.pitch!=e.pitch||std::abs(a.beat-e.beat)>1e-9||std::abs(a.duration-e.duration)>1e-9||std::abs(a.velocity-e.velocity)>1e-9)throw std::runtime_error("note case "+std::to_string(c));}}std::cout<<"PASS "<<cases<<" native / JS ARP cases\n";}catch(const std::exception& e){std::cerr<<e.what()<<"\n";return 1;}}
