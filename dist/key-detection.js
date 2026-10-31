@@ -50,13 +50,13 @@ export function detectKey(bars,{loop=true,sections}={}){
   const [a,b,c,d]=Array.from({length:4},(_,j)=>chart[(i+j)%4]);
   if(a.intervals.includes(4)&&a.intervals.includes(10)&&b.intervals.includes(4)&&b.intervals.includes(10)&&c.minor&&d.intervals.includes(4)&&[9,2,7].every((n,j)=>mod([b,c,d][j].root-a.root)===n))turnaround=ranked.find(k=>k.root===a.root&&k.mode==='major');
  }}
+ // User decision 11: a pure IV–V vamp selects the implied major tonic.
+ // Restrict this policy to two major-triad roots; mixed phrases keep ambiguity.
+ const pureIVV=ranked.find(k=>k.mode==='major'&&k.analysis.events.some(c=>c.impliedTonic?.strength==='IV-V')&&chart.every(c=>c.intervals.length===3&&c.intervals.includes(4)&&c.intervals.includes(7)));
+ if(pureIVV){const i=ranked.indexOf(pureIVV);ranked.unshift(...ranked.splice(i,1));}
  const best=ranked[0],relative=k=>k.mode!==best.mode&&k.root===mod(best.root+(best.mode==='major'?9:3));
  const candidates=ranked.filter(k=>best.score-k.score<=(relative(k)?.12:.085)).sort((a,b)=>a===best?-1:b===best?1:Number(relative(b))-Number(relative(a))||b.score-a.score).slice(0,3);
- // IV–V has an implied tonic, not an observed arrival; retain the bVII–I reading.
- if(best.analysis.events.some(c=>c.impliedTonic?.strength==='IV-V')){
-  const alternative=ranked.find(k=>k.root===mod(best.root+7)&&k.mode==='major');
-  if(alternative&&!candidates.includes(alternative)){if(candidates.length>=3)candidates.pop();candidates.push(alternative);}
- }
+ if(pureIVV)candidates.splice(0,candidates.length,best);
  // A two-chord major-seventh semitone vamp also permits an I–bII reading.
  // Do not invent a dominant relation for the bII major seventh.
  const events=best.analysis.events;

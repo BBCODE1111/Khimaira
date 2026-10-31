@@ -32,7 +32,11 @@ export function mountChordPicker({state,dispatch,select,editScore}){
   const bass=document.createElement('select');bass.setAttribute('aria-label','轉位低音');bass.add(new Option('根音',''));for(let i=0;i<12;i++)bass.add(new Option('/'+spellPitch(i,key),i));bass.value=c.bassName?c.bass:'';
   controls.append(root,quality,bass,button('套用和弦',()=>choose(root.selectedOptions[0].textContent+quality.value+(bass.value!==''?'/'+bass.selectedOptions[0].textContent.slice(1):'')),{'data-picker-action':'apply'}));
   const inversions=document.createElement('div');inversions.className='picker-choices';const tones=chordTones(current);for(const i of [1,2])if(tones[i])inversions.append(button(`${c.rootName+c.q}/${tones[i]}`,()=>choose(c.rootName+c.q+'/'+tones[i])));
-  const roots=rootPicker(key,c.root,value=>{root.value=value;quality.focus();});
+  const next=source[bar]?.chords[activeChord+1]||source[bar+1]?.chords[0];
+  const nameForRoot=value=>parse(spellSelectedChord(spellPitch(value,key)+quality.value,key,next?.symbol))?.rootName||spellPitch(value,key);
+  const roots=rootPicker(key,c.root,value=>{root.value=value;quality.focus();},nameForRoot);
+  const refreshNames=()=>{for(const option of root.options)option.textContent=nameForRoot(+option.value);for(const button of roots.children)button.textContent=nameForRoot(+button.dataset.root);};
+  quality.onchange=refreshNames;refreshNames();
   header.after(roots,controls);more.append(inversions);panel.append(more);
   if(focus){roots.querySelector('button')?.focus({preventScroll:true});panel.scrollIntoView({block:'nearest',behavior:'smooth'});}
  }

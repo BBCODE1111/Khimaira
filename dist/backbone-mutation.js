@@ -1,4 +1,4 @@
-import {morphProfiles,morphRandom,techniqueChoice} from './morph-profiles.js?v=1.0.7';
+import {morphProfiles,morphRandom,techniqueChoice,openingTonicChoice} from './morph-profiles.js?v=1.0.7';
 import {parse,mod,analyzeHarmony} from './music.js?v=1.0.7';
 import {parallelDegreeChord,invertForMorph} from './morph-techniques.js?v=1.0.7';
 import {worldScales} from './world-styles.js?v=1.0.7';
@@ -40,11 +40,22 @@ export function anchoredMutation(source,options,tools){
   if(cfg.world){
    let choices=modalPalette.filter(p=>mod(p.root+key.root)===c.root).map(p=>c.rootName+p.q+(c.bassName?'/'+c.bassName:''))
     .filter(s=>allowedChange(c,parse(s)));
+   // Sparse regional examples may contain no chord on this authored root.
+   // Reuse their existing colour vocabulary only when it retains the source
+   // core and introduces no notes outside this slot's permitted collection.
+   if(new Set(choices).size<=1){
+    const core=c.intervals.filter(n=>[3,4,6,7,8,10,11].includes(n));
+    choices.push(...modalPalette.map(p=>c.rootName+p.q+(c.bassName?'/'+c.bassName:''))
+     .filter(s=>{const p=parse(s);return p.minor===c.minor&&core.every(n=>p.intervals.includes(n))&&allowedChange(c,p);}));
+   }
    if(dancePalette){
     const family=c.minor?1:c.intervals.includes(10)||analysis[index]?.relation==='dominant'||analysis[index]?.impliedTonic?2:0;
     choices=[...new Set([...choices,...dancePalette[family].map(q=>c.rootName+q+(c.bassName?'/'+c.bassName:''))])].filter(s=>allowedChange(c,parse(s)));
    }
-   if(choices.length)output=choices[(seed+index+choices.length*1000)%choices.length];
+   // The authored harmony is also a valid colour. Do not force a single
+   // palette extension on every seed (e.g. Slack-key G -> G7 every time).
+   choices=[...new Set([symbol,...choices])];
+   if(choices.length)output=choices[Math.floor(morphRandom(seed,index,style,4)*choices.length)];
   }else{
    // Use the same functional analysis as KEY and degree labels. An applied
    // dominant triad must not acquire a major seventh when it is coloured.
@@ -97,24 +108,27 @@ export function anchoredMutation(source,options,tools){
  const dominantSources=new Set();
  for(const row of analysis)if(row.relation==='dominant'&&row.target!=null){protectedTargets.add(row.target);dominantSources.add(row.index);}
  const signatures=new Set();
+ const sameBarIv=(i)=>{
+  const next=(i+1)%count,a=analysis[i],b=analysis[next];
+  return i+1<count&&b&&plans[i].bar===plans[next].bar&&a.offset===5&&!a.minor&&b.offset===5&&b.minor;
+ };
  for(let i=0;i<analysis.length;i++){
   const a=analysis[i],b=analysis[i+1]||(options.loop!==false?analysis[0]:null);
-  if(b&&((a.offset===5&&!a.minor&&b.offset===5&&b.minor)||(key.mode==='minor'&&a.offset===8&&b.offset===7&&b.intervals.includes(4)))){signatures.add(i);signatures.add((i+1)%count);}
+  if(b&&((a.offset===5&&!a.minor&&b.offset===5&&b.minor&&!sameBarIv(i))||(key.mode==='minor'&&a.offset===8&&b.offset===7&&b.intervals.includes(4)))){signatures.add(i);signatures.add((i+1)%count);}
   if((functional.blues||style.includes('blues'))&&a.offset===5&&a.intervals.includes(10))signatures.add(i);
  }
  for(const i of signatures){protectedTargets.add(i);plans[i].symbol=plans[i].original.symbol;plans[i].technique='retained-target';}
  const retainedSymbol=(p,i)=>style==='Jazz'&&!signatures.has(i)?paint(p.original.symbol,i):p.original.symbol;
  // Retained arrivals must be settled before checking neighbouring candidates.
  if(plans.length&&mutable&&level!=='low')for(const index of protectedTargets){const target=plans[index];target.symbol=retainedSymbol(target,index);target.technique='retained-target';}
- const duplicatesNeighbour=(i,symbol)=>[plans[i-1],plans[i+1]].some(other=>other&&other.bar===plans[i].bar&&!other.replacement&&other.original.symbol!==plans[i].original.symbol&&other.symbol===symbol);
+ const duplicatesNeighbour=(i,symbol)=>[plans[i-1],plans[i+1]].some(other=>other&&other.bar===plans[i].bar&&!other.replacement&&other.original.symbol!==plans[i].original.symbol&&other.symbol===symbol&&!(other===plans[i+1]&&sameBarIv(i)));
  let used=0;const reserved=new Map();
  for(let n=0;n<count&&used<budget;n++){
   const i=(start+n)%count,p=plans[i];
   if(protectedTargets.has(i))continue;
   const next=plans[i+1]||(options.loop!==false?plans[0]:null);
   const adjacent=next&&(next.bar===p.bar||next.bar===p.bar+1&&next.chord===0||p.bar===source.length-1&&next.bar===0);
-  // Retain the existing opening-tonic parallel selection policy pending user decision.
-  const choice=i===0&&parse(p.original.symbol).root===key.root?(seed+i)%3:techniqueChoice(style,seed,i);
+  const choice=i===0&&parse(p.original.symbol).root===key.root?openingTonicChoice(style,seed):techniqueChoice(style,seed,i);
   const parallel=modal||techniques.parallel===false||dominantSources.has(i)?null:parallelDegreeChord(p.original.symbol,key);
   const cadence=adjacent&&tools.cadenceTo(next.original.symbol,{rich:level==='high'});
   const previous=plans[i-1]||(options.loop!==false?plans.at(-1):null);
@@ -127,9 +141,9 @@ export function anchoredMutation(source,options,tools){
    next.symbol=retainedSymbol(next,plans.indexOf(next));next.technique='retained-target';
    protectedTargets.add(plans.indexOf(next));used++;
   }else if(choice===1&&parallel&&!duplicatesNeighbour(i,parallel)){
-   p.symbol=parallel;p.technique='parallel';used++;
+   p.symbol=parallel;p.technique=parallel===p.original.symbol?'retained-target':'parallel';if(p.technique==='parallel')used++;
   }else{
-   const inverted=preserveBass||techniques.inversion===false?p.symbol:invertForMorph(p.symbol,seed+i,{powerBass:['Heavy Metal','Doom Metal'].includes(style)});
+   const inverted=preserveBass||techniques.inversion===false?p.symbol:invertForMorph(p.symbol,Math.floor(morphRandom(seed,i,style,5)*0x1000000),{powerBass:['Heavy Metal','Doom Metal'].includes(style)});
    if(inverted!==p.symbol&&!duplicatesNeighbour(i,inverted)){p.symbol=inverted;p.technique='inversion';used++;}
   }
  }
@@ -142,7 +156,7 @@ export function anchoredMutation(source,options,tools){
   }
  }
  // Colour/inversion must not collapse distinct authored neighbours.
- for(let i=1;i<plans.length;i++){const a=plans[i-1],b=plans[i];if(a.bar===b.bar&&!a.replacement&&!b.replacement&&a.symbol===b.symbol&&a.original.symbol!==b.original.symbol){a.symbol=a.original.symbol;b.symbol=b.original.symbol;a.technique=b.technique='retained-target';}}
+ for(let i=1;i<plans.length;i++){const a=plans[i-1],b=plans[i];if(a.bar===b.bar&&!a.replacement&&!b.replacement&&a.symbol===b.symbol&&a.original.symbol!==b.original.symbol&&!sameBarIv(i-1)){a.symbol=a.original.symbol;b.symbol=b.original.symbol;a.technique=b.technique='retained-target';}}
  const address=p=>({bar:p.bar,chord:p.chord,onset:p.onset});
  let ordinal=0;
  return source.map((bar,barIndex)=>{

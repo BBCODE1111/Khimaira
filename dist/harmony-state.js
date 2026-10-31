@@ -153,10 +153,17 @@ export function applyHarmonyAction(current,action){
    const previous=symbols(s.score,s.key);let candidate,seed=Number(options.seed??s.variation+1);
    if(!Number.isSafeInteger(seed)||seed<0)throw Error('Invalid variation seed');
    const recent=new Set([previous,...(s.recentMorphs||[])]);
+   const recency=[...(s.recentMorphs||[]),previous];let oldest=null;
    for(let attempt=0;attempt<64;attempt++,seed++){
     candidate=mutate(expanded,{...options,style:s.style,tonality:effectiveKey(s),key:s.key.root,mode:s.key.mode,seed,
      freedom:'morph',recreate:false});
-    if(!recent.has(serialize(candidate))||attempt===63)break;
+    const fingerprint=serialize(candidate);
+    if(!recent.has(fingerprint))break;
+    const seen=recency.lastIndexOf(fingerprint);
+    if(!oldest||seen<oldest.seen)oldest={candidate,seed,seen};
+    // Exhaustion should revisit the least recent valid result, rather than
+    // randomly starving some of the available variants over repeated presses.
+    if(attempt===63){candidate=oldest.candidate;seed=oldest.seed;break;}
    }
    s.recentMorphs=[...(s.recentMorphs||[]),serialize(candidate)].slice(-12);
    s.traceValid=true;s.variation=seed;s.score=chartToDegrees(candidate,s.key);s.origin={type:!filled?'idea':'morph',variation:seed,level:options.randomness||'medium'};

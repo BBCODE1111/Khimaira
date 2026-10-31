@@ -144,9 +144,9 @@ test('R04 P2-9: INSPIRE survives JSON storage as preview; KEEP and RESTORE retai
  assert.deepEqual(act(reload,{type:'keep',confirmed:true}).backbone.degrees,s.score);
  assert.match(read('dist/app.js'),/seedMood.*INSPIRE · 預覽/);
 });
-test('R04 P2-G: borrowed extensions and chromatic picker agree without deciding minor sixth spelling',()=>{
+test('R04 P2-G / user decision 2: borrowed extensions and picker agree on raised minor sixth',()=>{
  const k={root:9,tonic:'A',mode:'minor'};
- assert.equal(spellPitch(6,k),'Gb');assert.equal(extraChordChoices(k).find(c=>c.label==='vi').symbol,'Gbm');
+ assert.equal(spellPitch(6,k),'F#');assert.equal(extraChordChoices(k).find(c=>c.label==='vi').symbol,'F#m');
  for(let root=0;root<12;root++)for(const mode of ['major','minor']){
   const s=createHarmony({key:{root,mode},locked:true});
   for(const choice of extraChordChoices(s.key).filter(c=>!c.label.startsWith('V7/')))assert.equal(parse(choice.symbol).rootName,spellPitch(parse(choice.symbol).root,s.key));

@@ -1,9 +1,9 @@
 /**
- * Shared music theory 1.1.5. Canonical source; generated deployment copies are
+ * Shared music theory 1.1.6. Canonical source; generated deployment copies are
  * checked by scripts/sync-music-core.mjs. No UI, playback or generation imports.
  * Profiles preserve the two apps' existing contracts, including known differences.
  */
-export const MUSIC_CORE_VERSION = '1.1.5';
+export const MUSIC_CORE_VERSION = '1.1.6';
 export const names=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
 export const mod=n=>((n%12)+12)%12;
 const pc=s=>mod(({C:0,D:2,E:4,F:5,G:7,A:9,B:11})[s[0]]+[...s.slice(1)].reduce((n,a)=>n+(a==='#'?1:a==='b'?-1:0),0));
@@ -100,6 +100,7 @@ export function createTheory(profile) {
     const scale=key.mode==='minor'?[0,2,3,5,7,8,10]:[0,2,4,5,7,9,11];
     const degree=scale.indexOf(offset);
     if(degree>=0)return spellInterval(tonic,offset,degree);
+    if(key.mode==='minor'&&offset===9)return spellInterval(tonic,9,5);
     if(key.mode==='minor'&&offset===11)return spellInterval(tonic,11,6);
     const borrowed={1:1,3:2,8:5,10:6};
     if(key.mode!=='minor'&&borrowed[offset]!==undefined)return spellInterval(tonic,offset,borrowed[offset]);

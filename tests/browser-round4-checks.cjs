@@ -26,14 +26,23 @@ module.exports=async function round4Checks(page){
  assert.ok(await page.locator('#seedMood').isVisible());assert.match(await page.textContent('#seedMood'),/INSPIRE.*預覽/);
  await page.click('#restore');assert.deepEqual((await read(page)).score,preview.backbone.degrees);
  assert.equal(await page.locator('#seedMood').isVisible(),false);
- // The editor and the borrowed extension now share the existing minor palette spelling.
+ // User decisions 1–2 supersede the former Gb/Gbm palette expectation.
  await page.locator('#advancedInput').evaluate(e=>{e.open=true;});
  await page.fill('#chartInput','Am | Dm | E7 | Am');await page.click('#applyChart');
  // Explicitly use the detected A minor key if a previous scenario left LOCK on.
  if((await read(page)).keyMode==='locked')await page.click('#keyLock');
  await page.locator('.original-draft').evaluate(e=>{e.open=true;});await page.click('#editBackbone');
- assert.equal(await page.locator('#chordPicker [data-root="6"]').textContent(),'Gb');
+ assert.equal(await page.locator('#chordPicker [data-root="6"]').textContent(),'F#');
  await page.locator('#chordPicker details').evaluate(e=>{e.open=true;});
- assert.equal(await page.locator('#chordPicker [data-choice="Gbm"]').count(),1);
+ assert.equal(await page.locator('#chordPicker [data-choice="F#m"]').count(),1);
+ await page.locator('#chordPicker select[aria-label="和弦性質"]').selectOption('dim7');
+ assert.equal(await page.locator('#chordPicker [data-root="1"]').textContent(),'C#');
+ await page.locator('#chordPicker select[aria-label="和弦性質"]').selectOption('m7b5');
+ assert.equal(await page.locator('#chordPicker [data-root="6"]').textContent(),'F#');
+ await page.keyboard.press('Escape');
+ await page.locator('.chord-event').first().click();
+ await page.selectOption('#editQuality','dim7');await page.selectOption('#editRoot','1');
+ assert.match(await page.textContent('#editorPreview'),/^C#dim7/);
+ assert.equal(await page.locator('#editorRoots [data-root="1"]').textContent(),'C#');
  await page.keyboard.press('Escape');
 };

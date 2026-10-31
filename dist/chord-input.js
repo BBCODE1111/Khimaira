@@ -18,7 +18,7 @@ export function extraChordChoices(key){
  const borrowed=key.mode==='minor'?['I','ii','IV','vi']:key.mode==='major'?['iv','bVI','bVII']:[];
  return [...secondary,...borrowed.map(label=>{
   const c=parse(materializeChart(parseDegreeChart(label,key),key)[0].chords[0].symbol);
-  // Match the existing chromatic picker; the minor sixth spelling policy is unchanged.
+  // Match the contextual picker, including the raised sixth in minor keys.
   return {label,symbol:spellPitch(c.root,key)+c.q};
  })];
 }
@@ -60,6 +60,7 @@ export function spellSelectedChord(symbol,key,nextSymbol){
  if(c.intervals.includes(3)&&c.intervals.includes(6)){
   if(next&&mod(next.root-c.root)===1)root=spellInterval(next.rootName,-1,-1);
   else if(next&&c.q==='m7b5'&&mod(c.root-next.root)===7)root=spellInterval(next.rootName,7,4);
+  else if(['dim7','m7b5'].includes(c.q))root=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'][c.root];
   else {
    const offset=mod(c.root-key.root),raised={1:0,3:1,6:3,8:4,10:5};
    if(key.mode==='major'&&raised[offset]!==undefined)root=spellInterval(key.tonic,offset,raised[offset]);

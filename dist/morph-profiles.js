@@ -10,7 +10,7 @@ export const morphProfiles={
  Chill:[7,2,1,.2,.05],'Neo-soul':[4,4,5,.75,.6],'American pop':[7,3,1,.2,.05],
  Mandopop:[6,3,2,.45,.1],'K-pop':[5,4,3,.5,.25],'Major blues':[1,0,0,0,0],
  'Minor blues':[1,0,0,0,0],'Neoclassical rock':[7,3,1,.2,0],'Nu-disco':[5,3,2,.35,.1],
- Ambient:[8,3,0,0,0],'Heavy Metal':[1,5,0,0,0],'Doom Metal':[1,6,0,0,0],
+ Ambient:[8,3,0,0,0],'Heavy Metal':[1,5,0,0,0],'Doom Metal':[4,6,0,0,0],
  Grunge:[3,6,0,0,0],Alternative:[4,5,1,.15,0],Gothic:[6,4,1,.2,.1],
  Requiem:[7,2,2,.3,.05],'Greek Hijaz':[1,0,0,0,0],'Japanese Hirajoshi':[1,0,0,0,0],
  'Japanese In-sen':[1,0,0,0,0],'Ghana Highlife':[1,0,0,0,0],'Ethiopian Tizita':[1,0,0,0,0],
@@ -30,4 +30,12 @@ export function techniqueChoice(style,seed,index){
  const weights=morphProfiles[style]||morphProfiles.Jazz,total=weights[0]+weights[1]+weights[2];
  const n=morphRandom(seed,index,style)*total;
  return n<weights[0]?0:n<weights[0]+weights[1]?1:2;
+}
+// User decision 6: eligible opening tonic, 1/12 parallel (formerly 1/3).
+// Keep the former 1/3 ii–V proposal rate; the remainder proposes inversion.
+export const popOpeningStyles=['American pop','Mandopop','K-pop','Ballad','Japanese rock','Latin Pop'];
+export function openingTonicChoice(style,seed){
+ if(!popOpeningStyles.includes(style))return seed%3;
+ const n=morphRandom(seed,0,style,3);
+ return n<1/12?1:n<5/12?2:0;
 }

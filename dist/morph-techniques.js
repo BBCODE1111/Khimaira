@@ -23,6 +23,8 @@ export function parallelDegreeChord(symbol, key) {
  if(!c.bassName)return result;
  const position=c.intervals.findIndex(n=>mod(c.root+n)===c.bass);
  const bass=position<0?c.bassName:chordTones(result)[position]||c.bassName;
+ // A retained non-chord bass must not become the new root's major seventh.
+ if(mod(parse(result+'/'+bass).bass-parse(result).root)===11)return symbol;
  return result+'/'+bass;
 }
 

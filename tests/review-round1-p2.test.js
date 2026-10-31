@@ -20,10 +20,11 @@ test('NC is silent; blank LOAD and H7 explain chord input errors without changin
  assert.throws(()=>parseDegreeChart('H7'),e=>/和弦名稱/.test(e.message)&&!e.message.includes('級數'));
  assert.deepEqual(state,saved);assert.deepEqual(act(state,{type:'load',text:'N.C.'}).score,[{chords:[]}]);
 });
-test('pure IV–V retains C preference and G alternative without pretending an observed tonic',()=>{
+test('pure IV–V follows user decision 11, superseding the former G alternative policy',()=>{
  const result=detectKey(parseChart('F | G | F | G'));
- assert.equal(result.primary.root,0);assert.ok(result.ambiguous);
- assert.ok(result.candidates.some(c=>c.root===7&&c.mode==='major'));
+ assert.equal(result.primary.root,0);assert.equal(result.ambiguous,false);
+ assert.ok(!result.candidates.some(c=>c.root===7&&c.mode==='major'));
+ assert.ok(result.analysis.events.every(c=>!c.cadence));
 });
 test('split MIDI channels remain Bass ch3 / Chords ch2 with CC64 on or off',()=>{
  const notes=[{note:36,beat:0,duration:4,velocity:.7,part:'bass'},{note:64,beat:0,duration:4,velocity:.7,part:'upper'}];
