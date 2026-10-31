@@ -45,7 +45,7 @@ test('GENERATE repeatedly varies each style while tonic, mode and backbone stay 
   const key=effectiveKey(s),backbone=JSON.stringify(s.backbone);
   for(let i=0;i<10;i++){
    s=applyHarmonyAction(s,{type:'generate',options:{randomness}});const current=serialize(harmonyView(s).bars);
-   if(current===previous)assert.ok(['variation-exhausted','modal-incompatible'].includes(s.warning?.type),style+' '+randomness);else assert.equal(s.warning,null);assert.deepEqual(effectiveKey(s),key);assert.equal(JSON.stringify(s.backbone),backbone);previous=current;
+   if(current===previous)assert.ok(['variation-exhausted','modal-incompatible'].includes(s.warning?.type),style+' '+randomness);else assert.ok(!s.warning||s.warning.type==='technique-limit');assert.deepEqual(effectiveKey(s),key);assert.equal(JSON.stringify(s.backbone),backbone);previous=current;
   }
  }
 });

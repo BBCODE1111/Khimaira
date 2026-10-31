@@ -16,9 +16,9 @@ test('intrabar targets, slash root, four beats and surrounding events are preser
  assert.equal(r.bars[0].chords.reduce((s,c)=>s+c.beats,0),4);
  assert.equal(parse(r.bars[0].chords[2].symbol).root,mod(parse(target).root+7));}
 });
-test('last bar wraps only when looping and invalid or crowded targets do not destroy chords',()=>{
+test('last bar wraps only when looping and invalid targets do not destroy chords',()=>{
  const b=parseChart('| C | Am |');assert.throws(()=>insertCadence(b,1,0));assert.equal(insertCadence(b,1,0,{loop:true}).target,'C');
- for(const chart of ['| C | | Am |','| C | Csus4 |','| C:2 Dm7:1 G7:1 | Am |'])assert.throws(()=>insertCadence(parseChart(chart),0,0));
+ for(const chart of ['| C | | Am |','| C | Csus4 |'])assert.throws(()=>insertCadence(parseChart(chart),0,0));
 });
 test('parallel color keeps 11/13, explicit tensions and compatible bass; special chords reject',()=>{
  assert.equal(parallelColor('Cmaj13/E'),'Cm13');assert.equal(parallelColor('Cm11/G'),'Cmaj11/G');
@@ -44,4 +44,12 @@ test('one-shot automatic cadence does not pretend to resolve past the final bar'
  const out=mutate(parseChart('| C | Am | F | G |'),{method:'cadence',density:3,loop:false,randomness:'low'});
  assert.equal(out[0].chords.length,3);assert.equal(out[3].chords.length,1);
  assert.equal(invertChord('C6/G'),'C6');
+});
+test('round 3 dense NEXT edits selected slot only and avoids repeating the preceding ii',()=>{
+ for(const [text,index] of [['C:2 G7:2 | C',1],['C:1 Dm7:1 F:2 | C',2],['C:1 Am:1 Dm7:1 F:1 | C',3]]){
+  const bars=parseChart(text),out=insertCadence(bars,0,index).bars;
+  assert.deepEqual(out[0].chords.slice(0,index),bars[0].chords.slice(0,index));assert.deepEqual(out[1],bars[1]);
+  assert.ok(out[0].chords.length<=4);assert.equal(out[0].chords.reduce((n,c)=>n+c.beats,0),4);
+  const tail=out[0].chords.slice(index);assert.ok(!tail.some(c=>parse(c.symbol).root===2),'do not duplicate preceding ii');
+ }
 });

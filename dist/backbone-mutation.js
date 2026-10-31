@@ -1,6 +1,6 @@
-import {parse,mod,analyzeHarmony} from './music.js?v=1.0.5';
-import {parallelDegreeChord,invertForMorph} from './morph-techniques.js?v=1.0.5';
-import {worldScales} from './world-styles.js?v=1.0.5';
+import {parse,mod,analyzeHarmony} from './music.js?v=1.0.6';
+import {parallelDegreeChord,invertForMorph} from './morph-techniques.js?v=1.0.6';
+import {worldScales} from './world-styles.js?v=1.0.6';
 
 export function styleTonality(style,cfg,key){
  const modes={'Dorian folk':'dorian','Phrygian dominant':'hijaz','Major blues':'major-blues','Minor blues':'minor-blues'};
@@ -25,7 +25,11 @@ export function anchoredMutation(source,options,tools){
  const scaleId=(dancePalette&&['major','minor'].includes(key.mode)?key.mode:null)||cfg.scaleIds?.[0]||({'Dorian folk':'dorian','Phrygian dominant':'hijaz'})[style];
  const allowed=worldScales[scaleId]?.intervals.map(n=>mod(n+key.root));
  const modalPalette=cfg.world?cfg.phrases.flatMap(p=>p.flatMap(bar=>bar.split(/\s+/).map(s=>parse(s.replace(/:[\d.]+$/,''))))).filter(Boolean):[];
- const analysis=analyzeHarmony(source,key,{loop:options.loop!==false}).events;
+ const functional=analyzeHarmony(source,key,{loop:options.loop!==false}),analysis=functional.events;
+ const allowedChange=(original,candidate)=>!modal||!allowed||(
+  [...candidate.pcs,candidate.bass].every(n=>allowed.includes(n)||original.pcs.includes(n)||n===original.bass)&&
+  original.pcs.filter(n=>!allowed.includes(n)).every(n=>candidate.pcs.includes(n)||candidate.bass===n)
+ );
  const start=((seed%Math.max(1,count))+Math.max(1,count))%Math.max(1,count);
  const color=(symbol,index,rich=false)=>{
   const c=parse(symbol);let output=symbol;
@@ -34,10 +38,10 @@ export function anchoredMutation(source,options,tools){
   const random=tools.seeded(mix^(mix>>>16));
   if(cfg.world){
    let choices=modalPalette.filter(p=>mod(p.root+key.root)===c.root).map(p=>c.rootName+p.q+(c.bassName?'/'+c.bassName:''))
-    .filter(s=>!allowed||parse(s).pcs.every(n=>allowed.includes(n)));
+    .filter(s=>allowedChange(c,parse(s)));
    if(dancePalette){
     const family=c.minor?1:c.intervals.includes(10)||analysis[index]?.relation==='dominant'||analysis[index]?.impliedTonic?2:0;
-    choices=[...new Set([...choices,...dancePalette[family].map(q=>c.rootName+q+(c.bassName?'/'+c.bassName:''))])].filter(s=>!allowed||parse(s).pcs.every(n=>allowed.includes(n)));
+    choices=[...new Set([...choices,...dancePalette[family].map(q=>c.rootName+q+(c.bassName?'/'+c.bassName:''))])].filter(s=>allowedChange(c,parse(s)));
    }
    if(choices.length)output=choices[(seed+index+choices.length*1000)%choices.length];
   }else{
@@ -46,7 +50,7 @@ export function anchoredMutation(source,options,tools){
    const role=analysis[index],dominant=role?.relation==='dominant'||role?.impliedTonic;
    const basis=!modal&&dominant&&c.intervals.includes(4)&&!c.intervals.includes(10)&&!c.intervals.includes(11)?c.rootName+'7'+(c.bassName?'/'+c.bassName:''):symbol;
    output=tools.tint(basis,style,rich?'high':level,random,key.root,key.mode);
-   if(allowed&&!parse(output).pcs.every(n=>allowed.includes(n)))output=symbol;
+   if(!allowedChange(c,parse(output)))output=symbol;
   }
   // Colour alone preserves minor identity; deliberate parallel conversion is separate.
   if(c.minor!==parse(output).minor&&c.intervals.some(n=>n===3||n===4))output=symbol;
@@ -63,7 +67,7 @@ export function anchoredMutation(source,options,tools){
   if(original.minor&&!original.intervals.includes(11)&&candidate?.intervals.includes(11))return symbol;
   if(dominant&&minorTarget&&original.intervals.includes(4)&&[14,21].some(n=>candidate?.intervals.includes(n)&&!original.intervals.includes(n)))
    candidate=parse(original.rootName+((seed+i)%2?'7b9':'7b13')+(original.bassName?'/'+original.bassName:''));
-  if(!candidate||candidate.root!==original.root)return symbol;
+  if(!candidate||candidate.root!==original.root||!allowedChange(original,candidate))return symbol;
   if(family(candidate)!==family(original)&&family(candidate)!=='suspended')return symbol;
   // Existing sevenths carry function; never turn maj7 into dominant or vice versa.
   if([10,11].some(n=>original.intervals.includes(n)&&!candidate.intervals.includes(n)))return symbol;
@@ -82,7 +86,7 @@ export function anchoredMutation(source,options,tools){
   plans.push({original:c,bar:barIndex,chord,onset,symbol:level==='low'&&!selected?c.symbol:paint(c.symbol,i),technique:'color'});
   onset+=c.beats;
  });});
- const mutable=!modal&&options.freedom!=='color'&&method==='style';
+ const mutable=options.freedom!=='color'&&method==='style';
  const budget=mutable?Math.floor(count*({low:0,medium:.25,high:.6}[level]??.25)):0;
  const cadenceArrival=analysis.findLast(row=>row.cadence);
  const arrivalIndex=cadenceArrival?(cadenceArrival.index+1)%count:count-1;
@@ -91,6 +95,13 @@ export function anchoredMutation(source,options,tools){
  // may be coloured/inverted or expanded to ii–V, but cannot become parallel v.
  const dominantSources=new Set();
  for(const row of analysis)if(row.relation==='dominant'&&row.target!=null){protectedTargets.add(row.target);dominantSources.add(row.index);}
+ const signatures=new Set();
+ for(let i=0;i<analysis.length;i++){
+  const a=analysis[i],b=analysis[i+1]||(options.loop!==false?analysis[0]:null);
+  if(b&&((a.offset===5&&!a.minor&&b.offset===5&&b.minor)||(key.mode==='minor'&&a.offset===8&&b.offset===7&&b.intervals.includes(4)))){signatures.add(i);signatures.add((i+1)%count);}
+  if((functional.blues||style.includes('blues'))&&a.offset===5&&a.intervals.includes(10))signatures.add(i);
+ }
+ for(const i of signatures){protectedTargets.add(i);plans[i].symbol=plans[i].original.symbol;plans[i].technique='retained-target';}
  // Retained arrivals must be settled before checking neighbouring candidates.
  if(plans.length&&mutable&&level!=='low')for(const index of protectedTargets){const target=plans[index];target.symbol=target.original.symbol;target.technique='retained-target';}
  const duplicatesNeighbour=(i,symbol)=>[plans[i-1],plans[i+1]].some(other=>other&&other.bar===plans[i].bar&&!other.replacement&&other.original.symbol!==plans[i].original.symbol&&other.symbol===symbol);
@@ -101,7 +112,7 @@ export function anchoredMutation(source,options,tools){
   const next=plans[i+1]||(options.loop!==false?plans[0]:null);
   const adjacent=next&&(next.bar===p.bar||next.bar===p.bar+1&&next.chord===0||p.bar===source.length-1&&next.bar===0);
   const choice=(seed+i)%3;
-  const parallel=techniques.parallel===false||dominantSources.has(i)?null:parallelDegreeChord(p.original.symbol,key);
+  const parallel=modal||techniques.parallel===false||dominantSources.has(i)?null:parallelDegreeChord(p.original.symbol,key);
   const cadence=adjacent&&tools.cadenceTo(next.original.symbol,{rich:level==='high'});
   const previous=plans[i-1]||(options.loop!==false?plans.at(-1):null);
   const redundantII=cadence&&previous&&parse(previous.original.symbol).minor&&parse(previous.original.symbol).root===parse(cadence[0]).root;
@@ -115,7 +126,7 @@ export function anchoredMutation(source,options,tools){
   }else if(choice===1&&parallel&&!duplicatesNeighbour(i,parallel)){
    p.symbol=parallel;p.technique='parallel';used++;
   }else{
-   const inverted=preserveBass||techniques.inversion===false?p.symbol:invertForMorph(p.symbol);
+   const inverted=preserveBass||techniques.inversion===false?p.symbol:invertForMorph(p.symbol,seed+i,{powerBass:['Heavy Metal','Doom Metal'].includes(style)});
    if(inverted!==p.symbol&&!duplicatesNeighbour(i,inverted)){p.symbol=inverted;p.technique='inversion';used++;}
   }
  }
@@ -151,6 +162,7 @@ export function anchoredMutation(source,options,tools){
  });
 }
 
+// Diagnostic only: authored conflicts are permitted by the round-3 MORPH contract.
 export function modalConflict(source,style,cfg,key){
  const modal=cfg.world||['Dorian folk','Phrygian dominant','Major blues','Minor blues'].includes(style);
  if(!modal)return null;

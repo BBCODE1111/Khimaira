@@ -1,4 +1,4 @@
-import {parse, mod, spellInterval, chordTones} from './music.js?v=1.0.5';
+import {parse, mod, spellInterval, chordTones} from './music.js?v=1.0.6';
 
 // Parallel modes use the SAME numbered degree, not the same chromatic root.
 // Keep this separate from whole-chart mode conversion (which retains minor V).
@@ -26,10 +26,12 @@ export function parallelDegreeChord(symbol, key) {
  return result+'/'+bass;
 }
 
-export function invertForMorph(symbol) {
+export function invertForMorph(symbol,seed=0,{powerBass=false}={}) {
  const c = parse(symbol);
- const interval = c.intervals.find(n => n === 3 || n === 4) ?? c.intervals.find(n => n === 5 || n === 7);
+ if(powerBass&&c.q==='5')return symbol;
+ const choices=c.intervals.filter(n=>[3,4,5,6,7,8,10,11].includes(n));
+ const interval=choices[Math.floor(seed/3)%choices.length];
  if (interval === undefined) return symbol;
- const bass = spellInterval(c.rootName, interval, interval === 5 ? 3 : interval === 7 ? 4 : 2);
+ const bass = spellInterval(c.rootName, interval, interval>=10?6:interval===5?3:interval>=6?4:2);
  return c.rootName + c.q + '/' + bass;
 }

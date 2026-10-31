@@ -1,15 +1,16 @@
-import {parse,mod} from './music.js?v=1.0.5';
+import {parse,mod} from './music.js?v=1.0.6';
 
 export function voicingCandidates(symbol,voicing='close'){
  const c=parse(symbol);if(!c)return [];
- let ints=[...c.intervals];
- // Bass supplies the root; inner extensions are allowed. Protect register and #9 below.
- if(ints.some(n=>n>=13)||voicing==='rootless'&&ints.length>=4)ints=ints.filter(n=>n!==0);
+ let ints=[...c.intervals];const maxUpper=c.bass!==c.root&&voicing!=='rootless'?6:5;
+ // Only a root-position bass supplies a duplicate root. Slash voicings retain it.
+ // Explicit rootless is the opt-in exception; protect register and #9 below.
+ if(ints.some(n=>n>=13)&&c.bass===c.root||voicing==='rootless'&&ints.length>=4)ints=ints.filter(n=>n!==0);
  if(ints.includes(21)&&ints.includes(4))ints=ints.filter(n=>n!==17);
- if(ints.length>5)ints=ints.filter(n=>n!==7);
- if(ints.length>5)ints=ints.filter(n=>n!==17);
- if(ints.length>5)ints=ints.filter(n=>![6,8].includes(n));
- if(ints.length>5){const guides=ints.filter(n=>[3,4,10,11].includes(n));ints=[...guides,...ints.filter(n=>!guides.includes(n)).sort((a,b)=>b-a)].slice(0,5);}
+ if(ints.length>maxUpper)ints=ints.filter(n=>n!==7);
+ if(ints.length>maxUpper)ints=ints.filter(n=>n!==17);
+ if(ints.length>maxUpper)ints=ints.filter(n=>![6,8].includes(n));
+ if(ints.length>maxUpper){const guides=ints.filter(n=>[...(c.bass!==c.root&&voicing!=='rootless'?[0]:[]),3,4,10,11].includes(n));ints=[...guides,...ints.filter(n=>!guides.includes(n)).sort((a,b)=>b-a)].slice(0,maxUpper);}
  const pcs=[...new Set(ints.map(n=>mod(c.root+n)))].sort((a,b)=>a-b),out=[];
  for(let inv=0;inv<pcs.length;inv++)for(const shift of [0,12]){
   const seq=pcs.slice(inv).concat(pcs.slice(0,inv));let upper=seq.map(n=>48+n+shift);

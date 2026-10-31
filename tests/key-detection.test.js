@@ -37,7 +37,7 @@ for(const [name,cases] of [['5 reported regressions',reportedCases],['17 theory 
   assert.ok(answers.some(([r,m])=>d.candidates.some(k=>matches(k,r,m))),chart+' expected key absent');
   if(alts.length)for(const [r,m] of answers)assert.ok(d.candidates.some(k=>matches(k,r,m)),chart+' ambiguous answer missing');
   assert.deepEqual(d.analysis,analyzeHarmony(bars,d.primary));
-  assert.deepEqual(degreeLabels(chartToDegrees(bars,d.primary),d.primary).flat(),d.analysis.events.map(c=>c.label));
+  assert.deepEqual(degreeLabels(chartToDegrees(bars,d.primary),d.primary).flat().map(s=>s.replace(/\/[b#]*[1-7]$/,'')),d.analysis.events.map(c=>c.label.replace(/\/[A-G][#b]*$/,'')));
  }
  assert.ok(correct/cases.length>=(name.startsWith('36')?.95:1),`${name}: ${correct}/${cases.length}`);
 });
@@ -55,7 +55,7 @@ test('functional labels identify loop secondary dominants, ii–V, borrowed cade
  assert.deepEqual(analyzeHarmony(parseChart('C7 | F7 | C7 | G7'),key).events.map(c=>c.label),['I7','IV7','I7','V7']);
  assert.equal(analyzeHarmony(parseChart('C | Db7#11 | C'),key).events[1].label,'subV7#11');
  const g={root:7,mode:'major'},bars=parseDegreeChart('Am11/G | D7 | Gmaj7/D',g);
- assert.deepEqual(degreeLabels(bars,g).flat(),['ii11/G','V7','Imaj7/D']);
+ assert.deepEqual(degreeLabels(bars,g).flat(),['ii11/1','V7','Imaj7/5']);
  const readable=formatDegreeChart(bars,g,{bassNames:true});assert.deepEqual(parseDegreeChart(readable,g),bars);
  for(const text of ['C/E | Db7#11/Ab | C/G','Dm | Eb7#11/Bb | Dm | G7']){
   const d=parseDegreeChart(text,key),human=formatDegreeChart(d,key,{bassNames:true});assert.deepEqual(parseDegreeChart(human,key),d);

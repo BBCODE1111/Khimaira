@@ -1,15 +1,15 @@
-import {rootPicker} from './root-picker.js?v=1.0.5';
-import {chordChoices,extraChordChoices,quickProgressions} from './chord-input.js?v=1.0.5';
-import {parse,spellPitch,chordTones} from './music.js?v=1.0.5';
-import {materializeChart} from './degree-chart.js?v=1.0.5';
+import {rootPicker} from './root-picker.js?v=1.0.6';
+import {chordChoices,extraChordChoices,quickProgressions,spellSelectedChord} from './chord-input.js?v=1.0.6';
+import {parse,spellPitch,chordTones} from './music.js?v=1.0.6';
+import {materializeChart} from './degree-chart.js?v=1.0.6';
 export function mountChordPicker({state,dispatch,select,editScore}){
  const panel=document.createElement('section');panel.id='chordPicker';panel.className='chord-picker';panel.hidden=true;panel.setAttribute('role','dialog');panel.setAttribute('aria-label','點按編輯骨幹');
  document.querySelector('.score-shell').after(panel);
  let activeBar=0,activeChord=0,trigger=null;
  const close=()=>{panel.hidden=true;(trigger?.isConnected?trigger:document.getElementById('editBackbone'))?.focus();};
  const button=(label,fn,attrs={})=>{const b=document.createElement('button');b.type='button';b.textContent=label;for(const [k,v] of Object.entries(attrs))b.setAttribute(k,v);b.onclick=fn;return b;};
- const act=(operation,extra={})=>{const ok=dispatch({type:'backboneEdit',operation,bar:activeBar,chord:activeChord,...extra},{resetDraft:true,message:'已更新骨幹；GENERATE 從這組進行變化，可 UNDO。'});if(ok){open(activeBar,activeChord,false);panel.querySelector('.root-picker [aria-pressed="true"]')?.focus({preventScroll:true});}};
- const choose=symbol=>{act('select',{symbol});};
+ const act=(operation,extra={})=>{const ok=dispatch({type:'backboneEdit',operation,bar:activeBar,chord:activeChord,...extra},{resetDraft:true,message:'已更新骨幹；MORPH 從這組進行變化，可 UNDO。'});if(ok){open(activeBar,activeChord,false);panel.querySelector('.root-picker [aria-pressed="true"]')?.focus({preventScroll:true});}};
+ const choose=symbol=>{const s=state(),bars=materializeChart(s.backbone.degrees,s.key),next=bars[activeBar]?.chords[activeChord+1]||bars[activeBar+1]?.chords[0];act('select',{symbol:spellSelectedChord(symbol,s.key,next?.symbol)});};
  function open(bar,chord=0,focus=true){
   if(focus)trigger=document.activeElement;activeBar=bar;activeChord=chord;const s=state(),key=s.key,source=materializeChart(s.backbone.degrees,key);
   activeChord=Math.min(activeChord,Math.max(0,(source[bar]?.chords.length||1)-1));

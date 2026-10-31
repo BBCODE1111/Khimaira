@@ -1,5 +1,5 @@
-import {analyzeHarmony,mod,parse} from './music.js?v=1.0.5';
-import {normalizeKey} from './degree-chart.js?v=1.0.5';
+import {analyzeHarmony,mod,parse} from './music.js?v=1.0.6';
+import {normalizeKey} from './degree-chart.js?v=1.0.6';
 
 // Krumhansl–Kessler pitch-class profiles (Krumhansl 1990). Published numeric
 // research data; Pearson correlation implemented here, no third-party code.
@@ -42,6 +42,14 @@ export function detectKey(bars,{loop=true,sections}={}){
  // Reconsider a close, better-explained candidate rather than returning a key
  // whose own functional analysis rejects most of the progression.
  if(ranked[0].unexplainedRatio>.35){const i=ranked.findIndex(k=>k.unexplainedRatio<=.2&&ranked[0].score-k.score<.12);if(i>0)ranked.unshift(...ranked.splice(i,1));}
+ // I7–VI7–ii–V can be a major turnaround even without a plain I.
+ // Retain this structural reading as a candidate; do not mistake VI7 for a new tonic.
+ const chart=bars.flatMap(b=>b.chords||[]).map(c=>parse(c.symbol));
+ let turnaround=null;
+ if(loop&&chart.length===4){for(let i=0;i<4;i++){
+  const [a,b,c,d]=Array.from({length:4},(_,j)=>chart[(i+j)%4]);
+  if(a.intervals.includes(4)&&a.intervals.includes(10)&&b.intervals.includes(4)&&b.intervals.includes(10)&&c.minor&&d.intervals.includes(4)&&[9,2,7].every((n,j)=>mod([b,c,d][j].root-a.root)===n))turnaround=ranked.find(k=>k.root===a.root&&k.mode==='major');
+ }}
  const best=ranked[0],relative=k=>k.mode!==best.mode&&k.root===mod(best.root+(best.mode==='major'?9:3));
  const candidates=ranked.filter(k=>best.score-k.score<=(relative(k)?.12:.085)).sort((a,b)=>a===best?-1:b===best?1:Number(relative(b))-Number(relative(a))||b.score-a.score).slice(0,3);
  // IV–V has an implied tonic, not an observed arrival; retain the bVII–I reading.
@@ -60,5 +68,6 @@ export function detectKey(bars,{loop=true,sections}={}){
    if(alternative&&!candidates.includes(alternative)){if(candidates.length>=3)candidates.pop();candidates.push(alternative);}
   }
  }
+ if(turnaround&&!candidates.includes(turnaround)){if(candidates.length>=3)candidates.pop();candidates.push(turnaround);}
  return {primary:best,candidates,ambiguous:candidates.length>1,ranked,analysis:best.analysis};
 }

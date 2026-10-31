@@ -1,4 +1,4 @@
-import {parse,mod,keyName,spellInterval,analyzeHarmony} from './music.js?v=1.0.5';
+import {parse,mod,keyName,spellInterval,analyzeHarmony} from './music.js?v=1.0.6';
 
 // Chromatic Roman notation is major-referenced in BOTH modes: Cm–Ab–Bb is
 // i–bVI–bVII. Quality is explicit, so changing tonic never changes chord type.
@@ -96,13 +96,13 @@ export function formatDegree(chord){
 // One analysis feeds both the detector and all user-facing function labels.
 export function analyzeDegreeChart(bars,key={root:0,mode:'major'},options={}){return analyzeHarmony(materializeChart(bars,key),normalizeKey(key),options);}
 export function degreeLabels(bars,key,options={}){
- const labels=bars.map(b=>b.chords.map(()=>''));for(const c of analyzeDegreeChart(bars,key,options).events)labels[c.bar][c.chord]=c.label;return labels;
+ const labels=bars.map(b=>b.chords.map(()=>''));for(const c of analyzeDegreeChart(bars,key,options).events){const bass=bars[c.bar].chords[c.chord].bass;labels[c.bar][c.chord]=bass?c.label.replace(/\/(?:[A-G][#b]*|[b#]*[1-7])$/,'')+'/'+(bass.alteration>0?'#'.repeat(bass.alteration):'b'.repeat(-bass.alteration))+bass.degree:c.label;}return labels;
 }
 export function formatDegreeChart(bars,key={root:0,mode:'major'},{bassNames=false}={}){
  const labels=degreeLabels(bars,key);
  return '| '+bars.map((b,i)=>b.chords.map((c,j)=>{
   let label=labels[i][j];
-  if(c.bass&&!bassNames){label=label.replace(/\/[A-G][#b]*$/,'');const a=c.bass.alteration;label+='/'+(a>0?'#'.repeat(a):'b'.repeat(-a))+c.bass.degree;}
+  if(c.bass&&!bassNames){label=label.replace(/\/(?:[A-G][#b]*|[b#]*[1-7])$/,'');const a=c.bass.alteration;label+='/'+(a>0?'#'.repeat(a):'b'.repeat(-a))+c.bass.degree;}
   if(!bassNames){const restored=parseRoman(label,key);if(restored.degree!==c.degree||restored.alteration!==c.alteration||restored.quality!==c.quality)label=formatDegree(c);}
   return label+(c.beats===4?'':':'+c.beats);
  }).join(' ')).join(' | ')+' |';

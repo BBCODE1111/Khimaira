@@ -1,6 +1,6 @@
-import {parse,names,mod,spellInterval} from './music.js?v=1.0.5';
-import {chordList} from './solutions.js?v=1.0.5';
-import {insertApproach} from './style-engine.js?v=1.0.5';
+import {parse,names,mod,spellInterval} from './music.js?v=1.0.6';
+import {chordList} from './solutions.js?v=1.0.6';
+import {insertApproach,cadenceTo} from './style-engine.js?v=1.0.6';
 
 // Resolve to the next sounding event. Never skip a rest or overwrite a target.
 export function insertCadence(bars,barIndex,chordIndex,{loop=false}={}){
@@ -10,11 +10,16 @@ export function insertCadence(bars,barIndex,chordIndex,{loop=false}={}){
  if(!next)throw Error('後方沒有相鄰和弦可解決；最後一小節可開啟 LOOP 連回開頭。');
  const target=parse(next.symbol);
  if(!target||target.intervals.includes(6)||target.intervals.includes(8)||!target.intervals.some(n=>n===3||n===4))throw Error('下一個和弦沒有明確的大／小三和弦核心，請改用手動編輯安排接近。');
- if(list.length>2||current.beats<2)throw Error('這段沒有足夠空間放入 ii–V；請先合併和弦或留至少兩拍。');
+ if(current.beats<1)throw Error('這段沒有足夠空間放入接近和弦；請先留至少一拍。');
  const out=structuredClone(bars);
- out[barIndex].chords.splice(chordIndex,1,...insertApproach([current],next.symbol));
+ const pair=cadenceTo(next.symbol);
+ const replacement=list.length>=4?[{symbol:pair[1],beats:current.beats}]:list.length===3?pair.map(symbol=>({symbol,beats:current.beats/2})):insertApproach([current],next.symbol);
+ const previous=list[chordIndex-1]||(barIndex>0?chordList(bars[barIndex-1]).at(-1):loop?chordList(bars.at(-1)).at(-1):null);
+ if(replacement.length===2&&previous&&parse(previous.symbol).root===parse(replacement[0].symbol).root){replacement[1].beats+=replacement[0].beats;replacement.splice(0,1);}
+ if(replacement.length===3&&[current,previous].some(c=>c&&parse(c.symbol).root===parse(replacement[1].symbol).root)){replacement[2].beats+=replacement[1].beats;replacement.splice(1,1);}
+ out[barIndex].chords.splice(chordIndex,1,...replacement);
  out[barIndex].reason=`ii–V → ${next.symbol}`;
- return {bars:out,target:next.symbol};
+ return {bars:out,target:next.symbol,kind:replacement.length===1?'V':'ii–V'};
 }
 export function invertChord(symbol){
  const c=parse(symbol);if(!c)throw Error('請先選擇和弦。');

@@ -76,10 +76,11 @@ test('variation amplitude increases approved techniques; RESTORE, recall and key
  const saved=migrateHarmony(JSON.parse(JSON.stringify({harmony:s})));assert.deepEqual(saved,s);
  assert.deepEqual(act(saved,{type:'restore'}).score,initial.score);assert.deepEqual(act(s,{type:'undo'}),initial);
 });
-test('regional mode rejects incompatible authored input without generating out-of-collection notes',()=>{
+test('regional mode accepts authored input; only newly added tones must respect its collection',()=>{
  const s=createHarmony({text:'C | Am | F | G',style:'Dorian folk',key,locked:true});
  const out=act(s,{type:'generate',options:{randomness:'high'}});
- assert.equal(out.warning.type,'modal-incompatible');assert.deepEqual(out.score,s.score);assert.deepEqual(out.backbone,s.backbone);
+ assert.notEqual(out.warning?.type,'modal-incompatible');assert.equal(out.origin.type,'morph');assert.deepEqual(out.backbone,s.backbone);
+ for(const c of harmonyView(out).bars.flatMap(b=>b.chords)){const a=c.morph.source,p=parse(c.symbol),original=parse(harmonyView(s).bars[a.bar].chords[a.chord].symbol);assert.ok(p.pcs.every(n=>[0,2,3,5,7,9,10].includes(n)||original.pcs.includes(n)));}
 });
 test('automatic approaches never duplicate the preceding anchor root, across styles and levels',async()=>{
  const {styles}=await import('../dist/style-engine.js');let cases=0;
@@ -112,9 +113,11 @@ const dominantCharts=[
  'C | E7 | Am | D7 | G7 | C','C | A7 | Dm | G7','Dm7 | G7 | Cmaj7 | A7',
  'Cmaj7 | Am7 | D7 | G7','Em7 | A7 | Dm7 | G7 | C','C | C7 | F | Fm | C',
  'Am | Dm | E7 | Am','F#m7 | B7 | Emaj7 | C#7','C7 | F7 | C7 | A7 | Dm7 | G7 | C7 | G7',
- 'C/E:2 A7:2 | Dm:2 D7:2 | G7 | C'
+ 'C/E:2 A7:2 | Dm:2 D7:2 | G7 | C',
+ 'C | E7 | Am | A7 | Dm | D7 | G7 | C','Am | G | F | E7',
+ 'Db | F7 | Bbm | Eb7 | Ab7 | Db','F7 | D7 | Gm7 | C7'
 ];
-test('R02-01: 10 dominant chains × 49 styles × 3 levels × 30 seeds retain actual resolution',()=>{
+test('R02-01: 14 dominant chains × 49 styles × 3 levels × 30 seeds retain actual resolution',()=>{
  let cases=0,links=0;
  for(const chart of dominantCharts){
   const source=parseChart(chart),rows=analyzeHarmony(source,key).events;
@@ -132,7 +135,7 @@ test('R02-01: 10 dominant chains × 49 styles × 3 levels × 30 seeds retain act
    cases++;
   }
  }
- assert.equal(cases,44100);console.log('R02-01:',cases,'cases;',links,'dominant resolutions');
+ assert.equal(cases,61740);console.log('R02-01:',cases,'cases;',links,'dominant resolutions');
 });
 test('R02-02: slash parallel maps chord positions; 200 seeded charts lose zero authored bass positions',()=>{
  for(const [a,b] of [['C/G','Cm/G'],['C/E','Cm/Eb'],['G/B','Gm/Bb'],['Am/E','Ab/Eb'],['C/D','Cm/D']])assert.equal(parallelDegreeChord(a,key),b);

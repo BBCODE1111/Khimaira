@@ -1,5 +1,5 @@
-import {parse,spellInterval,mod} from './music.js?v=1.0.5';
-import {parseDegreeChart,materializeChart,degreeLabels} from './degree-chart.js?v=1.0.5';
+import {parse,spellInterval,mod} from './music.js?v=1.0.6';
+import {parseDegreeChart,materializeChart,degreeLabels} from './degree-chart.js?v=1.0.6';
 const modes={major:[0,2,4,5,7,9,11],minor:[0,2,3,5,7,8,10],dorian:[0,2,3,5,7,9,10],phrygian:[0,1,3,5,7,8,10],lydian:[0,2,4,6,7,9,11],mixolydian:[0,2,4,5,7,9,10],locrian:[0,1,3,5,6,8,10]};
 export function chordChoices(key){
  const scale=modes[key.mode]||modes.major;
@@ -47,4 +47,20 @@ export function editBackbone(bars,action,key){
   [result[bar],result[to]]=[result[to],result[bar]];
  }else throw Error('Unknown backbone operation');
  return result;
+}
+
+// Only picker-created chords are respelled; typed/authored symbols stay literal.
+export function spellSelectedChord(symbol,key,nextSymbol){
+ const c=parse(symbol),next=parse(nextSymbol);if(!c)return symbol;
+ let root=c.rootName;
+ if(c.intervals.includes(3)&&c.intervals.includes(6)){
+  if(next&&mod(next.root-c.root)===1)root=spellInterval(next.rootName,-1,-1);
+  else if(next&&c.q==='m7b5'&&mod(c.root-next.root)===7)root=spellInterval(next.rootName,7,4);
+  else {
+   const offset=mod(c.root-key.root),raised={1:0,3:1,6:3,8:4,10:5};
+   if(key.mode==='major'&&raised[offset]!==undefined)root=spellInterval(key.tonic,offset,raised[offset]);
+   if(key.mode==='minor'&&offset===9)root=spellInterval(key.tonic,9,5);
+  }
+ }
+ return root+c.q+(c.bassName?'/'+c.bassName:'');
 }

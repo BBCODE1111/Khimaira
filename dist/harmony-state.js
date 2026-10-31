@@ -1,13 +1,13 @@
-import {editBackbone} from './chord-input.js?v=1.0.5';
-import {parseChart,chordList,serialize} from './solutions.js?v=1.0.5';
-import {parse} from './music.js?v=1.0.5';
-import {normalizeKey,parseDegreeChart,chartToDegrees,materializeChart,sameDegrees,formatDegreeChart,degreeLabels} from './degree-chart.js?v=1.0.5';
-import {detectKey} from './key-detection.js?v=1.0.5';
-import {mutate,styles} from './style-engine.js?v=1.0.5';
-import {styleTonality,modalConflict} from './backbone-mutation.js?v=1.0.5';
-import {examplesForKey,nextKeyedExample} from './keyed-examples.js?v=1.0.5';
+import {editBackbone} from './chord-input.js?v=1.0.6';
+import {parseChart,chordList,serialize} from './solutions.js?v=1.0.6';
+import {parse} from './music.js?v=1.0.6';
+import {normalizeKey,parseDegreeChart,chartToDegrees,materializeChart,sameDegrees,formatDegreeChart,degreeLabels} from './degree-chart.js?v=1.0.6';
+import {detectKey} from './key-detection.js?v=1.0.6';
+import {mutate,styles} from './style-engine.js?v=1.0.6';
+import {styleTonality} from './backbone-mutation.js?v=1.0.6';
+import {examplesForKey,nextKeyedExample} from './keyed-examples.js?v=1.0.6';
 
-import {convertDegreeMode} from './mode-conversion.js?v=1.0.5';
+import {convertDegreeMode} from './mode-conversion.js?v=1.0.6';
 
 export const HARMONY_SCHEMA=1;
 const copy=x=>structuredClone(x);
@@ -99,7 +99,7 @@ export function applyHarmonyAction(current,action){
   case 'compare':{
    if(action.index==='backbone'){s.score=copy(s.backbone.degrees);s.traceValid=false;s.origin={type:'compare',side:'A'};}
    else {const entry=s.morphHistory?.[action.index];if(!entry)throw Error('請先產生 MORPH 結果。');s.score=copy(entry.score);s.compareIndex=action.index;s.traceValid=true;s.origin={type:'compare',side:'B',variation:entry.variation};}
-   break;
+   return s; // Audition switches do not consume musical undo history.
   }
   case 'restoreSource':{
    const {bar,chord}=action.source||{},original=s.backbone.degrees[bar]?.chords[chord];
@@ -150,8 +150,6 @@ export function applyHarmonyAction(current,action){
     basis=p?parseChart(p.chart):materializeChart(parseDegreeChart(s.key.mode==='minor'?'i | bVI | iv | V7':'I | vi | IV | V7',s.key),s.key);
    }
    const expanded=Array.from({length:filled?source.length:requestedLength},(_,i)=>copy(basis[i%basis.length]||{chords:[]}));
-   const conflict=modalConflict(expanded,s.style,styles[s.style],effectiveKey(s));
-   if(conflict){s.warning={type:'modal-incompatible',...conflict};break;}
    const previous=symbols(s.score,s.key);let candidate,seed=Number(options.seed??s.variation+1);
    if(!Number.isSafeInteger(seed)||seed<0)throw Error('Invalid variation seed');
    for(let attempt=0;attempt<=8;attempt++,seed++){
@@ -162,7 +160,10 @@ export function applyHarmonyAction(current,action){
    s.traceValid=true;s.variation=seed;s.score=chartToDegrees(candidate,s.key);s.origin={type:!filled?'idea':'morph',variation:seed,level:options.randomness||'medium'};
    if(filled&&requestedLength!==source.length)s.warning={type:'length-preserved',length:source.length,requested:requestedLength};
    else if(symbols(s.score,s.key)===previous)s.warning={type:'variation-exhausted',attempts:9};
-   if(filled&&symbols(s.score,s.key)!==previous){s.morphHistory=[...(s.morphHistory||[]),{score:copy(s.score),variation:seed,style:s.style}].slice(-6);s.compareIndex=s.morphHistory.length-1;}
+   const budget=Math.floor(expanded.flatMap(b=>b.chords).length*({low:0,medium:.25,high:.6}[options.randomness||'medium']));
+   const used=new Set(candidate.flatMap(b=>b.chords).filter(c=>['inversion','parallel','ii-V'].includes(c.morph?.technique)).map(c=>JSON.stringify(c.morph.source))).size;
+   if(!s.warning&&used<budget)s.warning={type:'technique-limit',used,budget};
+   if(filled&&symbols(s.score,s.key)!==previous){s.morphHistory=[...(s.morphHistory||[]),{score:copy(s.score),variation:seed,style:s.style,level:options.randomness||'medium'}].slice(-6);s.compareIndex=s.morphHistory.length-1;}
    break;
   }
   default:throw Error('Unknown harmony action: '+action.type);

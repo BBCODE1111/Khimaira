@@ -20,13 +20,23 @@ Each output event has `morph.source = {bar, chord, onset}` (zero-based, onset in
 
 Parallel borrowing is currently defined for diatonic triads, sevenths and supported 9/11/13 extensions; altered and applied authored chords retain their colour contract, with inversion or target-based ii–V available where appropriate. The whole-chart explicit mode conversion remains a separate action. Major-to-sus colour remains the prior product choice, with the third omitted (not a claim that the chord family stayed identical).
 
-Regional/modal styles disable tonal borrowing/replacement and only generate in their pitch collection. If an authored source contains incompatible chord or bass tones, the website does not generate: it retains the existing score and explains the conflict, suggesting EDIT or a compatible LOAD. It never silently retunes a backbone into a regional scale. RESTORE always returns the backbone. A populated backbone ignores a different length selector with an explicit notice; the length selector applies to empty generation only.
+Regional/modal styles disable tonal borrowing/replacement. Round 3 permits each source slot’s authored chord/bass tones, and restricts additional tones to the style collection. Inversions use source chord tones. Source incompatibility no longer rejects MORPH; the key and backbone are not silently retuned. RESTORE always returns the backbone. A populated backbone ignores a different length selector with an explicit notice; the length selector applies to empty generation only.
 
 Current checks: `node --test tests/morph-backbone.test.js tests/morph-contract-v2.test.js`; full release gate: `npm run verify:web`. Browser CI is prepared for the host/CI runner; this sandbox session does not run browsers. Prior 279/279 included native integration and must not be compared with the website-only baseline (288 tests before this continuation). See `docs/reviews/ROUND1-CONTINUATION.md` for current counts and limitations.
 
 
 ## 2026-10-31 round 2 / web 1.0.4
 
-Existing dominant targets (including loop targets) now remain literal arrivals; their incoming dominants retain function and may still be coloured, inverted or expanded to a same-target ii–V. Parallel slash basses follow the same chord-tone position. The UI exposes independent technique switches and defaults to preserving the bass line; this still permits degree-based parallel conversion. The raw API keeps its previous default unless `preserveBass: true` is supplied.
+Existing dominant targets (including loop targets) now remain literal arrivals; their incoming dominants retain function and may still be coloured, inverted or expanded to a same-target ii–V. Parallel slash basses follow the same chord-tone position. The UI exposes independent technique switches and defaults to allowing bass changes (preserve-bass is unchecked); this still permits degree-based parallel conversion. The raw API keeps its previous default unless `preserveBass: true` is supplied.
 
 Visible source/technique/target traces support restoring one whole source slot. Six recent MORPH results can be compared against the backbone and adopted with KEEP. Mobile fixed controls include MORPH, the current chart summary and feedback. Local Node validation is 315/315; browser, release tags and deployment remain unverified in this sandbox. See [round 2 evidence](../reviews/ROUND2-IMPLEMENTATION.md).
+
+## 2026-11-01 round 3 / web 1.0.6 (not yet deployed)
+
+Authored outside-collection notes are permitted per source slot; new notes remain restricted. Signature IV→iv, minor bVI→V, blues IV7 (recognized by shared analysis, even under Jazz), and resolving dominant function are protected. Approved Am→Ab and Em→Eb remain available. Modal styles can invert existing chord tones; they cannot add tonal borrowing/replacement. Inversion candidates vary with the seed. When functional protection or disabled techniques leaves the amplitude budget unused, the UI reports the actual changed-slot count and budget.
+
+A/B is audition state and no longer adds undo entries. Live MORPH, A/B, style and UNDO replace notes on the existing beat clock, preserving fractional position and common held pitches. LOOP off cancels prefetched next-cycle attacks and bounds held tails; re-enabling before the boundary restores held duration. The chosen cue bar remains the loop start (the loop covers that bar through the chart end, matching the existing playbackSlice contract).
+
+Close/open slash voicings retain the root; explicit Rootless may omit it. MIDI adds time signature and track names without changing its note-event pairing rules. Dense manual NEXT edits only the selected slot: three-chord bars replace it with ii–V; four-chord bars use V only. `plugin/` is untouched; consumers of the same JS engine must validate changed note outputs and live-clock integration separately.
+
+Validation and item-by-item evidence: [round 3 implementation](../reviews/ROUND3-IMPLEMENTATION.md). Browser scripts, real devices, DAWs and SEIREN remain pending outside this checkout. The new release tag has not been created.

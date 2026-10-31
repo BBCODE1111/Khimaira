@@ -10,8 +10,8 @@ module.exports=async function round2Checks(page){
  for(let i=0;i<7;i++)await page.click('#generate');
  const result=await read(page);assert.equal(result.morphHistory.length,6);
  const traces=page.locator('.morph-trace');assert.ok(await traces.count()>0);
- assert.ok(await traces.first().isVisible());assert.match(await traces.first().textContent(),/ → .*・/);
- assert.match(await traces.first().locator('..').getAttribute('aria-label'),/ → .*・/);
+ assert.ok(await traces.first().isVisible());assert.match(await traces.first().textContent(),/(?: → .*・|・時值讓給接近和弦)/);
+ assert.match(await traces.first().locator('..').getAttribute('aria-label'),/(?: → .*・|・時值讓給接近和弦)/);
  const restoring=page.locator('.morph-restores button').first();
  await restoring.click();assert.equal((await read(page)).origin.type,'edit');await page.click('#undo');
  assert.deepEqual((await read(page)).score,result.score);
