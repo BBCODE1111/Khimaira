@@ -41,7 +41,7 @@ module.exports=async function round4Checks(page){
  assert.equal(await page.locator('#chordPicker [data-root="6"]').textContent(),'F#');
  await page.keyboard.press('Escape');
  await page.locator('.chord-event').first().click();
- await page.selectOption('#editQuality','dim7');await page.selectOption('#editRoot','1');
+ await page.selectOption('#editQuality','dim7');await page.click('#editorRoots [data-root="1"]');
  assert.match(await page.textContent('#editorPreview'),/^C#dim7/);
  assert.equal(await page.locator('#editorRoots [data-root="1"]').textContent(),'C#');
  await page.keyboard.press('Escape');
