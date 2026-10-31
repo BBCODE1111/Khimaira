@@ -1,4 +1,4 @@
-import {analyzeHarmony,mod} from './music.js?v=morph-1';
+import {analyzeHarmony,mod,parse} from './music.js?v=morph-1';
 import {normalizeKey} from './degree-chart.js?v=morph-1';
 
 // Krumhansl–Kessler pitch-class profiles (Krumhansl 1990). Published numeric
@@ -22,12 +22,13 @@ export function detectKey(bars,{loop=true,sections}={}){
  if(!bars.some(b=>b.chords?.length))return {primary:null,candidates:[],ambiguous:true};
  const ranked=[];
  for(let root=0;root<12;root++)for(const mode of ['major','minor']){
-  const key=normalizeKey({root,mode}),analysis=analyzeHarmony(bars,key,{loop});let evidence=0;
+  const tonic=bars.flatMap(b=>b.chords||[]).map(c=>({...parse(c.symbol),beats:c.beats})).filter(c=>c.root===root).sort((a,b)=>b.beats-a.beats)[0]?.rootName;
+  const key=normalizeKey({root,mode,...(tonic?{tonic}:{})}),analysis=analyzeHarmony(bars,key,{loop});let evidence=0;
   for(const c of analysis.events){
    const w=c.beats/analysis.totalBeats;
    evidence+=({diatonic:3,dominant:3,secondary:3,tritone:3,'applied-predominant':3,borrowed:1.5,unexplained:-2}[c.role])*w;
    if(c.offset===0&&c.role==='diatonic')evidence+=.7*w;
-   if(c.impliedTonic)evidence+=(c.impliedTonic.strength==='ii-V'?4:.5)*w;
+   if(c.impliedTonic)evidence+=(['ii-V','IV-V','dominant-chain'].includes(c.impliedTonic.strength)?4:.5)*w;
    if(c.cadence)evidence+=({ 'ii-V-I':7,'V-I':4,'subV-I':4,'IV-I':2,'iv-I':4,'bVII-I':2,'v-i':1 }[c.cadence])*(1+(c.phraseEnd?.15:0))*w;
   }
   const first=analysis.events[0],last=analysis.events.at(-1);

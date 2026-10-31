@@ -14,8 +14,9 @@ export function chordChoices(key){
  });
 }
 export function extraChordChoices(key){
- const tokens=['V7/ii','V7/iii','V7/IV','V7/V','V7/vi','iv','bVI','bVII'];
- return tokens.map(label=>({label,symbol:materializeChart(parseDegreeChart(label,key),key)[0].chords[0].symbol}));
+ const secondary=chordChoices(key).filter(choice=>{const chord=parse(choice.symbol);return chord.root!==key.root&&!chord.intervals.includes(6);}).map(choice=>({label:'V7/'+choice.label,symbol:spellInterval(parse(choice.symbol).rootName,7,4)+'7'}));
+ const borrowed=key.mode==='minor'?['I','ii','IV','vi']:key.mode==='major'?['iv','bVI','bVII']:[];
+ return [...secondary,...borrowed.map(label=>({label,symbol:materializeChart(parseDegreeChart(label,key),key)[0].chords[0].symbol}))];
 }
 export const quickProgressions=[['I–V–vi–IV','I | V | vi | IV'],['vi–IV–I–V','vi | IV | I | V'],['ii–V–I','ii7 | V7 | Imaj7'],['1645','I | vi | IV | V'],['卡農','I | V | vi | iii | IV | I | IV | V']];
 // Pure, shared website/JUCE edit contract. Actual pitches enter first; callers

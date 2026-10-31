@@ -1,9 +1,9 @@
 /**
- * Shared music theory 1.1.1. Canonical source; generated deployment copies are
+ * Shared music theory 1.1.2. Canonical source; generated deployment copies are
  * checked by scripts/sync-music-core.mjs. No UI, playback or generation imports.
  * Profiles preserve the two apps' existing contracts, including known differences.
  */
-export const MUSIC_CORE_VERSION = '1.1.1';
+export const MUSIC_CORE_VERSION = '1.1.2';
 export const names=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
 export const mod=n=>((n%12)+12)%12;
 const pc=s=>mod(({C:0,D:2,E:4,F:5,G:7,A:9,B:11})[s[0]]+[...s.slice(1)].reduce((n,a)=>n+(a==='#'?1:a==='b'?-1:0),0));
@@ -87,6 +87,18 @@ export function createTheory(profile) {
    return (mode==='minor'?['C','C#','D','Eb','E','F','F#','G','G#','A','Bb','B']:['C','Db','D','Eb','E','F','F#','G','Ab','A','Bb','B'])[mod(key)];
   }
   function spellPitch(pitch,key=0,mode='major'){
+   // Opt-in contextual spelling for editors. Numeric callers retain the
+   // published compatibility contract used by existing generators.
+   if(typeof key==='object'){
+    const tonic=key.tonic||keyName(key.root,key.mode),offset=mod(pitch-key.root);
+    const scale=key.mode==='minor'?[0,2,3,5,7,8,10]:[0,2,4,5,7,9,11];
+    const degree=scale.indexOf(offset);
+    if(degree>=0)return spellInterval(tonic,offset,degree);
+    if(key.mode==='minor'&&offset===11)return spellInterval(tonic,11,6);
+    const borrowed={1:1,3:2,8:5,10:6};
+    if(key.mode!=='minor'&&borrowed[offset]!==undefined)return spellInterval(tonic,offset,borrowed[offset]);
+    return spellPitch(pitch,key.root,key.mode);
+   }
    const tonic=keyName(key,mode),scale=mode==='minor'?[0,2,3,5,7,8,10]:[0,2,4,5,7,9,11],degree=scale.indexOf(mod(pitch-key));
    if(degree>=0)return spellInterval(tonic,scale[degree],degree);
    const sharp=(mode==='minor'?[1,4,6,8,11]:[2,4,6,7,9,11]).includes(mod(key));
@@ -142,7 +154,7 @@ export function createTheory(profile) {
     const p=parse(c.symbol);if(!p)throw Error('Cannot analyze chord: '+c.symbol);
     return {...p,bar,chord,beats:Number.isFinite(c.beats)&&c.beats>0?c.beats:4,offset:mod(p.root-root),quality:quality(p)};
    }));
-   const blues=major&&[0,5,7].every(d=>events.some(c=>c.offset===d&&seventh(c)));
+   const blues=major&&[0,5,7].every(d=>events.some(c=>c.offset===d&&seventh(c)))&&(events.every(c=>!seventh(c)||[0,5,7].includes(c.offset))||events.filter(c=>c.offset===0).length>=2);
    const diatonic=c=>{
     const q=c.quality,d=c.offset;
     if(major&&seventh(c)&&d!==7)return blues&&[0,5].includes(d);
@@ -150,9 +162,19 @@ export function createTheory(profile) {
    };
    const borrowed=c=>major&&(c.offset===5&&c.quality==='m'||[3,8,10].includes(c.offset)&&c.quality==='M'||c.offset===2&&c.quality==='d');
    const at=i=>i>=0&&i<events.length?events[i]:loop&&events.length>1?events[(i+events.length)%events.length]:null;
+   // Follow actual fifth-related sevenths to a tonal destination, or to an
+   // unresolved V. A chain is not a succession of arrivals at new tonics.
+   const chainTarget=(index,seen=new Set())=>{
+    const c=at(index);if(!c||seen.has(index%events.length))return false;
+    if(diatonic(c)&&(!seventh(c)||c.offset===7))return true;
+    if(!seventh(c)||!dominant(c))return false;
+    seen.add(index%events.length);
+    const next=at(index+1);
+    return !!next&&mod(c.root+5)===next.root&&chainTarget(index+1,seen);
+   };
    const rows=events.map((c,i)=>{
     const next=at(i+1);let role=diatonic(c)?'diatonic':borrowed(c)?'borrowed':'unexplained',target=null,relation=null;
-    if(next&&diatonic(next)&&dominant(c)&&(!blues||c.offset===7)){
+    if(next&&(diatonic(next)||seventh(c)&&chainTarget(i+1))&&dominant(c)&&(!blues||c.offset===7)){
      if(mod(c.root+5)===next.root)relation='dominant';
      else if(seventh(c)&&mod(c.root-1)===next.root)relation='tritone';
      // A plain diatonic I–IV is not automatically a tonicization. A chromatic
@@ -165,7 +187,8 @@ export function createTheory(profile) {
    });
    for(const row of rows){
     if(row.target!==null){
-     const target=rows[row.target],targetDegree=baseRoman(target).match(/^[b#]*[ivIV]+/)[0];
+     const target=rows[row.target];let targetDegree=baseRoman(target).match(/^[b#]*[ivIV]+/)[0];
+     if(seventh(target)&&expected[target.offset])targetDegree=['m','d'].includes(expected[target.offset])?targetDegree.toLowerCase():targetDegree.replace(/[iv]+/g,n=>n.toUpperCase());
      row.label=(row.relation==='tritone'?'subV':'V')+row.q+(target.offset===0?'':'/'+targetDegree);
      const prev=at(row.index-1);
      if(prev&&['m','d'].includes(prev.quality)&&mod(prev.root-target.root)===2){
@@ -173,7 +196,7 @@ export function createTheory(profile) {
       if(pre.role==='unexplained')pre.role='applied-predominant';
       pre.approachTarget=row.target;
      }
-     if(target.offset===0&&diatonic(target))row.cadence=row.iiV?'ii-V-I':row.relation==='tritone'?'subV-I':'V-I';
+     if(target.offset===0&&diatonic(target)&&(!seventh(target)||blues))row.cadence=row.iiV?'ii-V-I':row.relation==='tritone'?'subV-I':'V-I';
     }
     // An unresolved ii–V is still evidence for its implied tonic. Keep it
     // distinct from an observed cadence: no destination chord is invented.
@@ -181,7 +204,10 @@ export function createTheory(profile) {
     const previous=at(row.index-1);
     if(!row.cadence&&row.offset===7&&dominant(row)){
      const pair=previous&&mod(previous.root-root)===2&&(major?previous.quality==='m':previous.quality==='d');
-     row.impliedTonic={root,mode,strength:pair?'ii-V':'V'};
+     const ivV=major&&previous?.offset===5&&previous.quality==='M'&&!seventh(previous)&&events.every(c=>[5,7].includes(c.offset));
+     const beforePrevious=at(row.index-2);
+     const chain=previous&&beforePrevious&&seventh(previous)&&seventh(beforePrevious)&&mod(previous.root+5)===row.root&&mod(beforePrevious.root+5)===previous.root;
+     row.impliedTonic={root,mode,strength:pair?'ii-V':ivV?'IV-V':chain?'dominant-chain':'V'};
      if(pair){row.iiV=true;const pre=rows[(row.index-1+rows.length)%rows.length];pre.approachTonic={root,mode};}
     }
     const next=at(row.index+1);

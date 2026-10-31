@@ -1,4 +1,4 @@
-import {createTheory,mod} from './music-core.js?v=1.1.1';
+import {createTheory,mod} from './music-core.js?v=1.1.2';
 const {parse}=createTheory('khimaira-v1');
 import {gridRandom,gridTarget,sameHarmony} from './performance-grid.js?v=bar-grid-2';
 

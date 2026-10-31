@@ -2,6 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import {createHarmony,applyHarmonyAction as act,harmonyView,effectiveKey,migrateHarmony} from '../dist/harmony-state.js';
 import {parseDegreeChart,formatDegreeChart} from '../dist/degree-chart.js';
 import {parse,mod} from '../dist/music.js';import {voicePlan} from '../dist/performance.js';
+import {styleTonality} from '../dist/backbone-mutation.js';
 import {styles} from '../dist/style-engine.js';import {examplesForKey} from '../dist/keyed-examples.js';
 const sig=s=>harmonyView(s).bars.map(b=>b.chords.map(c=>({root:parse(c.symbol).root,bass:parse(c.symbol).bass,pcs:parse(c.symbol).pcs,beats:c.beats})));
 const corpus=['I/3 | V7/V/#4 | iv:2 bVImaj7:2 | V7b9','i | bVI | iiø7 | V7b9','Imaj9:2 vi7:2 | ii9 | V13 | I69','bIImaj7 | #iv°7 | V7alt | imaj7','I | | V7sus4 | I'];
@@ -29,10 +30,10 @@ test('24 keys × 49 styles: mode conversion, transpose, all generation levels, e
   const target=from==='major'?'minor':'major';let initial=createHarmony({text:from==='major'?'I | vi | IV | V7':'i | bVI | iv | V7',key:{root,mode:from},locked:true});
   const converted=act(initial,{type:'convertMode',mode:target,confirmed:true});assert.equal(converted.key.mode,target);assert.deepEqual(converted.backbone.originalDegrees,initial.backbone.degrees);
   for(const style of Object.keys(styles)){
-   let s=act(converted,{type:'style',style});s=act(s,{type:'transpose',key:{root:(root+5)%12,mode:target}});let backbone=structuredClone(s.backbone);const key=structuredClone(s.key);
-   for(const randomness of ['low','medium','high']){s=act(s,{type:'generate',options:{randomness}});assert.deepEqual(s.backbone,backbone);assert.deepEqual(effectiveKey(s),key);}
+   let s=act(converted,{type:'style',style});s=act(s,{type:'transpose',key:{root:(root+5)%12,mode:target}});let backbone=structuredClone(s.backbone);const storedKey=structuredClone(s.key),key=styleTonality(style,styles[style],storedKey);
+   for(const randomness of ['low','medium','high']){s=act(s,{type:'generate',options:{randomness}});assert.deepEqual(s.backbone,backbone);assert.deepEqual(s.key,storedKey);assert.deepEqual(effectiveKey(s),key);}
    const pool=examplesForKey(style,key);if(pool.length){s=act(s,{type:'example',id:pool[0].id});assert.deepEqual(s.score,pool[0].degrees);assert.deepEqual(s.backbone.degrees,s.score);backbone=structuredClone(s.backbone);}
-   s=act(s,{type:'inspire'});assert.deepEqual(s.backbone,backbone);assert.deepEqual(effectiveKey(s),key);const before=structuredClone(s);
+   s=act(s,{type:'inspire'});assert.deepEqual(s.backbone,backbone);assert.deepEqual(s.key,storedKey);assert.deepEqual(effectiveKey(s),key);const before=structuredClone(s);
    s=act(s,{type:'restore'});assert.deepEqual(s.score,backbone.degrees);assert.deepEqual(act(s,{type:'undo'}),before);assert.deepEqual(migrateHarmony(JSON.parse(JSON.stringify({harmony:s}))),s);
   }
  }

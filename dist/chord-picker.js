@@ -1,19 +1,20 @@
 import {chordChoices,extraChordChoices,quickProgressions} from './chord-input.js?v=genre-2';
 import {parse,spellPitch,chordTones} from './music.js?v=morph-1';
 import {materializeChart} from './degree-chart.js?v=morph-1';
-export function mountChordPicker({state,dispatch,select}){
+export function mountChordPicker({state,dispatch,select,editScore}){
  const panel=document.createElement('section');panel.id='chordPicker';panel.className='chord-picker';panel.hidden=true;panel.setAttribute('aria-label','點按編輯骨幹');
  document.getElementById('grid').after(panel);
- let activeBar=0,activeChord=0,dragBar=null;
+ let activeBar=0,activeChord=0;
  const button=(label,fn,attrs={})=>{const b=document.createElement('button');b.type='button';b.textContent=label;for(const [k,v] of Object.entries(attrs))b.setAttribute(k,v);b.onclick=fn;return b;};
  const act=(operation,extra={})=>{const ok=dispatch({type:'backboneEdit',operation,bar:activeBar,chord:activeChord,...extra},{resetDraft:true,message:'已更新骨幹；GENERATE 從這組進行變化，可 UNDO。'});if(ok)open(activeBar,activeChord,false);};
  const choose=symbol=>{act('select',{symbol});};
  function open(bar,chord=0,focus=true){
   activeBar=bar;activeChord=chord;const s=state(),key=s.key,source=materializeChart(s.backbone.degrees,key);
   activeChord=Math.min(activeChord,Math.max(0,(source[bar]?.chords.length||1)-1));
-  select(bar,activeChord);panel.replaceChildren();panel.hidden=false;
+  panel.replaceChildren();panel.hidden=false;
   const header=document.createElement('div');header.className='picker-heading';const title=document.createElement('strong');title.textContent=`BAR ${bar+1} · 編輯骨幹`;
-  header.append(title,button('關閉',()=>{panel.hidden=true;document.querySelector(`[data-bar="${bar}"]`)?.focus();},{'aria-label':'關閉和弦選擇'}));panel.append(header);
+  const barSelect=document.createElement('select');barSelect.setAttribute('aria-label','編輯骨幹小節');source.forEach((_,i)=>barSelect.add(new Option(`BAR ${i+1}`,i)));barSelect.value=bar;barSelect.onchange=()=>open(+barSelect.value,0,false);
+  header.append(title,barSelect,button('關閉',()=>{panel.hidden=true;document.querySelector(`[data-bar="${bar}"]`)?.focus();},{'aria-label':'關閉和弦選擇'}));panel.append(header);
   if(source[bar]?.chords.length>1){const halves=document.createElement('div');halves.className='picker-halves';source[bar].chords.forEach((c,i)=>halves.append(button(`${i+1} · ${c.symbol}`,()=>open(bar,i,false),{'aria-pressed':String(i===activeChord),'data-half':i})));panel.append(halves);}
   const grid=document.createElement('div');grid.className='picker-choices';const choices=chordChoices(key);
   for(const c of choices)grid.append(button(`${c.symbol}  ${c.label}`,()=>choose(c.symbol),{'data-choice':c.symbol}));panel.append(grid);
@@ -24,9 +25,9 @@ export function mountChordPicker({state,dispatch,select}){
   const sevens=document.createElement('div');sevens.className='picker-choices';for(const c of choices)sevens.append(button(c.seventh,()=>choose(c.seventh),{'data-choice':c.seventh}));more.append(sevens);
   const extra=document.createElement('div');extra.className='picker-choices';for(const c of extraChordChoices(key))extra.append(button(`${c.symbol} ${c.label}`,()=>choose(c.symbol),{'data-choice':c.symbol}));more.append(extra);
   const current=source[bar]?.chords[activeChord]?.symbol||choices[0].symbol,c=parse(current),controls=document.createElement('div');controls.className='picker-custom';
-  const root=document.createElement('select');root.setAttribute('aria-label','任意根音');for(let i=0;i<12;i++)root.add(new Option(spellPitch(i,key.root,key.mode),i));root.value=c.root;
+  const root=document.createElement('select');root.setAttribute('aria-label','任意根音');for(let i=0;i<12;i++)root.add(new Option(spellPitch(i,key),i));root.value=c.root;
   const quality=document.createElement('select');quality.setAttribute('aria-label','和弦性質');for(const q of ['','m','7','maj7','m7','9','maj9','m9','sus2','sus4','add9','6','m6','m7b5','dim','dim7','aug','13','7#11'])quality.add(new Option(q||'大三',q));if(![...quality.options].some(o=>o.value===c.q))quality.add(new Option(c.q,c.q));quality.value=c.q;
-  const bass=document.createElement('select');bass.setAttribute('aria-label','轉位低音');bass.add(new Option('根音',''));for(let i=0;i<12;i++)bass.add(new Option('/'+spellPitch(i,key.root,key.mode),i));bass.value=c.bassName?c.bass:'';
+  const bass=document.createElement('select');bass.setAttribute('aria-label','轉位低音');bass.add(new Option('根音',''));for(let i=0;i<12;i++)bass.add(new Option('/'+spellPitch(i,key),i));bass.value=c.bassName?c.bass:'';
   controls.append(root,quality,bass,button('套用和弦',()=>choose(root.selectedOptions[0].textContent+quality.value+(bass.value!==''?'/'+bass.selectedOptions[0].textContent.slice(1):'')),{'data-picker-action':'apply'}));
   const inversions=document.createElement('div');inversions.className='picker-choices';const tones=chordTones(current);for(const i of [1,2])if(tones[i])inversions.append(button(`${c.rootName+c.q}/${tones[i]}`,()=>choose(c.rootName+c.q+'/'+tones[i])));
   more.append(controls,inversions);panel.append(more);
@@ -37,10 +38,9 @@ export function mountChordPicker({state,dispatch,select}){
   chips.replaceChildren();chips.hidden=s.backbone.degrees.some(b=>b.chords.length);
   if(!chips.hidden)for(const [name] of quickProgressions)chips.append(button(name,()=>act('quick',{name})));
   document.querySelectorAll('#grid .bar').forEach((bar,i)=>{
-   bar.draggable=true;bar.ondragstart=e=>{dragBar=i;e.dataTransfer.setData('text/plain',String(i));};bar.ondragover=e=>e.preventDefault();bar.ondrop=e=>{e.preventDefault();if(dragBar!==null){activeBar=dragBar;act('move',{to:i});dragBar=null;}};
-   bar.oncontextmenu=e=>{e.preventDefault();open(i,0);};
-   let timer=null;bar.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')timer=setTimeout(()=>open(i,0),550);});for(const event of ['pointerup','pointercancel','pointermove'])bar.addEventListener(event,()=>clearTimeout(timer));
-   bar.querySelectorAll('.chord-event').forEach((b,j)=>b.onclick=()=>open(i,j));
+   bar.oncontextmenu=e=>{e.preventDefault();editScore(i,0);};
+   let timer=null;bar.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')timer=setTimeout(()=>editScore(i,0),550);});for(const event of ['pointerup','pointercancel','pointermove'])bar.addEventListener(event,()=>clearTimeout(timer));
+   bar.querySelectorAll('.chord-event').forEach((b,j)=>b.onclick=()=>{panel.hidden=true;editScore(i,j);});
    if(!bar.querySelector('.chord-event')){const add=button('＋ 選和弦',()=>open(i,0),{'data-empty-bar':i});add.className='empty-chord';bar.querySelector('.chord-lane').append(add);}
   });
   if(!panel.hidden)open(Math.min(activeBar,Math.max(0,s.backbone.degrees.length-1)),activeChord,false);

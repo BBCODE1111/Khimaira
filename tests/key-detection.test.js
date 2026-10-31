@@ -3,9 +3,9 @@ import {parseChart} from '../dist/solutions.js';
 import {detectKey} from '../dist/key-detection.js';
 import {keyCases} from './key-cases.js';
 import {readFileSync} from 'node:fs';
-const labelled49=JSON.parse(readFileSync(new URL('./key-detection-cases.json',import.meta.url))).cases;
-assert.equal(labelled49.length,49);
-for(const {chart,expected} of labelled49)test(`user-labelled key: ${chart}`,()=>{
+const labelledCases=JSON.parse(readFileSync(new URL('./key-detection-cases.json',import.meta.url))).cases;
+assert.equal(labelledCases.length,62);
+for(const {chart,expected} of labelledCases)test(`user-labelled key: ${chart}`,()=>{
  const actual=detectKey(parseChart(chart)).primary;
  const answers=expected.map(name=>{const chord=parse(name);return {root:chord.root,mode:chord.minor?'minor':'major'};});
  assert.ok(answers.some(key=>key.root===actual?.root&&key.mode===actual?.mode),`${chart}: expected ${expected.join(' / ')} (first preferred), got ${actual?.tonic} ${actual?.mode}`);

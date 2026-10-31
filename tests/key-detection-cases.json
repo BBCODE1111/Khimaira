@@ -297,6 +297,84 @@
    "expected": [
     "Am"
    ]
+  },
+  {
+   "chart": "E7 | A7 | D7 | G7",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "E7 | A7 | D7 | G7 | C",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "Cmaj7 | E7 | A7 | D7 | G7 | C",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "A7 | D7 | G7 | C7 | F",
+   "expected": [
+    "F"
+   ]
+  },
+  {
+   "chart": "B7 | E7 | A7 | D7 | G",
+   "expected": [
+    "G"
+   ]
+  },
+  {
+   "chart": "G7 | C7 | F7 | Bb7 | Eb",
+   "expected": [
+    "Eb"
+   ]
+  },
+  {
+   "chart": "D7 | G7 | C7 | F7 | Bb",
+   "expected": [
+    "Bb"
+   ]
+  },
+  {
+   "chart": "F | G | F | G",
+   "expected": [
+    "C"
+   ]
+  },
+  {
+   "chart": "Gbmaj7 | Ebm7 | Abm7 | Db7",
+   "expected": [
+    "Gb"
+   ]
+  },
+  {
+   "chart": "Gb | Cb | Db7 | Gb",
+   "expected": [
+    "Gb"
+   ]
+  },
+  {
+   "chart": "C# | F# | G# | C#",
+   "expected": [
+    "C#"
+   ]
+  },
+  {
+   "chart": "Ebm | Cb | Gb | Db",
+   "expected": [
+    "Gb"
+   ]
+  },
+  {
+   "chart": "Cb | Fb | Gb7 | Cb",
+   "expected": [
+    "Cb"
+   ]
   }
  ]
 }

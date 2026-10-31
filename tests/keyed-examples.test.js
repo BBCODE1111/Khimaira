@@ -1,5 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {styles} from '../dist/style-engine.js';
+import {styleTonality} from '../dist/backbone-mutation.js';
 import {examplePool} from '../dist/example-pool.js';
 import {examplesForKey,exampleTonality} from '../dist/keyed-examples.js';
 import {createHarmony,applyHarmonyAction as act,harmonyView,effectiveKey} from '../dist/harmony-state.js';
@@ -20,7 +21,7 @@ test('all style examples filter major/minor and transpose exactly to each of 12 
 test('selected key survives style, exact LOAD, alternating INSPIRE/fusion and GENERATE; LOAD adopts the keyed backbone; INSPIRE remains a preview',()=>{
  for(const mode of ['major','minor'])for(const style of Object.keys(styles)){
   let s=createHarmony({text:mode==='major'?'F | Dm | Bb | C':'Fm | Db | Bbm | C7',key:{root:5,mode},locked:true});
-  let backbone=structuredClone(s.backbone);const key=structuredClone(effectiveKey(s));s=act(s,{type:'style',style});assert.deepEqual(effectiveKey(s),key);
+  let backbone=structuredClone(s.backbone);const storedKey=structuredClone(s.key);s=act(s,{type:'style',style});const key=styleTonality(style,styles[style],storedKey);assert.deepEqual(s.key,storedKey);assert.deepEqual(effectiveKey(s),key);
   const pool=examplesForKey(style,key);
   if(pool.length){
    s=act(s,{type:'example',id:pool[0].id});assert.equal(serialize(harmonyView(s).bars),serialize(parseChart(pool[0].chart)));assert.deepEqual(s.backbone.degrees,s.score);backbone=structuredClone(s.backbone);

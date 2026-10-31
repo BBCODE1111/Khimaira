@@ -15,9 +15,21 @@ const keyEqual=(a,b)=>a.root===b.root&&a.mode===b.mode;
 const symbols=(degrees,key)=>serialize(materializeChart(degrees,key));
 const namedInput=text=>text.split(/\||\s+|,(?![^()]*\))/).filter(Boolean).every(t=>parse(t.split(':')[0]));
 const snapshot=s=>{const out=copy(s);delete out.history;return out;};
-export function effectiveKey(s){return s.keyMode==='locked'?copy(s.key):styleTonality(s.style,styles[s.style]||styles.Jazz,s.key);}
+const tonalMode=mode=>mode==='major'||mode==='minor';
+// LOCK freezes the underlying tonal key; modal colour belongs to the style.
+export function effectiveKey(s){return styleTonality(s.style,styles[s.style]||styles.Jazz,s.key);}
+function tonalKey(key,fallback='major'){
+ return normalizeKey({...key,mode:tonalMode(key.mode)?key.mode:fallback});
+}
+function repairModalKey(s){
+ const fallback=tonalMode(s.backbone?.enteredKey?.mode)?s.backbone.enteredKey.mode:'major';
+ s.key=tonalKey(s.key,fallback);
+ if(s.backbone?.enteredKey)s.backbone.enteredKey=tonalKey(s.backbone.enteredKey,fallback);
+ for(const past of s.history||[])repairModalKey(past);
+ return s;
+}
 export function createHarmony({text='| C | Am | F | G |',key={root:0,mode:'major'},locked=false,style='Jazz'}={}){
- const initial={schema:HARMONY_SCHEMA,key:normalizeKey(key),keyMode:locked?'locked':'auto',style,variation:0,history:[],candidates:[],warning:null,origin:{type:'backbone'}};
+ const initial={schema:HARMONY_SCHEMA,key:tonalKey(key),keyMode:locked?'locked':'auto',style,variation:0,history:[],candidates:[],warning:null,origin:{type:'backbone'}};
  return loadInput(initial,text);
 }
 function loadInput(s,text,{editing=false}={}){
@@ -36,7 +48,7 @@ function loadInput(s,text,{editing=false}={}){
   backbone:{degrees,originalDegrees:copy(degrees),enteredKey:copy(key)},score:copy(degrees),variation:0,origin:{type:'backbone'},inputFormat:namedInput(text)?'chords':'roman'};
 }
 export function migrateHarmony(old={}){
- if(old.harmony?.schema===HARMONY_SCHEMA)return copy(old.harmony);
+ if(old.harmony?.schema===HARMONY_SCHEMA)return repairModalKey(copy(old.harmony));
  const source=old.sourceText??(old.source?serialize(old.source.map(b=>({chords:chordList(b)}))):old.bars?serialize(old.bars.map(b=>({chords:chordList(b)}))):'| C | Am | F | G |');
  const s=createHarmony({text:source,key:{root:+old.key||0,mode:old.mode==='minor'?'minor':'major'},style:old.style||'Jazz'});
  if(old.bars)s.score=chartToDegrees(old.bars.map(b=>({chords:chordList(b)})),s.key);
@@ -60,12 +72,13 @@ export function applyHarmonyAction(current,action){
    s=loadInput(s,serialize(actual),{editing:true});break;
   }
   case 'transpose':{
-   const key=normalizeKey(action.key);
-   if(key.mode!==s.key.mode&&key.mode!==effectiveKey(s).mode)throw Error('大小調轉換需使用獨立、已確認的調式轉換動作。');
+   const mode=action.key.mode??s.key.mode;
+   if(mode!==s.key.mode&&mode!==effectiveKey(s).mode)throw Error('大小調轉換需使用獨立、已確認的調式轉換動作。');
+   const key=normalizeKey({...action.key,mode:s.key.mode});
    s.key=key;s.candidates=[];break;
   }
   case 'reinterpret':{
-   const key=normalizeKey(action.key),backbone=materializeChart(s.backbone.degrees,s.key),score=materializeChart(s.score,s.key);
+   const key=tonalKey(action.key,s.key.mode),backbone=materializeChart(s.backbone.degrees,s.key),score=materializeChart(s.score,s.key);
    s.backbone.degrees=chartToDegrees(backbone,key);s.score=chartToDegrees(score,key);s.key=key;s.candidates=[];break;
   }
   case 'auto':{
@@ -73,10 +86,11 @@ export function applyHarmonyAction(current,action){
    if(detected.primary){s=applyHarmonyAction(s,{type:'reinterpret',key:detected.primary});s.history=copy(current.history);}
    s.keyMode='auto';s.candidates=detected.candidates.map(normalizeKey);break;
   }
-  case 'lock':s.key=normalizeKey(effectiveKey(s));s.keyMode='locked';break;
+  case 'lock':s.key=tonalKey(s.key);s.keyMode='locked';break;
   case 'convertMode':{
    if(!action.confirmed)throw Error('大小調轉換需要確認。');
-   const from=effectiveKey(s).mode;
+   if(!tonalMode(action.mode))throw Error('調式轉換只接受 major 或 minor。');
+   const from=s.key.mode;
    s.backbone.degrees=convertDegreeMode(s.backbone.degrees,from,action.mode);
    s.score=convertDegreeMode(s.score,from,action.mode);
    s.key=normalizeKey({root:s.key.root,mode:action.mode});s.candidates=[];s.origin={type:'conversion'};break;

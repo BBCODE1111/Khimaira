@@ -1,4 +1,4 @@
-import {createTheory} from './music-core.js?v=1.1.0';
+import {createTheory} from './music-core.js?v=1.1.2';
 const {parse}=createTheory('khimaira-v1');
 import {referenceNotes,overlaps,protectMelody} from './melody-reference.js?v=18';
 import {isTexture,renderTexture,applyPianoPhrase} from './piano-motion.js?v=2.0.0';
