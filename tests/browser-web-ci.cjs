@@ -21,8 +21,8 @@ const read=page=>page.evaluate(()=>JSON.parse(localStorage.getItem('khimaira-v5'
  await new Promise(resolve=>{server.listen(0,'127.0.0.1',resolve);});
  let browser;
  try{
-  browser=await chromium.launch({headless:true,...(process.env.CHROME_CHANNEL?{channel:process.env.CHROME_CHANNEL}:{}),args:['--autoplay-policy=no-user-gesture-required']});
-  const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[],failed=[];
+  browser=await chromium.launch({headless:true,...(process.env.CHROME_CHANNEL?{channel:process.env.CHROME_CHANNEL}:{}),args:['--autoplay-policy=no-user-gesture-required','--disable-audio-output']});
+  const context=await browser.newContext({viewport:{width:1440,height:1000}}),page=await context.newPage(),errors=[],failed=[];
   const url=`http://127.0.0.1:${server.address().port}/`;
   page.on('pageerror',e=>errors.push(e.message));page.on('requestfailed',r=>failed.push(r.url()));
   page.on('response',r=>{if(r.status()>=400)failed.push(r.status()+' '+r.url());});
