@@ -121,7 +121,7 @@ test('R03-07/13 history names include level/content; duration-only provenance do
 });
 test('R03-14 release metadata and current user-facing terminology are explicit',()=>{
  const read=name=>readFileSync(new URL('../'+name,import.meta.url),'utf8');
- const version=JSON.parse(read('dist/version.json'));assert.equal(version.version,'1.0.6');assert.equal(version.channel,'release-candidate');
+ const version=JSON.parse(read('dist/version.json'));assert.equal(version.version,'1.0.7');assert.equal(version.channel,'release-candidate');
  assert.doesNotMatch(read('dist/chord-picker.js'),/GENERATE/);assert.doesNotMatch(read('dist/index.html'),/>GENERATE</);
  assert.match(read('docs/morph-backbone/README.md'),/preserve-bass is unchecked/);
 });

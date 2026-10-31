@@ -1,12 +1,13 @@
-import {parse,names,mod,spellInterval} from './music.js?v=1.0.6';
-import {chordList} from './solutions.js?v=1.0.6';
-import {insertApproach,cadenceTo} from './style-engine.js?v=1.0.6';
+import {parse,names,mod,spellInterval} from './music.js?v=1.0.7';
+import {chordList} from './solutions.js?v=1.0.7';
+import {insertApproach,cadenceTo} from './style-engine.js?v=1.0.7';
 
 // Resolve to the next sounding event. Never skip a rest or overwrite a target.
-export function insertCadence(bars,barIndex,chordIndex,{loop=false}={}){
+export function insertCadence(bars,barIndex,chordIndex,{loop=false,startBar=0}={}){
+ startBar=Math.max(0,Math.min(bars.length-1,Math.trunc(startBar)||0));
  const list=chordList(bars[barIndex]||{}),current=list[chordIndex];
  if(!current)throw Error('請先選擇一個和弦。');
- const next=list[chordIndex+1]||(barIndex+1<bars.length?chordList(bars[barIndex+1])[0]:loop?chordList(bars[0])[0]:null);
+ const next=list[chordIndex+1]||(barIndex+1<bars.length?chordList(bars[barIndex+1])[0]:loop?chordList(bars[startBar])[0]:null);
  if(!next)throw Error('後方沒有相鄰和弦可解決；最後一小節可開啟 LOOP 連回開頭。');
  const target=parse(next.symbol);
  if(!target||target.intervals.includes(6)||target.intervals.includes(8)||!target.intervals.some(n=>n===3||n===4))throw Error('下一個和弦沒有明確的大／小三和弦核心，請改用手動編輯安排接近。');
@@ -14,7 +15,7 @@ export function insertCadence(bars,barIndex,chordIndex,{loop=false}={}){
  const out=structuredClone(bars);
  const pair=cadenceTo(next.symbol);
  const replacement=list.length>=4?[{symbol:pair[1],beats:current.beats}]:list.length===3?pair.map(symbol=>({symbol,beats:current.beats/2})):insertApproach([current],next.symbol);
- const previous=list[chordIndex-1]||(barIndex>0?chordList(bars[barIndex-1]).at(-1):loop?chordList(bars.at(-1)).at(-1):null);
+ const previous=list[chordIndex-1]||(barIndex>startBar?chordList(bars[barIndex-1]).at(-1):loop?chordList(bars.at(-1)).at(-1):null);
  if(replacement.length===2&&previous&&parse(previous.symbol).root===parse(replacement[0].symbol).root){replacement[1].beats+=replacement[0].beats;replacement.splice(0,1);}
  if(replacement.length===3&&[current,previous].some(c=>c&&parse(c.symbol).root===parse(replacement[1].symbol).root)){replacement[2].beats+=replacement[1].beats;replacement.splice(1,1);}
  out[barIndex].chords.splice(chordIndex,1,...replacement);

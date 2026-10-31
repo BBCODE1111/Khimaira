@@ -1,4 +1,4 @@
-import {parse, mod, spellInterval, chordTones} from './music.js?v=1.0.6';
+import {parse, mod, spellInterval, chordTones} from './music.js?v=1.0.7';
 
 // Parallel modes use the SAME numbered degree, not the same chromatic root.
 // Keep this separate from whole-chart mode conversion (which retains minor V).

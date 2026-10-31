@@ -1,6 +1,7 @@
-import {parse,mod,analyzeHarmony} from './music.js?v=1.0.6';
-import {parallelDegreeChord,invertForMorph} from './morph-techniques.js?v=1.0.6';
-import {worldScales} from './world-styles.js?v=1.0.6';
+import {morphProfiles,morphRandom,techniqueChoice} from './morph-profiles.js?v=1.0.7';
+import {parse,mod,analyzeHarmony} from './music.js?v=1.0.7';
+import {parallelDegreeChord,invertForMorph} from './morph-techniques.js?v=1.0.7';
+import {worldScales} from './world-styles.js?v=1.0.7';
 
 export function styleTonality(style,cfg,key){
  const modes={'Dorian folk':'dorian','Phrygian dominant':'hijaz','Major blues':'major-blues','Minor blues':'minor-blues'};
@@ -73,12 +74,12 @@ export function anchoredMutation(source,options,tools){
   if([10,11].some(n=>original.intervals.includes(n)&&!candidate.intervals.includes(n)))return symbol;
   return candidate.rootName+candidate.q+(original.bassName?'/'+original.bassName:'');
  };
+ const profile=morphProfiles[style]||morphProfiles.Jazz;
  const requested=['cadence','tritone'].includes(method);
- const jazzLike=['Jazz','Gospel','Fusion','Bossa nova','Soul','R&B','Lo-fi hip-hop','Neo-soul','Mandopop','Ballad','K-pop','Nu-disco','Classical','Japanese rock','American pop','Chill'].includes(style);
  const limit=Math.max(1,Math.min(3,Number(options.density)||2));
  const techniques=options.techniques||{};
  const preserveBass=options.preserveBass===true;
- const approaches=techniques.iiV!==false&&!preserveBass&&!modal&&options.freedom!=='color'&&method!=='color'&&(requested||jazzLike);
+ const approaches=techniques.iiV!==false&&!preserveBass&&!modal&&options.freedom!=='color'&&method!=='color'&&(requested||profile[2]>0||profile[3]>0);
  // Every generated event carries a source address, even after degree storage.
  const plans=[];
  source.forEach((bar,barIndex)=>{let onset=0;bar.chords.forEach((c,chord)=>{
@@ -102,8 +103,9 @@ export function anchoredMutation(source,options,tools){
   if((functional.blues||style.includes('blues'))&&a.offset===5&&a.intervals.includes(10))signatures.add(i);
  }
  for(const i of signatures){protectedTargets.add(i);plans[i].symbol=plans[i].original.symbol;plans[i].technique='retained-target';}
+ const retainedSymbol=(p,i)=>style==='Jazz'&&!signatures.has(i)?paint(p.original.symbol,i):p.original.symbol;
  // Retained arrivals must be settled before checking neighbouring candidates.
- if(plans.length&&mutable&&level!=='low')for(const index of protectedTargets){const target=plans[index];target.symbol=target.original.symbol;target.technique='retained-target';}
+ if(plans.length&&mutable&&level!=='low')for(const index of protectedTargets){const target=plans[index];target.symbol=retainedSymbol(target,index);target.technique='retained-target';}
  const duplicatesNeighbour=(i,symbol)=>[plans[i-1],plans[i+1]].some(other=>other&&other.bar===plans[i].bar&&!other.replacement&&other.original.symbol!==plans[i].original.symbol&&other.symbol===symbol);
  let used=0;const reserved=new Map();
  for(let n=0;n<count&&used<budget;n++){
@@ -111,23 +113,32 @@ export function anchoredMutation(source,options,tools){
   if(protectedTargets.has(i))continue;
   const next=plans[i+1]||(options.loop!==false?plans[0]:null);
   const adjacent=next&&(next.bar===p.bar||next.bar===p.bar+1&&next.chord===0||p.bar===source.length-1&&next.bar===0);
-  const choice=(seed+i)%3;
+  // Retain the existing opening-tonic parallel selection policy pending user decision.
+  const choice=i===0&&parse(p.original.symbol).root===key.root?(seed+i)%3:techniqueChoice(style,seed,i);
   const parallel=modal||techniques.parallel===false||dominantSources.has(i)?null:parallelDegreeChord(p.original.symbol,key);
   const cadence=adjacent&&tools.cadenceTo(next.original.symbol,{rich:level==='high'});
   const previous=plans[i-1]||(options.loop!==false?plans.at(-1):null);
-  const redundantII=cadence&&previous&&parse(previous.original.symbol).minor&&parse(previous.original.symbol).root===parse(cadence[0]).root;
+  const redundantII=cadence&&previous&&[previous.original.symbol,previous.replacement?.at(-1)||previous.symbol].some(s=>parse(s).root===parse(cadence[0]).root);
   const room=limit-source[p.bar].chords.length-(reserved.get(p.bar)||0);
   if(choice===2&&!redundantII&&['color','retained-target'].includes(next?.technique)&&approaches&&cadence&&p.original.beats>=2&&room>=1&&next!==p){
-   // Replace this slot by ii–V, then retain the NEXT authored target literally.
+   // Replace this slot by ii–V, then retain the NEXT authored target’s root and core.
    // Never create two neighbouring approaches with the same root.
    p.replacement=cadence;p.technique='ii-V';p.target=next;reserved.set(p.bar,(reserved.get(p.bar)||0)+1);
-   next.symbol=next.original.symbol;next.technique='retained-target';
+   next.symbol=retainedSymbol(next,plans.indexOf(next));next.technique='retained-target';
    protectedTargets.add(plans.indexOf(next));used++;
   }else if(choice===1&&parallel&&!duplicatesNeighbour(i,parallel)){
    p.symbol=parallel;p.technique='parallel';used++;
   }else{
    const inverted=preserveBass||techniques.inversion===false?p.symbol:invertForMorph(p.symbol,seed+i,{powerBass:['Heavy Metal','Doom Metal'].includes(style)});
    if(inverted!==p.symbol&&!duplicatesNeighbour(i,inverted)){p.symbol=inverted;p.technique='inversion';used++;}
+  }
+ }
+ // Validate against the final preceding harmony, not only the authored root.
+ for(let i=0;i<plans.length;i++){
+  const p=plans[i],previous=plans[i-1]||(options.loop!==false?plans.at(-1):null);
+  if(p.replacement&&previous&&parse(previous.replacement?.at(-1)||previous.symbol).root===parse(p.replacement[0]).root){
+   p.replacement=null;p.technique='color';p.symbol=paint(p.original.symbol,i);
+   reserved.set(p.bar,(reserved.get(p.bar)||0)-1);
   }
  }
  // Colour/inversion must not collapse distinct authored neighbours.
@@ -148,8 +159,8 @@ export function anchoredMutation(source,options,tools){
    const resolved=target&&(distance===0||distance===7&&(current.intervals.includes(4)||current.intervals.includes(10))||distance===1&&current.intervals.includes(10)||distance===11&&current.intervals.includes(6));
    // A borrowed/replaced next slot is not the original resolving target.
    const changedTarget=targetPlan&&(targetPlan.replacement||['parallel','inversion'].includes(targetPlan.technique));
-   if(!approaches||!room||!target||resolved||changedTarget||c.beats<2||(!requested&&(level==='low'||level==='medium'&&(seed+i)%3!==0)))return [anchor];
-   const cadence=tools.cadenceTo(next.symbol,{tritone:method==='tritone'||method==='style'&&level==='high'&&(seed+i)%3===0,rich:level!=='low'});
+   if(!approaches||!room||!target||resolved||changedTarget||c.beats<2||(!requested&&(level==='low'||morphRandom(seed,i,style,1)>profile[3]*(level==='medium'?.5:1))))return [anchor];
+   const cadence=tools.cadenceTo(next.symbol,{tritone:method==='tritone'||method==='style'&&level==='high'&&morphRandom(seed,i,style,2)<profile[4],rich:level!=='low'});
    if(!cadence)return [anchor];
    const tail=c.beats*(level==='medium'&&!requested?1/8:1/4);
    const pair=room>=2&&tail>=1&&parse(cadence[0]).root!==current.root&&(requested||level==='high');

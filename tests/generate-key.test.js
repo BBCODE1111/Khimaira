@@ -42,10 +42,10 @@ test('all 49 styles × 28 labelled backbones × 3 levels × 5 seeds retain order
 test('GENERATE repeatedly varies each style while tonic, mode and backbone stay fixed',()=>{
  for(const style of Object.keys(styles))for(const randomness of ['low','medium','high']){
   let s=createHarmony({text:'F | Dm | Bb | C',style}),previous=serialize(harmonyView(s).bars);
-  const key=effectiveKey(s),backbone=JSON.stringify(s.backbone);
+  const key=effectiveKey(s),backbone=JSON.stringify(s.backbone),seen=new Set([previous]);
   for(let i=0;i<10;i++){
    s=applyHarmonyAction(s,{type:'generate',options:{randomness}});const current=serialize(harmonyView(s).bars);
-   if(current===previous)assert.ok(['variation-exhausted','modal-incompatible'].includes(s.warning?.type),style+' '+randomness);else assert.ok(!s.warning||s.warning.type==='technique-limit');assert.deepEqual(effectiveKey(s),key);assert.equal(JSON.stringify(s.backbone),backbone);previous=current;
+   if(current===previous)assert.ok(['variation-exhausted','modal-incompatible'].includes(s.warning?.type),style+' '+randomness);else if(s.warning?.type==='variation-exhausted'){assert.ok(seen.has(current));assert.equal(s.warning.attempts,64);}else assert.ok(!s.warning||s.warning.type==='technique-limit');assert.deepEqual(effectiveKey(s),key);assert.equal(JSON.stringify(s.backbone),backbone);seen.add(current);previous=current;
   }
  }
 });

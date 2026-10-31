@@ -1,6 +1,6 @@
 import {createTheory} from './music-core.js?v=1.1.5';
 const {parse}=createTheory('khimaira-v1');
-import {referenceNotes,overlaps,protectMelody} from './melody-reference.js?v=1.0.6';
+import {referenceNotes,overlaps,protectMelody} from './melody-reference.js?v=1.0.7';
 import {isTexture,renderTexture,applyPianoPhrase} from './piano-motion.js?v=2.0.0';
 export const pianoPatterns={
  pianoWhole:'K-POP 01 · Whole-bar pillars / 一小節柱式',pianoHalf:'K-POP 02 · Half-note pillars / 兩拍柱式',pianoQuarter:'K-POP 03 · Quarter-note pillars / 四分柱式',

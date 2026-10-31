@@ -99,6 +99,7 @@ const read=page=>page.evaluate(()=>JSON.parse(localStorage.getItem('khimaira-v5'
   const modules=new Map();for(const entry of urls){const u=new URL(entry);if(!modules.has(u.pathname))modules.set(u.pathname,new Set());modules.get(u.pathname).add(u.search);}
   for(const [name,queries] of modules)assert.equal(queries.size,1,name);
   await require('./browser-round2-checks.cjs')(page);
+  await require('./browser-round4-checks.cjs')(page);
   await require('./browser-score-follow.cjs')(page,output);
   for(const [width,height] of [[375,667],[390,844]]){
    await page.setViewportSize({width,height});

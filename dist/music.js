@@ -1,5 +1,5 @@
 import {pedalIntervals,pedalMidiEvents} from './piano-pedal.js?v=2.0.0';
-import {voicingCandidates} from './voicing.js?v=1.0.6';
+import {voicingCandidates} from './voicing.js?v=1.0.7';
 // Product adapter: generation, voicing and MIDI remain owned by this app.
 import {names,mod,createTheory} from './music-core.js?v=1.1.5';
 const {parse,chordTones,spellInterval,keyName,spellPitch,spellChord,transposeSymbol,romanNumeral,analyzeHarmony,tritoneRoot}=createTheory('khimaira-v1');
@@ -14,10 +14,10 @@ export function pianoVoicing(symbol,previous=[]){
  return candidates.sort((a,b)=>cost(a)-cost(b))[0]||[];
  function cost(v){return v.slice(1).reduce((s,n,i)=>s+Math.abs(n-(previous[i+1]??(57+i*4))),0);}
 }
-export {performance as events} from './performance.js?v=1.0.6';
+export {performance as events} from './performance.js?v=1.0.7';
 const tuning=[40,45,50,55,59,64];
 export function guitarShapes(symbol){const c=parse(symbol);if(!c)return [];let all=[];for(let start=0;start<=12;start++){const opts=tuning.map(t=>[-1,...Array.from({length:5},(_,i)=>start+i).filter(f=>f<=15&&c.pcs.includes(mod(t+f)))]);const walk=(arr,s)=>{if(s===6){const notes=arr.flatMap((f,i)=>f<0?[]:[tuning[i]+f]);if(notes.length<3||mod(notes[0])!==c.bass)return;const set=new Set(notes.map(mod));const required=c.intervals.length>4?c.intervals.filter(n=>n!==7&&n!==0&&!(n===17&&c.intervals.includes(21))):c.intervals;if(required.some(n=>!set.has(mod(c.root+n))))return;const fretted=arr.filter(f=>f>0);if(fretted.length>4&&new Set(fretted).size>3)return;const span=Math.max(...fretted)-Math.min(...fretted);if(span>3)return;all.push({frets:arr,omitted:chordTones(symbol).filter((_,i)=>!set.has(mod(c.root+c.intervals[i]))),score:span*3+arr.filter(f=>f<0).length+start*.15});return;}for(const f of opts[s])walk([...arr,f],s+1);};walk([],0);}const seen=new Set;return all.sort((a,b)=>a.score-b.score).filter(x=>{const k=x.frets.join();if(seen.has(k))return false;seen.add(k);return true;}).filter((x,i,a)=>i===0||Math.abs(Math.max(...x.frets)-Math.max(...a[0].frets))>=3).slice(0,3);}
-export {scaleOptions as scales} from './scale-library.js?v=1.0.6';
+export {scaleOptions as scales} from './scale-library.js?v=1.0.7';
 export function midiBytes(notes,totalBeats,{split=false,pedal=false,chordSpans=[],melody=[],channel=0,bpm,trackName='Piano'}={}){
  if(split){
   const chunks=['bass','upper'].map(part=>{

@@ -8,7 +8,7 @@ KHIMAIRA 是給作曲、編曲與吉他手的和聲探索工具。輸入一條�
 
 ![KHIMAIRA](docs/screenshots/odyssey-desktop.png)
 
-本輪網站：**1.0.6 待發布版**（預定 tag `web-v1.0.6`，尚未建立／部署）。手機譜面與討論交接見 [本輪紀錄](docs/reviews/MOBILE-FOLLOW-20261031.md)。版本與資產 query 由 `dist/version.json` 驅動，執行 `npm run assets:sync` 同步、`assets:check` 驗證；共用模組 query 使用 canonical package 版本。
+本輪網站：**1.0.7 待發布版**（預定 tag `web-v1.0.7`；本輪不建立 tag／部署，線上基準為 1.0.6）。手機譜面與討論交接見 [本輪紀錄](docs/reviews/MOBILE-FOLLOW-20261031.md)。版本與資產 query 由 `dist/version.json` 驅動，執行 `npm run assets:sync` 同步、`assets:check` 驗證；共用模組 query 使用 canonical package 版本。
 
 前一版網頁穩定基準：**1.0.2**（`web-v1.0.2`，2026-10-27）。[修正與驗證紀錄](docs/stable-20261027/REPORT.md)。原生外掛另行開發與驗證。
 
@@ -178,7 +178,7 @@ GitHub Pages 發布 `dist/` 的靜態網站。推送至 `main` 時，GitHub Acti
 
 ## MORPH 更新（2026-10-28，歷史紀錄，已由 10/31 契約取代）
 
-範例 LOAD 直接成為新骨幹；MORPH 保留根音、順序與指定低音，以樂風上色並加入接向下一個目標的經過和弦。RESTORE 回到載入的骨幹，UNDO 可回到 LOAD 前。INSPIRE 是預覽，KEEP 才採用。詳見 [發布紀錄](docs/morph-backbone/README.md)。
+範例 LOAD 直接成為新骨幹；現行 MORPH 保留小節數、骨幹順序與起拍，允許轉位、同級平行互換及指向下一目標的 ii–V。RESTORE 回到載入的骨幹，UNDO 可回到 LOAD 前。INSPIRE 是預覽，KEEP 才採用。詳見 [發布紀錄](docs/morph-backbone/README.md)。
 
 
 ## 第 1 輪續：本機與部署驗證
@@ -196,7 +196,7 @@ MORPH 保留小節、骨幹順序與起拍，允許轉位、同級平行大小�
 
 最近六次 MORPH 可選擇比較，A 為骨幹、B 為選定結果，按 PLAY 試聽，KEEP 採用並重建骨幹。LOAD／KEEP／改判或大小調轉換會清除不再適用的比較記錄；UNDO 可復原。手機固定列包含 MORPH、目前整組和弦與結果訊息，長譜可在摘要內捲動。
 
-1.0.4 的 `web-v1.0.4` 是預定標籤，尚未提交、建 tag 或部署；主持人需在發布 commit 建立標籤並驗證部署 SHA。既有 1.0.3 遠端缺 tag 的補建亦由主持人在 sandbox 外處理，本輪不操作 `.git`。未使用的 `khimaira.webp`、`mark.svg` 已移出部署資產。
+歷史版本的標籤與部署狀態以主持人的發布紀錄為準。未使用的 `khimaira.webp`、`mark.svg` 已移出部署資產。
 
 
 ## 1.0.5 手機讀譜與操作
@@ -205,8 +205,15 @@ MORPH 保留小節、骨幹順序與起拍，允許轉位、同級平行大小�
 
 「和弦工具」可展開最近六次 MORPH、A/B、KEEP 與複製。手機點和弦可看來源、手法、目標並還原該來源；原和聲、生成、存檔與 MIDI 規則不變。一般區塊底色透明度提高，置頂譜面與底部列維持較深的模糊底色及可讀對比；減少透明效果偏好使用實色。
 
-## 1.0.6 第 3 輪（待發布）
+## 1.0.6 第 3 輪（本輪線上基準）
 
 斜線和弦 Close／Open 保留根音；單格工具保留選取；地域 MORPH 接受原有外音，只限制新增音。標誌性 IV→iv、bVI→V、藍調 IV7 與終止屬功能受保護，Am→Ab／Em→Eb 仍可出現。幅度預算受限時顯示格數。A/B 不佔 UNDO，播放中 MORPH／A/B／切樂風／UNDO 保持拍內位置。級數低音採數字，MIDI 含 4/4 與音軌名。
 
 `tests/loop.test.js` 以虛擬時鐘量化 100 圈，`tests/browser-loop.cjs` 已接入瀏覽器 CI，包含 OfflineAudioContext 邊界驗證及介面操作。本 checkout 未執行瀏覽器；主持人需在 sandbox 外跑 `corepack npm run test:browser`。逐項狀態、基準與相容性見 [第 3 輪紀錄](docs/reviews/ROUND3-IMPLEMENTATION.md)。
+
+
+## 1.0.7 第 4 輪（待發布）
+
+播放中 MORPH 在下一小節線換譜，沿用拍點時鐘；ii–V → NEXT 的循環目標跟隨 FROM BAR。Latin Pop 等舞曲範例按原調式過濾；地域 MORPH 沿用 1.0.6 的逐來源音集保護。各樂風有獨立手法權重，最近 12 組結果避免重複；Jazz 保留目標可加相容色彩音，仍保留根音、性質、低音及來源起拍。「保留低音線」預設關閉。INSPIRE 重整後可見預覽標記；和弦可存取名稱以畫面和弦名及級數開頭。
+
+A 小調半音選擇器延續 Gb，延伸清單 vi 同步顯示 Gbm（音高不變）；F#／Gb 的第 6 級拼字政策仍待使用者決定。本輪不改共用核心、golden 或 `plugin/`；瀏覽器及 axe 由主持人在 sandbox 外執行。測試數據、未達條件與外掛影響見 [第 4 輪紀錄](docs/reviews/ROUND4-IMPLEMENTATION.md)。

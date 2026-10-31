@@ -1,13 +1,13 @@
-import {examplePool,nextExample} from './example-pool.js?v=1.0.6';
-import {styles} from './style-engine.js?v=1.0.6';
-import {parseChart,serialize} from './solutions.js?v=1.0.6';
-import {parse} from './music.js?v=1.0.6';
-import {normalizeKey,chartToDegrees,materializeChart} from './degree-chart.js?v=1.0.6';
-import {styleTonality} from './backbone-mutation.js?v=1.0.6';
-import {detectKey} from './key-detection.js?v=1.0.6';
+import {examplePool,nextExample} from './example-pool.js?v=1.0.7';
+import {styles} from './style-engine.js?v=1.0.7';
+import {parseChart,serialize} from './solutions.js?v=1.0.7';
+import {parse} from './music.js?v=1.0.7';
+import {normalizeKey,chartToDegrees,materializeChart} from './degree-chart.js?v=1.0.7';
+import {styleTonality} from './backbone-mutation.js?v=1.0.7';
+import {detectKey} from './key-detection.js?v=1.0.7';
 
 export function exampleTonality(example){
- const cfg=styles[example.style]||{},key=normalizeKey({root:example.key||0,mode:example.mode==='minor'?'minor':'major'});
+ const cfg=styles[example.style]||{},key=normalizeKey({root:example.key||0,mode:example.mode==='minor'||example.mode==='modal'&&cfg.scaleIds?.[0]==='minor'?'minor':'major'});
  if(cfg.world||['Dorian folk','Phrygian dominant','Major blues','Minor blues'].includes(example.style))return styleTonality(example.style,cfg,key);
  const chart=parseChart(example.chart),tonics=chart.flatMap(b=>b.chords).map(c=>({...parse(c.symbol),beats:c.beats})).filter(c=>c.root===key.root);
  const major=tonics.filter(c=>c.intervals.includes(4)).reduce((n,c)=>n+c.beats,0),minor=tonics.filter(c=>c.minor).reduce((n,c)=>n+c.beats,0);

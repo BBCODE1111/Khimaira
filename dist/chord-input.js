@@ -1,5 +1,5 @@
-import {parse,spellInterval,mod} from './music.js?v=1.0.6';
-import {parseDegreeChart,materializeChart,degreeLabels} from './degree-chart.js?v=1.0.6';
+import {parse,spellInterval,spellPitch,mod} from './music.js?v=1.0.7';
+import {parseDegreeChart,materializeChart,degreeLabels} from './degree-chart.js?v=1.0.7';
 const modes={major:[0,2,4,5,7,9,11],minor:[0,2,3,5,7,8,10],dorian:[0,2,3,5,7,9,10],phrygian:[0,1,3,5,7,8,10],lydian:[0,2,4,6,7,9,11],mixolydian:[0,2,4,5,7,9,10],locrian:[0,1,3,5,6,8,10]};
 export function chordChoices(key){
  const scale=modes[key.mode]||modes.major;
@@ -16,7 +16,11 @@ export function chordChoices(key){
 export function extraChordChoices(key){
  const secondary=chordChoices(key).filter(choice=>{const chord=parse(choice.symbol);return chord.root!==key.root&&!chord.intervals.includes(6);}).map(choice=>({label:'V7/'+choice.label,symbol:spellInterval(parse(choice.symbol).rootName,7,4)+'7'}));
  const borrowed=key.mode==='minor'?['I','ii','IV','vi']:key.mode==='major'?['iv','bVI','bVII']:[];
- return [...secondary,...borrowed.map(label=>({label,symbol:materializeChart(parseDegreeChart(label,key),key)[0].chords[0].symbol}))];
+ return [...secondary,...borrowed.map(label=>{
+  const c=parse(materializeChart(parseDegreeChart(label,key),key)[0].chords[0].symbol);
+  // Match the existing chromatic picker; the minor sixth spelling policy is unchanged.
+  return {label,symbol:spellPitch(c.root,key)+c.q};
+ })];
 }
 export const quickProgressions=[['I–V–vi–IV','I | V | vi | IV'],['vi–IV–I–V','vi | IV | I | V'],['ii–V–I','ii7 | V7 | Imaj7'],['1645','I | vi | IV | V'],['卡農','I | V | vi | iii | IV | I | IV | V']];
 // Pure, shared website/JUCE edit contract. Actual pitches enter first; callers

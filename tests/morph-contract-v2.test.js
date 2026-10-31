@@ -96,7 +96,8 @@ test('loop tonic is a retained resolution target rather than merely retaining th
  const source=parseChart('C | Am | F | G');
  for(let seed=0;seed<30;seed++){
   const out=mutate(source,{style:'Jazz',tonality:key,randomness:'high',seed});
-  assert.equal(out[0].chords[0].symbol,'C');assert.equal(out[0].chords[0].morph.technique,'retained-target');
+  // Round 4: Jazz arrivals retain root/major core while adding colour.
+  const tonic=parse(out[0].chords[0].symbol);assert.equal(tonic.root,0);assert.ok([0,4,7].every(n=>tonic.intervals.includes(n)));assert.ok(!tonic.intervals.includes(10));assert.equal(out[0].chords[0].morph.technique,'retained-target');
  }
 });
 test('trace metadata survives recall but does not make an identical score restorable',async()=>{

@@ -92,6 +92,23 @@ const beat=page=>page.locator('#position').getAttribute('data-beat').then(Number
    await advance((length-cue)*4*60/137*2+.3);assert.ok((await beat(page))>=cue*4&&(await beat(page))<length*4);
    await click(page,'loopButton');await advance((length-cue)*4*60/137+.3);assert.equal(await page.getAttribute('#play','aria-pressed'),'false');await click(page,'loopButton');
   }
+  // R04 P2-B: actual MORPH click at beat 9.925, exact next-bar audio scheduling.
+  await load('C | G | Am | F');await page.selectOption('#pattern','sustain');
+  await page.fill('#tempo','120');await page.locator('#tempo').dispatchEvent('change');
+  await page.locator('.bar[data-index="0"] .bar-cue').click();
+  await click(page,'play');await page.waitForFunction(()=>document.getElementById('play').getAttribute('aria-pressed')==='true');
+  const origin=await page.evaluate(()=>window.__audioTime+.04);
+  await advance(.04+9.925*.5);
+  const attackIndex=await page.evaluate(()=>window.__attacks.length);
+  await click(page,'generate');await advance(4);
+  const newAttacks=await page.evaluate(index=>window.__attacks.slice(index).filter(v=>!v.cancelled).map(v=>v.when),attackIndex);
+  assert.ok(newAttacks.length);for(const when of newAttacks){assert.ok(when>=origin+6-1e-9);assert.ok(Math.abs((when-origin)/.5-Math.round((when-origin)/.5))*.5<.001);}
+  await click(page,'stop');
+  // R04 P2-C: loop tail resolves to FROM BAR 3, the actual next sounding Dm.
+  await load('C | G | Dm | F');await page.locator('.bar[data-index="2"] .bar-cue').click();
+  await page.locator('.chord-event[data-bar="3"]').click();await page.keyboard.press('Escape');
+  await click(page,'resolve');assert.match(await page.textContent('#status'),/解決到 Dm/);
+  await page.locator('.bar[data-index="0"] .bar-cue').click();
   // Tail NEXT routing changes with the actual LOOP control.
   await load('C | Am | F | F');await page.locator('.chord-event').last().click();await page.keyboard.press('Escape');
   await click(page,'loopButton');const beforeTail=await read(page);await click(page,'resolve');assert.deepEqual((await read(page)).score,beforeTail.score);

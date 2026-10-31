@@ -1,0 +1,141 @@
+{
+  "1.0.6": {
+    "regional": {
+      "total": 2520,
+      "rejected": 0
+    },
+    "live": {
+      "beatAtPress": 9.925,
+      "newAttacks": [
+        4.9625,
+        6
+      ]
+    },
+    "previewOrigin": {
+      "type": "inspire",
+      "kind": "example",
+      "id": "contrast-Jazz-bright",
+      "variation": 1
+    },
+    "diversity": {
+      "Jazz": 6,
+      "Gospel": 6,
+      "Fusion": 7,
+      "Bossa nova": 7,
+      "Rock": 9,
+      "Japanese rock": 7,
+      "House": 11,
+      "Classical": 6,
+      "Phrygian dominant": 4,
+      "Dorian folk": 4,
+      "Soul": 6,
+      "R&B": 6,
+      "Funk": 11,
+      "EDM": 10,
+      "Lo-fi hip-hop": 7,
+      "Chill": 6,
+      "Neo-soul": 6,
+      "American pop": 6,
+      "Mandopop": 7,
+      "K-pop": 7,
+      "Major blues": 12,
+      "Minor blues": 11,
+      "Neoclassical rock": 10,
+      "Nu-disco": 7,
+      "Ambient": 12,
+      "Heavy Metal": 5,
+      "Doom Metal": 9,
+      "Grunge": 9,
+      "Alternative": 9,
+      "Gothic": 9,
+      "Requiem": 9,
+      "Greek Hijaz": 4,
+      "Japanese Hirajoshi": 4,
+      "Japanese In-sen": 4,
+      "Ghana Highlife": 8,
+      "Ethiopian Tizita": 6,
+      "Hawaiian Slack-key": 6,
+      "Native Flute": 4,
+      "Indian Bhupali": 6,
+      "Indian Yaman": 4,
+      "Afrobeats": 6,
+      "Amapiano": 10,
+      "Reggaeton": 11,
+      "Dancehall": 11,
+      "Latin Pop": 12,
+      "Flamenco": 4,
+      "Arabic Hijaz": 4,
+      "Celtic Dorian": 4,
+      "Ballad": 7
+    }
+  },
+  "1.0.7": {
+    "regional": {
+      "total": 2520,
+      "rejected": 0
+    },
+    "live": {
+      "beatAtPress": 9.925,
+      "newAttacks": [
+        6
+      ]
+    },
+    "previewOrigin": {
+      "type": "inspire",
+      "kind": "example",
+      "id": "contrast-Jazz-bright",
+      "variation": 1
+    },
+    "diversity": {
+      "Jazz": 12,
+      "Gospel": 12,
+      "Fusion": 12,
+      "Bossa nova": 12,
+      "Rock": 12,
+      "Japanese rock": 12,
+      "House": 12,
+      "Classical": 12,
+      "Phrygian dominant": 4,
+      "Dorian folk": 4,
+      "Soul": 12,
+      "R&B": 12,
+      "Funk": 12,
+      "EDM": 12,
+      "Lo-fi hip-hop": 12,
+      "Chill": 12,
+      "Neo-soul": 12,
+      "American pop": 12,
+      "Mandopop": 12,
+      "K-pop": 12,
+      "Major blues": 12,
+      "Minor blues": 12,
+      "Neoclassical rock": 12,
+      "Nu-disco": 12,
+      "Ambient": 12,
+      "Heavy Metal": 6,
+      "Doom Metal": 10,
+      "Grunge": 12,
+      "Alternative": 12,
+      "Gothic": 12,
+      "Requiem": 12,
+      "Greek Hijaz": 4,
+      "Japanese Hirajoshi": 4,
+      "Japanese In-sen": 4,
+      "Ghana Highlife": 9,
+      "Ethiopian Tizita": 6,
+      "Hawaiian Slack-key": 6,
+      "Native Flute": 4,
+      "Indian Bhupali": 6,
+      "Indian Yaman": 4,
+      "Afrobeats": 6,
+      "Amapiano": 12,
+      "Reggaeton": 12,
+      "Dancehall": 12,
+      "Latin Pop": 12,
+      "Flamenco": 4,
+      "Arabic Hijaz": 4,
+      "Celtic Dorian": 4,
+      "Ballad": 12
+    }
+  }
+}

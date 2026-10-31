@@ -1,13 +1,13 @@
-import {editBackbone} from './chord-input.js?v=1.0.6';
-import {parseChart,chordList,serialize} from './solutions.js?v=1.0.6';
-import {parse} from './music.js?v=1.0.6';
-import {normalizeKey,parseDegreeChart,chartToDegrees,materializeChart,sameDegrees,formatDegreeChart,degreeLabels} from './degree-chart.js?v=1.0.6';
-import {detectKey} from './key-detection.js?v=1.0.6';
-import {mutate,styles} from './style-engine.js?v=1.0.6';
-import {styleTonality} from './backbone-mutation.js?v=1.0.6';
-import {examplesForKey,nextKeyedExample} from './keyed-examples.js?v=1.0.6';
+import {editBackbone} from './chord-input.js?v=1.0.7';
+import {parseChart,chordList,serialize} from './solutions.js?v=1.0.7';
+import {parse} from './music.js?v=1.0.7';
+import {normalizeKey,parseDegreeChart,chartToDegrees,materializeChart,sameDegrees,formatDegreeChart,degreeLabels} from './degree-chart.js?v=1.0.7';
+import {detectKey} from './key-detection.js?v=1.0.7';
+import {mutate,styles} from './style-engine.js?v=1.0.7';
+import {styleTonality} from './backbone-mutation.js?v=1.0.7';
+import {examplesForKey,nextKeyedExample} from './keyed-examples.js?v=1.0.7';
 
-import {convertDegreeMode} from './mode-conversion.js?v=1.0.6';
+import {convertDegreeMode} from './mode-conversion.js?v=1.0.7';
 
 export const HARMONY_SCHEMA=1;
 const copy=x=>structuredClone(x);
@@ -45,7 +45,7 @@ function loadInput(s,text,{editing=false}={}){
  if(s.keyMode==='auto'&&detection.primary&&ready)key=normalizeKey(detection.primary);
  const degrees=chartToDegrees(actual,key),mismatch=s.keyMode==='locked'&&detection.primary&&!keyEqual(detection.primary,key);
  return {...s,key,candidates:detection.candidates.map(normalizeKey),warning:mismatch?{type:'key-mismatch',suggested:normalizeKey(detection.primary)}:null,
-  traceValid:false,morphHistory:[],compareIndex:null,backbone:{degrees,originalDegrees:copy(degrees),enteredKey:copy(key)},score:copy(degrees),variation:0,origin:{type:'backbone'},inputFormat:namedInput(text)?'chords':'roman'};
+  traceValid:false,recentMorphs:[],morphHistory:[],compareIndex:null,backbone:{degrees,originalDegrees:copy(degrees),enteredKey:copy(key)},score:copy(degrees),variation:0,origin:{type:'backbone'},inputFormat:namedInput(text)?'chords':'roman'};
 }
 export function migrateHarmony(old={}){
  if(old.harmony?.schema===HARMONY_SCHEMA)return repairModalKey(copy(old.harmony));
@@ -79,7 +79,7 @@ export function applyHarmonyAction(current,action){
   }
   case 'reinterpret':{
    const key=tonalKey(action.key,s.key.mode),backbone=materializeChart(s.backbone.degrees,s.key),score=materializeChart(s.score,s.key);
-   s.morphHistory=[];s.compareIndex=null;s.backbone.degrees=chartToDegrees(backbone,key);s.score=chartToDegrees(score,key);s.key=key;s.candidates=[];break;
+   s.recentMorphs=[];s.morphHistory=[];s.compareIndex=null;s.backbone.degrees=chartToDegrees(backbone,key);s.score=chartToDegrees(score,key);s.key=key;s.candidates=[];break;
   }
   case 'auto':{
    const detected=detectKey(materializeChart(s.backbone.degrees,s.key));
@@ -90,7 +90,7 @@ export function applyHarmonyAction(current,action){
   case 'convertMode':{
    if(!action.confirmed)throw Error('大小調轉換需要確認。');
    if(!tonalMode(action.mode))throw Error('調式轉換只接受 major 或 minor。');
-   s.morphHistory=[];s.compareIndex=null;const from=s.key.mode;
+   s.recentMorphs=[];s.morphHistory=[];s.compareIndex=null;const from=s.key.mode;
    s.backbone.degrees=convertDegreeMode(s.backbone.degrees,from,action.mode);
    s.score=convertDegreeMode(s.score,from,action.mode);
    s.key=normalizeKey({root:s.key.root,mode:action.mode});s.candidates=[];s.origin={type:'conversion'};break;
@@ -112,7 +112,7 @@ export function applyHarmonyAction(current,action){
   case 'restore':s.traceValid=false;s.score=copy(s.backbone.degrees);s.origin={type:'backbone'};break;
   case 'keep':
    if(!action.confirmed)throw Error('KEEP 需要確認，會把目前播放譜設為新的骨幹。');
-   s.traceValid=false;s.morphHistory=[];s.compareIndex=null;s.backbone={degrees:copy(s.score),originalDegrees:copy(s.score),enteredKey:copy(s.key)};s.origin={type:'backbone'};break;
+   s.traceValid=false;s.recentMorphs=[];s.morphHistory=[];s.compareIndex=null;s.backbone={degrees:copy(s.score),originalDegrees:copy(s.score),enteredKey:copy(s.key)};s.origin={type:'backbone'};break;
   case 'edit':{
    if(!s.score[action.bar])throw Error('Invalid bar');
    s.score[action.bar]=parseDegreeChart(action.text,s.key)[0];s.origin={type:'edit'};break;
@@ -123,7 +123,7 @@ export function applyHarmonyAction(current,action){
    const p=examplesForKey(s.style,effectiveKey(s)).find(p=>p.id===action.id);
    if(!p)throw Error('這個範例不適用目前調式，請選擇清單中的範例。');
    s.score=chartToDegrees(parseChart(p.chart),s.key);
-   s.traceValid=false;s.morphHistory=[];s.compareIndex=null;s.backbone={degrees:copy(s.score),originalDegrees:copy(s.score),enteredKey:copy(s.key)};
+   s.traceValid=false;s.recentMorphs=[];s.morphHistory=[];s.compareIndex=null;s.backbone={degrees:copy(s.score),originalDegrees:copy(s.score),enteredKey:copy(s.key)};
    s.variation=0;s.candidates=[];s.origin={type:'example',id:p.id};break;
   }
   case 'inspire':{
@@ -152,14 +152,16 @@ export function applyHarmonyAction(current,action){
    const expanded=Array.from({length:filled?source.length:requestedLength},(_,i)=>copy(basis[i%basis.length]||{chords:[]}));
    const previous=symbols(s.score,s.key);let candidate,seed=Number(options.seed??s.variation+1);
    if(!Number.isSafeInteger(seed)||seed<0)throw Error('Invalid variation seed');
-   for(let attempt=0;attempt<=8;attempt++,seed++){
+   const recent=new Set([previous,...(s.recentMorphs||[])]);
+   for(let attempt=0;attempt<64;attempt++,seed++){
     candidate=mutate(expanded,{...options,style:s.style,tonality:effectiveKey(s),key:s.key.root,mode:s.key.mode,seed,
      freedom:'morph',recreate:false});
-    if(serialize(candidate)!==previous)break;
+    if(!recent.has(serialize(candidate))||attempt===63)break;
    }
+   s.recentMorphs=[...(s.recentMorphs||[]),serialize(candidate)].slice(-12);
    s.traceValid=true;s.variation=seed;s.score=chartToDegrees(candidate,s.key);s.origin={type:!filled?'idea':'morph',variation:seed,level:options.randomness||'medium'};
    if(filled&&requestedLength!==source.length)s.warning={type:'length-preserved',length:source.length,requested:requestedLength};
-   else if(symbols(s.score,s.key)===previous)s.warning={type:'variation-exhausted',attempts:9};
+   else if(recent.has(serialize(candidate)))s.warning={type:'variation-exhausted',attempts:64};
    const budget=Math.floor(expanded.flatMap(b=>b.chords).length*({low:0,medium:.25,high:.6}[options.randomness||'medium']));
    const used=new Set(candidate.flatMap(b=>b.chords).filter(c=>['inversion','parallel','ii-V'].includes(c.morph?.technique)).map(c=>JSON.stringify(c.morph.source))).size;
    if(!s.warning&&used<budget)s.warning={type:'technique-limit',used,budget};
