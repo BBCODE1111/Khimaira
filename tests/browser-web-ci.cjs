@@ -122,6 +122,7 @@ const read=page=>page.evaluate(()=>JSON.parse(localStorage.getItem('khimaira-v5'
   await require('./browser-round4-checks.cjs')(page);
   await require('./browser-round5-checks.cjs')(page,output);
   await require('./browser-score-follow.cjs')(page,output);
+  await require('./browser-round7-checks.cjs')(page);
   for(const [width,height] of [[375,667],[390,844]]){
    await page.setViewportSize({width,height});
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));

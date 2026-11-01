@@ -1,17 +1,23 @@
-import {rootPicker} from './root-picker.js?v=1.0.9';
-import {chordChoices,extraChordChoices,quickProgressions,spellSelectedChord} from './chord-input.js?v=1.0.9';
-import {parse,spellPitch,chordTones} from './music.js?v=1.0.9';
-import {materializeChart} from './degree-chart.js?v=1.0.9';
+import {rootPicker} from './root-picker.js?v=1.0.10';
+import {chordChoices,extraChordChoices,quickProgressions,spellSelectedChord} from './chord-input.js?v=1.0.10';
+import {parse,spellPitch,chordTones} from './music.js?v=1.0.10';
+import {materializeChart} from './degree-chart.js?v=1.0.10';
 export function mountChordPicker({state,dispatch,select,editScore}){
  const panel=document.createElement('section');panel.id='chordPicker';panel.className='chord-picker';panel.hidden=true;panel.setAttribute('role','dialog');panel.setAttribute('aria-label','點按編輯骨幹');
  document.querySelector('.score-shell').after(panel);
  let activeBar=0,activeChord=0,trigger=null;
  const close=()=>{panel.hidden=true;(trigger?.isConnected?trigger:document.getElementById('editBackbone'))?.focus();};
  const button=(label,fn,attrs={})=>{const b=document.createElement('button');b.type='button';b.textContent=label;for(const [k,v] of Object.entries(attrs))b.setAttribute(k,v);b.onclick=fn;return b;};
- const act=(operation,extra={})=>{const ok=dispatch({type:'backboneEdit',operation,bar:activeBar,chord:activeChord,...extra},{resetDraft:true,message:'已更新骨幹；MORPH 從這組進行變化，可 UNDO。'});if(ok){open(activeBar,activeChord,false);panel.querySelector('.root-picker [aria-pressed="true"]')?.focus({preventScroll:true});}};
+ const act=(operation,extra={})=>{const ok=dispatch({type:'backboneEdit',operation,bar:activeBar,chord:activeChord,...extra},{resetDraft:true,message:'已更新骨幹；MORPH 從這組進行變化，可 UNDO。'});if(ok){
+  if(operation==='insertBar')activeBar++;
+  open(activeBar,activeChord,false);
+  const actionButton=panel.querySelector(`[data-picker-action="${operation}"]:not(:disabled)`);
+  (actionButton||panel.querySelector('.root-picker [aria-pressed="true"]'))?.focus({preventScroll:true});
+ }};
  const choose=symbol=>{const s=state(),bars=materializeChart(s.backbone.degrees,s.key),next=bars[activeBar]?.chords[activeChord+1]||bars[activeBar+1]?.chords[0];act('select',{symbol:spellSelectedChord(symbol,s.key,next?.symbol)});};
  function open(bar,chord=0,focus=true){
   if(focus)trigger=document.activeElement;activeBar=bar;activeChord=chord;const s=state(),key=s.key,source=materializeChart(s.backbone.degrees,key);
+  bar=activeBar=Math.max(0,Math.min(bar,source.length-1));
   activeChord=Math.min(activeChord,Math.max(0,(source[bar]?.chords.length||1)-1));
   panel.replaceChildren();panel.hidden=false;
   const header=document.createElement('div');header.className='picker-heading';const title=document.createElement('strong');title.textContent=`BAR ${bar+1} · 編輯骨幹`;
@@ -21,6 +27,11 @@ export function mountChordPicker({state,dispatch,select,editScore}){
   const grid=document.createElement('div');grid.className='picker-choices';const choices=chordChoices(key);
   for(const c of choices)grid.append(button(`${c.symbol}  ${c.label}`,()=>choose(c.symbol),{'data-choice':c.symbol}));panel.append(grid);
   const actions=document.createElement('div');actions.className='picker-actions';actions.append(button('分成兩半',()=>{act('split');},{'data-picker-action':'split'}),button('清除此小節',()=>act('clear'),{'data-picker-action':'clear'}),button('複製到下一小節',()=>act('copy'),{'data-picker-action':'copy'}));panel.append(actions);
+  const insert=button('新增後一小節',()=>act('insertBar'),{'data-picker-action':'insertBar'});
+  const remove=button('移除此小節',()=>act('removeBar'),{'data-picker-action':'removeBar'});
+  insert.disabled=source.length>=16;
+  remove.disabled=source.length<=1;
+  actions.append(insert,remove);
   const move=document.createElement('select');move.setAttribute('aria-label','交換到小節');source.forEach((_,i)=>move.add(new Option(`BAR ${i+1}`,i)));move.value=bar;
   actions.append(move,button('交換位置',()=>act('move',{to:+move.value})));
   const more=document.createElement('details'),summary=document.createElement('summary');summary.textContent='更多和弦 · 七和弦、色彩、轉位';more.append(summary);

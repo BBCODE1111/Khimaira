@@ -1,5 +1,5 @@
-import {parse,spellInterval,spellPitch,mod} from './music.js?v=1.0.9';
-import {parseDegreeChart,materializeChart,degreeLabels} from './degree-chart.js?v=1.0.9';
+import {parse,spellInterval,spellPitch,mod} from './music.js?v=1.0.10';
+import {parseDegreeChart,materializeChart,degreeLabels} from './degree-chart.js?v=1.0.10';
 const modes={major:[0,2,4,5,7,9,11],minor:[0,2,3,5,7,8,10],dorian:[0,2,3,5,7,9,10],phrygian:[0,1,3,5,7,8,10],lydian:[0,2,4,6,7,9,11],mixolydian:[0,2,4,5,7,9,10],locrian:[0,1,3,5,6,8,10]};
 export function chordChoices(key){
  const scale=modes[key.mode]||modes.major;
@@ -34,6 +34,16 @@ export function editBackbone(bars,action,key){
  if(action.operation==='clearAll')return Array.from({length:Math.max(1,result.length)},()=>({chords:[]}));
  if(!Number.isInteger(bar)||bar<0||bar>=16)throw Error('Invalid bar');
  while(result.length<=bar)result.push({chords:[]});
+ if(action.operation==='insertBar'){
+  if(result.length>=16)throw Error('最多 16 小節');
+  result.splice(bar+1,0,{chords:[]});
+  return result;
+ }
+ if(action.operation==='removeBar'){
+  if(result.length<=1)throw Error('至少保留 1 小節');
+  result.splice(bar,1);
+  return result;
+ }
  const list=result[bar].chords;
  if(action.operation==='select'){
   if(!parse(action.symbol))throw Error('Invalid chord');

@@ -63,3 +63,6 @@ button,select,summary{min-width:44px;min-height:44px}
  #editorPreview{padding:10px;font-size:22px}
  .editor-scroll>.hint{margin-block:6px}
 }
+
+/* R07-08: the footer link is a full touch target, including mobile. */
+footer a{display:inline-flex;align-items:center;min-height:44px;min-width:44px;padding:8px 4px}
