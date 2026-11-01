@@ -1,5 +1,5 @@
-import {analyzeHarmony,mod,parse} from './music.js?v=1.0.10';
-import {normalizeKey} from './degree-chart.js?v=1.0.10';
+import {analyzeHarmony,mod,parse} from './music.js?v=1.0.11';
+import {normalizeKey} from './degree-chart.js?v=1.0.11';
 
 // Krumhansl–Kessler pitch-class profiles (Krumhansl 1990). Published numeric
 // research data; Pearson correlation implemented here, no third-party code.
@@ -67,6 +67,13 @@ export function detectKey(bars,{loop=true,sections}={}){
    const alternative=tonic&&ranked.find(k=>k.root===tonic.root&&k.mode==='major');
    if(alternative&&!candidates.includes(alternative)){if(candidates.length>=3)candidates.pop();candidates.push(alternative);}
   }
+ }
+ // A pure I–IV loop also has plagal returns (including the loop boundary).
+ // Preserve the ranked primary, but expose this structural tonic reading.
+ if(loop&&!pureIVV&&new Set(chart.map(c=>c.root)).size===2&&chart.every(c=>c.intervals.length===3&&c.intervals.includes(4)&&c.intervals.includes(7))){
+  const tonic=chart.find(c=>chart.some(d=>mod(d.root-c.root)===5));
+  const alternative=tonic&&ranked.find(k=>k.root===tonic.root&&k.mode==='major');
+  if(alternative&&!candidates.includes(alternative)){if(candidates.length>=3)candidates.pop();candidates.push(alternative);}
  }
  if(turnaround&&!candidates.includes(turnaround)){if(candidates.length>=3)candidates.pop();candidates.push(turnaround);}
  return {primary:best,candidates,ambiguous:candidates.length>1,ranked,analysis:best.analysis};

@@ -122,16 +122,17 @@ test('R07-03 click actions create 1–16 bars, keep content/order, undo and MORP
 });
 
 import {publicationChannel,validatePublication,syncWebAssets} from '../scripts/sync-web-assets.mjs';
-test('R07-05 release check rejects stale channel/tag and README status',()=>{
- const current=JSON.parse(readFileSync(new URL('../dist/version.json',import.meta.url),'utf8'));
- assert.equal(current.version,'1.0.10');assert.ok(['release-candidate','stable'].includes(current.channel));
- assert.equal(publicationChannel(current,false),'release-candidate');
- assert.equal(publicationChannel({...current,channel:'release-candidate'},true),'stable');
+test('R07-05 release rules use fixed channel/tag inputs, including all four combinations',()=>{
+ const current={version:'1.0.11',tag:'web-v1.0.11',channel:'release-candidate'};
+ for(const tagExists of [false,true])for(const channel of ['release-candidate','stable']){
+  const metadata={...current,channel};
+  if(channel==='stable'&&!tagExists)assert.throws(()=>validatePublication(metadata,tagExists),/channel mismatch/);
+  else assert.doesNotThrow(()=>validatePublication(metadata,tagExists));
+ }
+ assert.equal(publicationChannel(current,true),'release-candidate');
  assert.throws(()=>publicationChannel({...current,tag:'web-v1.0.9'},true),/tag/);
- assert.throws(()=>validatePublication({...current,channel:'release-candidate'},true),/channel mismatch/);
- assert.throws(()=>validatePublication({...current,channel:'stable'},false),/channel mismatch/);
+ assert.throws(()=>validatePublication({...current,channel:'unknown'},true),/channel mismatch/);
  assert.throws(()=>syncWebAssets(['--check','--release']),/Usage/);
- syncWebAssets(['--check']);
 });
 
 import {tint,cadenceTo,seeded} from '../dist/style-engine.js';
@@ -180,7 +181,7 @@ test('R07-07 initial modules are preloaded with one identity, media bytes stay b
  const read=name=>readFileSync(new URL('../dist/'+name,import.meta.url),'utf8');
  const html=read('index.html'),preloads=[...html.matchAll(/rel="modulepreload" href="([^"]+)"/g)].map(m=>m[1]);
  assert.equal(new Set(preloads).size,preloads.length);assert.ok(preloads.length>30);
- const queue=['app.js?v=1.0.10'],seen=new Set();
+ const queue=['app.js?v=1.0.11'],seen=new Set();
  while(queue.length){
   const path=queue.shift();if(seen.has(path))continue;seen.add(path);
   assert.ok(preloads.includes(path),'preload '+path);

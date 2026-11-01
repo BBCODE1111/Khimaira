@@ -7,20 +7,22 @@ from PIL import Image
 from fontTools.ttLib import TTFont
 from fontTools import subset
 
-root = Path(__file__).resolve().parents[1] / 'dist'
+project = Path(__file__).resolve().parents[1]
+root = project / 'dist'
+originals = project / 'assets' / 'web-source'
 # Preserve the original full-resolution WebPs for provenance; encode small
 # display derivatives. No crop, recolouring or content generation.
 for name, size, quality in [('khimaira-bronze', (128, 128), 82),
                             ('temple-blue', (960, 960), 55),
                             ('button-dark', (480, 160), 75),
                             ('button-ivory', (480, 160), 75)]:
-    with Image.open(root / (name + '.webp')) as source:
+    with Image.open(originals / (name + '.webp')) as source:
         source.thumbnail(size, Image.Resampling.LANCZOS)
         target = root / (name + '-web.webp')
         source.save(target, 'WEBP', quality=quality, method=6)
         print(target.name, source.size, target.stat().st_size)
 for name in ['DMSans', 'Cinzel']:
-    font = TTFont(root / 'fonts' / (name + '.ttf'))
+    font = TTFont(originals / (name + '.ttf'))
     # Keep the site's Latin, Greek, Roman-numeral and music-symbol coverage;
     # Chinese remains the existing system-font fallback. Retain variable axes.
     options = subset.Options()

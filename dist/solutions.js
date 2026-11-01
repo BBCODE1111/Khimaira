@@ -1,6 +1,31 @@
-import {parse,names,mod,approach} from './music.js?v=1.0.10';
-export function parseBar(text){const tokens=text.trim().split(/\s+|,(?![^()]*\))/).filter(Boolean);if(tokens.length>4)throw Error('每小節最多四個和弦。');if(!tokens.length)return [];const durations=tokens.length===3?[2,1,1]:tokens.map(()=>4/tokens.length);return tokens.map((token,i)=>{const [symbol,beat]=token.split(':');if(/^(?:N\.C\.|NC)$/i.test(symbol))throw Error('N.C. 目前只能佔整小節，請以 | N.C. | 輸入。');if(!parse(symbol))throw Error('無法辨識 '+symbol+'；Am 是小和弦，AM 是大和弦。');const beats=beat===undefined?durations[i]:Number(beat);if(!Number.isFinite(beats)||beats<=0)throw Error('拍數必須大於零。');return {symbol,beats};}).map((c,i,a)=>{if(Math.abs(a.reduce((n,c)=>n+c.beats,0)-4)>.001)throw Error('每小節的拍數合計須為 4。');return c;});}
-export function parseChart(text){let t=text.trim().replace(/[.。]+$/,'').trim();if(t.startsWith('|'))t=t.slice(1);if(t.endsWith('|'))t=t.slice(0,-1);const parts=t.split('|');if(parts.length>16)throw Error('目前最多支援 16 小節。');return parts.map(p=>({chords:parseBar(p),reason:'原始進行'}));}
+import {parse,names,mod,approach} from './music.js?v=1.0.11';
+export function parseBar(text){
+ if(/^(?:N\.C\.|NC)$/i.test(text.trim()))return [];
+ const tokens=text.trim().split(/\s+|,(?![^()]*\))/).filter(Boolean);
+ if(tokens.length>4)throw Error('每小節最多四個和弦。');
+ if(!tokens.length)return [];
+ const durations=tokens.length===3?[2,1,1]:tokens.map(()=>4/tokens.length);
+ const chords=tokens.map((token,i)=>{
+  const [symbol,beat]=token.split(':');
+  if(/^(?:N\.C\.|NC)$/i.test(symbol))throw Error('N.C. 目前只能佔整小節，請以 | N.C. | 輸入。');
+  if(!parse(symbol))throw Error('無法辨識 '+symbol+'；Am 是小和弦，AM 是大和弦。');
+  const beats=beat===undefined?durations[i]:Number(beat);
+  if(!Number.isFinite(beats)||beats<=0)throw Error('拍數必須大於零。');
+  return {symbol,beats};
+ });
+ if(Math.abs(chords.reduce((n,c)=>n+c.beats,0)-4)>.001)throw Error('每小節的拍數合計須為 4。');
+ return chords;
+}
+export function parseChart(text){
+ let t=text.trim();
+ // A final N.C. owns its dot; ordinary sentence punctuation is still accepted.
+ if(!/N\.C\.$/i.test(t))t=t.replace(/[.。]+$/,'').trim();
+ if(t.startsWith('|'))t=t.slice(1);
+ if(t.endsWith('|'))t=t.slice(0,-1);
+ const parts=t.split('|');
+ if(parts.length>16)throw Error('目前最多支援 16 小節。');
+ return parts.map(p=>({chords:parseBar(p),reason:'原始進行'}));
+}
 export const chordList=bar=>bar.chords??(bar.symbol?[{symbol:bar.symbol,beats:4}]:[]);
 export const serialize=bars=>'| '+bars.map(b=>chordList(b).map(c=>c.symbol+':'+c.beats).join(' ')).join(' | ')+' |';
 function color(symbol){const c=parse(symbol);if(c.q===''||c.q==='M')return c.rootName+'maj7';if(c.q==='m')return c.rootName+'m9';if(c.q==='7')return c.rootName+'13';return symbol;}

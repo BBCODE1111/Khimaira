@@ -80,7 +80,7 @@ const read=page=>page.evaluate(()=>JSON.parse(localStorage.getItem('khimaira-v5'
   await page.click('#restore');assert.deepEqual((await read(page)).harmony.score,morphed.backbone.degrees);
   // Explicit backbone editing remains available and clearly labelled.
   await page.locator('.original-draft summary').click();await page.click('#editBackbone');
-  assert.match(await page.textContent('.picker-heading'),/編輯骨幹/);
+  assert.match(await page.textContent('.picker-heading'),/BACKBONE/);
   await page.locator('#chordPicker [data-choice="Dm"]').click();
   const backboneEdited=(await read(page)).harmony;
   assert.deepEqual(backboneEdited.score,backboneEdited.backbone.degrees);

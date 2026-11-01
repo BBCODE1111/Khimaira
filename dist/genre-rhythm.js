@@ -1,6 +1,6 @@
 import {createTheory,mod} from './music-core.js?v=1.1.7';
 const {parse}=createTheory('khimaira-v1');
-import {gridRandom,gridTarget,sameHarmony} from './performance-grid.js?v=1.0.10';
+import {gridRandom,gridTarget,sameHarmony} from './performance-grid.js?v=1.0.11';
 
 // Quarter-note coordinates (the source tables number sixteenths from 1).
 // Version 1 is the old template on the repaired bar grid. Version 2 is opt-in
@@ -89,7 +89,9 @@ export function renderGenre(plan,pattern,options={}){
   const beat=Math.max(s.beat,Math.min(s.beat+s.beats-EPS,at+jitter));
   let pitches=part==='bass'?[chord.notes[0]]:chord.notes.slice(1);
   if(part==='bass'&&!target.anticipated&&p.bassOctaves&&index%2)pitches=[Math.min(48,pitches[0]+12)];
-  if(part==='bass'&&!target.anticipated&&p.bassFifths&&index%2){const c=parse(chord.symbol),fifth=c.intervals.find(i=>[6,7,8].includes(i))??0;pitches=[24+mod(c.root+fifth)];}
+  if(part==='bass'&&!target.anticipated&&p.bassFifths&&index%2){const c=parse(chord.symbol),fifth=c.intervals.find(i=>[6,7,8].includes(i))??0;const anchor=chord.notes[0],pc=mod(c.root+fifth);
+   const nearby=Array.from({length:25},(_,i)=>24+i).filter(n=>mod(n)===pc);
+   pitches=[nearby.sort((a,b)=>Math.abs(a-anchor)-Math.abs(b-anchor)||a-b)[0]];}
   // A brief leading tone answers the root on weak bass slots. Do not
   // replace an already anticipated target root with a passing tone.
   if(part==='bass'&&!target.anticipated&&((pattern==='funk'&&index===6)||(pattern==='soul'&&index%2===1)||(pattern==='gospel'&&logical%4>=3.5))){const root=chord.notes[0];pitches=[root>24?root-1:35];}

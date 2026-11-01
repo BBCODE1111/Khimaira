@@ -8,7 +8,7 @@ KHIMAIRA 是給作曲、編曲與吉他手的和聲探索工具。輸入一條�
 
 ![KHIMAIRA](docs/screenshots/odyssey-desktop.png)
 
-網站版本與發布狀態以 [version.json](dist/version.json) 為準；`release-candidate` 表示候選內容，`stable` 表示已有對應 `web-v*` tag。線上是否已部署另以 Pages 部署紀錄及線上 version.json 核對。`npm run assets:sync` 同步版本 query 與 tag 對應的 channel；`npm run assets:check` 驗證兩者一致，README 不維護會過期的候選版文字。主持人發布前執行 `node scripts/sync-web-assets.mjs --release` 準備 stable metadata，再提交、建立對應 tag，執行檢查與部署；CI 取得完整 tags 後檢查。候選版驗證不使用 `--release`。本輪修改與未驗證項目見 [第 7 輪紀錄](docs/reviews/ROUND7-IMPLEMENTATION.md)。
+網站版本與發布狀態以 [version.json](dist/version.json) 為準。`release-candidate` 可在打 tag 前後驗證及部署；`stable` 必須有對應 `web-v*` tag。打 tag 不會改寫已提交的 channel。`npm run assets:sync` 同步版本 query 並驗證 channel；`npm run assets:check` 檢查版本與發布規則。主持人可先部署候選版、再建立 tag，重跑仍有效；若明確發布 stable，先以 `--release` 準備 metadata，再提交及建立 tag。線上狀態另以 Pages 紀錄及線上 version.json 核對。本輪見 [第 8 輪紀錄](docs/reviews/ROUND8-IMPLEMENTATION.md)。
 
 前一版網頁穩定基準：**1.0.2**（`web-v1.0.2`，2026-10-27）。[修正與驗證紀錄](docs/stable-20261027/REPORT.md)。原生外掛另行開發與驗證。
 

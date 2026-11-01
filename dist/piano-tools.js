@@ -1,12 +1,12 @@
-import {parseMelody,readMelodyMidi,melodyText} from './melody-reference.js?v=1.0.10';
-import {pianoPatterns,pianoRecommendations} from './piano-patterns.js?v=1.0.10';
+import {parseMelody,readMelodyMidi,melodyText} from './melody-reference.js?v=1.0.11';
+import {pianoPatterns,pianoRecommendations} from './piano-patterns.js?v=1.0.11';
 import {texturePatterns,normalizePhraseMode} from './piano-motion.js?v=2.0.0';
 const allPianoPatterns={...pianoPatterns,...texturePatterns};
 export function mountPianoTools(container,{getState,setState,onChange,blankUsesExamples=false,patternControl=null,phraseAfter=null}){
  container.innerHTML=`<div class="piano-tool-grid">
  ${patternControl?'':'<label>POP / TEXTURE<select data-piano="pattern" aria-label="鋼琴伴奏音型"><option value="">選擇鋼琴伴奏與織體</option></select></label>'}
- <label>PHRASE 樂句變化<select data-piano="pianoPhrase" aria-label="樂句變化"><option value="original">ORIGINAL · Pattern as written / 原型</option><option value="space">SPACE · Light support / 疏朗支撐</option><option value="two">2 BARS · Call & response / 兩小節問答</option><option value="four">4 BARS · Develop & answer / 四小節推進</option></select></label>
- <label>FILLS<select data-piano="pianoFills" aria-label="鋼琴填句"><option value="off">關閉 · 不加裝飾填句</option><option value="phrase">每四小節 · 短句回答</option><option value="light">輕填句 · 每兩小節回應</option></select></label>
+ <label>PHRASE<select data-piano="pianoPhrase" aria-label="樂句變化"><option value="original">ORIGINAL · Pattern as written</option><option value="space">SPACE · Light support</option><option value="two">2 BARS · Call & response</option><option value="four">4 BARS · Develop & answer</option></select></label>
+ <label>FILLS<select data-piano="pianoFills" aria-label="鋼琴填句"><option value="off">OFF</option><option value="phrase">Every 4 bars</option><option value="light">Every 2 bars</option></select></label>
  <label>MELODY SPACE<select data-piano="melodyFollow" aria-label="旋律避讓"><option value="gentle">避讓重要音與演唱區域</option><option value="off">關閉旋律參考</option></select></label>
  <label>IDEA FAMILY<select data-piano="ideaFamily" aria-label="和聲靈感骨架"><option value="auto">自動挑選</option><option value="1645">1645 · 簡潔循環</option><option value="canon">Canon · 下降低音</option><option value="4536251">4536251 · 副歌推進</option></select></label></div>
  <p data-piano="phraseHint" role="status"></p><p data-piano="recommendation"></p>

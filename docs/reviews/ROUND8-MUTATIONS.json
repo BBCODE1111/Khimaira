@@ -1,0 +1,50 @@
+{
+  "output": "/var/folders/9n/z3tbhw793tg_d1ytfjz9gff80000gn/T/khimaira-r8-mutations-Z6ciNL",
+  "results": [
+    {
+      "id": "M02",
+      "baselineExit": 0,
+      "injectedExit": 1,
+      "detected": true,
+      "workingTreeUnchanged": true,
+      "beforeSha256": "fbb1c48b14db1d1d9d95d75c72a7cc5172746947096cbb0ccefa6ffb334b0e2c",
+      "mutantSha256": "281ba38c38eb65cdf0bd13a83b01d0d41c6edadb87f0c7e547df014a7d05b6bb"
+    },
+    {
+      "id": "M06",
+      "baselineExit": 0,
+      "injectedExit": 1,
+      "detected": true,
+      "workingTreeUnchanged": true,
+      "beforeSha256": "b66d7a40a82ab687b3c59fca12a7e8ed983cb36aaf43ee6f7c2a8ca3727e08f6",
+      "mutantSha256": "72d02b849538792a6f03595603f96547cbe893a471ae028deb8899846fd4d332"
+    },
+    {
+      "id": "M17",
+      "baselineExit": 0,
+      "injectedExit": 1,
+      "detected": true,
+      "workingTreeUnchanged": true,
+      "beforeSha256": "64510478f5915f306147146b079611597991ec0eecf786e577b34407ef6a22a6",
+      "mutantSha256": "5250e4517920c57695ca7913b0d42bed36f81020f8e507091d0f56623748fbd7"
+    },
+    {
+      "id": "M19",
+      "baselineExit": 0,
+      "injectedExit": 1,
+      "detected": true,
+      "workingTreeUnchanged": true,
+      "beforeSha256": "92b5b5788a28331d8454c2d73311bc7bb0e79104e6ddb79763ee4b06f2c26c61",
+      "mutantSha256": "7aa3fc1e2121f0847063c5fc9c1e90c5f5860b6bf97cf1964d80217bf7f1afb9"
+    },
+    {
+      "id": "M20",
+      "baselineExit": 0,
+      "injectedExit": 1,
+      "detected": true,
+      "workingTreeUnchanged": true,
+      "beforeSha256": "c2bdef030acea9b0db017600cb413581554b4e9207f5a65702c66499f12c605b",
+      "mutantSha256": "eadb8f974b5ea5c92e71c4a88483adff7d784be22dd38b5845b2e3f8195be6c0"
+    }
+  ]
+}

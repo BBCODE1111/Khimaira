@@ -1,4 +1,4 @@
-import {parse, mod, spellInterval, chordTones} from './music.js?v=1.0.10';
+import {parse, mod, spellInterval, chordTones} from './music.js?v=1.0.11';
 
 // Parallel modes use the SAME numbered degree, not the same chromatic root.
 // Keep this separate from whole-chart mode conversion (which retains minor V).
@@ -39,22 +39,22 @@ export function invertForMorph(symbol,seed=0,{powerBass=false}={}) {
 }
 
 // Check the rendered adjacency, including inserted approaches and loop wrap.
-// Do not alter an authored 4/2 (manual INVERT remains unrestricted).
+// Authored seventh basses and manual INVERT remain unrestricted.
 export function resolveAutomaticBass(bars,source,{loop=true}={}) {
  const events=bars.flatMap(b=>b.chords.length?b.chords:[{symbol:'N.C.'}]);
- const fourthSecond=c=>c&&!c.minor&&c.intervals.includes(10)&&mod(c.bass-c.root)===10;
+ const seventhBass=c=>c&&((!c.minor&&c.intervals.includes(10)&&mod(c.bass-c.root)===10)||(c.intervals.includes(11)&&mod(c.bass-c.root)===11));
  let changed;
  do {
   changed=false;
   for(let i=events.length-1;i>=0;i--){
    const event=events[i],c=parse(event.symbol),address=event.morph?.source;
-   if(!fourthSecond(c)||!address)continue;
+   if(!seventhBass(c)||!address)continue;
    const original=parse(source[address.bar]?.chords[address.chord]?.symbol);
-   if(fourthSecond(original)&&original.root===c.root&&original.bass===c.bass)continue;
+   if(seventhBass(original)&&original.root===c.root&&original.bass===c.bass)continue;
    const next=parse((events[i+1]||(loop?events[0]:null))?.symbol);
    if(next&&[1,2].includes(mod(c.bass-next.bass)))continue;
    // Reject this inversion without moving the next protected arrival.
-   event.symbol=original?.bassName&&mod(original.bass-c.root)!==10
+   event.symbol=original?.bassName&&!seventhBass({...c,bass:original.bass})
     ?c.rootName+c.q+'/'+original.bassName
     :original?.bassName?original.symbol:c.rootName+c.q;
    if(event.morph.technique==='inversion')event.morph.technique='color';

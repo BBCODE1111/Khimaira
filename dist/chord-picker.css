@@ -66,3 +66,6 @@ button,select,summary{min-width:44px;min-height:44px}
 
 /* R07-08: the footer link is a full touch target, including mobile. */
 footer a{display:inline-flex;align-items:center;min-height:44px;min-width:44px;padding:8px 4px}
+
+.picker-progress{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}.picker-progress button{flex:1 0 20%;padding:6px;overflow-wrap:anywhere}.picker-progress [aria-pressed=true]{background:#b89c6b;color:#102331}.picker-navigation{display:flex;gap:6px}.picker-navigation button{flex:1;padding:6px}
+@media(max-width:600px){.picker-overview{position:sticky;top:-16px;z-index:2;background:#102b3b;padding:8px 0}.picker-heading{position:static;padding:0;margin-bottom:4px}.picker-progress{max-height:24dvh;overflow-y:auto}.picker-progress button{flex-basis:40%}.picker-navigation{font-size:12px}}

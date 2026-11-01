@@ -3,7 +3,7 @@ export function mountScoreFollow(grid, button) {
  let following=true, active=null, playing=false, pointer=null;
  function label(){
   button.setAttribute('aria-pressed',String(following));
-  button.textContent=following?'跟隨播放':'回到播放';
+  button.textContent=following?'FOLLOW':'RESUME FOLLOW';
   button.title=following?'左右滑動可暫停跟隨':'回到目前小節並繼續跟隨';
  }
  function reveal(){

@@ -9,7 +9,7 @@ export function publicationChannel(metadata,tagExists){
  if(!/^\d+\.\d+\.\d+$/.test(metadata.version)||metadata.tag!==`web-v${metadata.version}`){
   throw Error('Web tag must match version.json');
  }
- return tagExists?'stable':'release-candidate';
+ return tagExists&&metadata.channel==='stable'?'stable':'release-candidate';
 }
 export function validatePublication(metadata,tagExists){
  const expected=publicationChannel(metadata,tagExists);
@@ -24,12 +24,11 @@ export function syncWebAssets(args=process.argv.slice(2)){
  publicationChannel(metadata,false);
  // Read-only Git query; missing Git/history is an error, never an assumed release.
  const tags=execFileSync('git',['tag','--list',metadata.tag],{cwd:root,encoding:'utf8'}).trim();
- const expected=publicationChannel(metadata,Boolean(tags)||args.includes('--release'));
+ if(args.includes('--release')){
+  metadata.channel='stable';writeFileSync(metadataFile,JSON.stringify(metadata,null,2)+'\n');
+ }else validatePublication(metadata,Boolean(tags));
+ const expected=metadata.channel;
  let failures=0;
- if(metadata.channel!==expected){
-  if(args.includes('--check'))validatePublication(metadata,Boolean(tags));
-  else{metadata.channel=expected;writeFileSync(metadataFile,JSON.stringify(metadata,null,2)+'\n');}
- }
  const readme=readFileSync(resolve(root,'../README.md'),'utf8');
  if(/\d+\.\d+\.\d+\s*待發布/.test(readme)){
   console.error('README must link to version.json instead of hard-coding pending release status');failures++;

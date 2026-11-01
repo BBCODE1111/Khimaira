@@ -41,6 +41,7 @@ const read=page=>page.evaluate(()=>JSON.parse(localStorage.getItem('khimaira-v5'
    };
   });
   await page.goto(url);await page.locator('.chord-event').first().waitFor();
+  assert.equal(await page.getAttribute('#play','aria-pressed'),'false','R08-12 PLAY initial state');
   // R06: first Tab bypasses the score and transport; Enter focuses MORPH.
   await page.keyboard.press('Tab');
   assert.equal(await page.evaluate(()=>document.activeElement.className),'skip-morph');
@@ -123,6 +124,7 @@ const read=page=>page.evaluate(()=>JSON.parse(localStorage.getItem('khimaira-v5'
   await require('./browser-round5-checks.cjs')(page,output);
   await require('./browser-score-follow.cjs')(page,output);
   await require('./browser-round7-checks.cjs')(page);
+  await require('./browser-round8-checks.cjs')(page,output);
   for(const [width,height] of [[375,667],[390,844]]){
    await page.setViewportSize({width,height});
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
