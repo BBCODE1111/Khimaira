@@ -75,7 +75,7 @@ const beat=page=>page.locator('#position').getAttribute('data-beat').then(Number
   if(!await page.isChecked('#loop'))await click(page,'loopButton');await click(page,'play');
   await page.waitForFunction(()=>document.getElementById('play').getAttribute('aria-pressed')==='true');
   await advance(2.387);
-  for(const action of [()=>click(page,'compareA'),()=>click(page,'compareB'),()=>click(page,'generate'),()=>page.selectOption('#style','Rock'),()=>click(page,'undo')]){
+  for(const action of [()=>click(page,'compareA'),()=>click(page,'compareB'),()=>click(page,'generate'),()=>page.selectOption('#style','Rock'),()=>click(page,'undo'),()=>click(page,'invert'),()=>click(page,'borrow'),async()=>{await page.locator('.chord-event').first().click();await page.locator('#editorRoots [data-root="2"]').click();await page.selectOption('#editQuality','m7');await click(page,'editorApply');},()=>click(page,'resolve')]){
    const before=await beat(page);await action();await advance(.025);const after=await beat(page);
    assert.ok(after>=before&&after-before<=.025*137/60+.002,`phase jump ${before} → ${after}`);
    assert.equal(await page.getAttribute('#play','aria-pressed'),'true');
@@ -100,7 +100,16 @@ const beat=page=>page.locator('#position').getAttribute('data-beat').then(Number
   const origin=await page.evaluate(()=>window.__audioTime+.04);
   await advance(.04+9.925*.5);
   const attackIndex=await page.evaluate(()=>window.__attacks.length);
-  await click(page,'generate');await advance(4);
+  const displayed=await page.locator('#grid .chord-event strong').allTextContents();
+  const sounding=await page.locator('.sounding strong').textContent();
+  await click(page,'generate');await advance(.5);
+  assert.match(await page.textContent('#dockStatus'),/下一小節切換/);
+  assert.deepEqual(await page.locator('#grid .chord-event strong').allTextContents(),displayed,'queued MORPH retains sounding score');
+  assert.equal(await page.locator('.sounding strong').textContent(),sounding,'queued MORPH retains sounding chord');
+  await advance(.56); // beat 12.045: the new revision has crossed the boundary.
+  const expected=await page.evaluate(async()=>{const {materializeChart}=await import('./degree-chart.js');const s=JSON.parse(localStorage.getItem('khimaira-v5')).harmony;return materializeChart(s.score,s.key).flatMap(b=>b.chords.map(c=>c.symbol));});
+  assert.deepEqual(await page.locator('#grid .chord-event strong').allTextContents(),expected,'new score appears at boundary');
+  await advance(2.94);
   const newAttacks=await page.evaluate(index=>window.__attacks.slice(index).filter(v=>!v.cancelled).map(v=>v.when),attackIndex);
   assert.ok(newAttacks.length);for(const when of newAttacks){assert.ok(when>=origin+6-1e-9);assert.ok(Math.abs((when-origin)/.5-Math.round((when-origin)/.5))*.5<.001);}
   await click(page,'stop');

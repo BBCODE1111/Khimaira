@@ -1,6 +1,6 @@
-import {createTheory,mod} from './music-core.js?v=1.1.6';
+import {createTheory,mod} from './music-core.js?v=1.1.7';
 const {parse}=createTheory('khimaira-v1');
-import {gridRandom,gridTarget,sameHarmony} from './performance-grid.js?v=1.0.7';
+import {gridRandom,gridTarget,sameHarmony} from './performance-grid.js?v=1.0.8';
 
 // Quarter-note coordinates (the source tables number sixteenths from 1).
 // Version 1 is the old template on the repaired bar grid. Version 2 is opt-in

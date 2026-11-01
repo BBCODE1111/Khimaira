@@ -1,6 +1,7 @@
-import {serialize} from './solutions.js?v=1.0.7';
-import {materializeChart} from './degree-chart.js?v=1.0.7';
-const techniqueNames={parallel:'平行',inversion:'轉位','ii-V':'ii–V 替換',approach:'接近',color:'色彩','retained-target':'保留目標'};
+import {serialize} from './solutions.js?v=1.0.8';
+import {materializeChart} from './degree-chart.js?v=1.0.8';
+const techniqueNames={parallel:'平行',inversion:'轉位','ii-V':'ii–V 替換',approach:'接近',color:'色彩','retained-target':'保留目標',manual:'手動編輯'};
+export const morphTechniqueLabel=technique=>'△ '+({'ii-V':'ii–V','retained-target':'目標',manual:'編輯'}[technique]||techniqueNames[technique]||'變化');
 export function morphTraceText(chord,source,valid=true){
  if(!valid)return '';
  const mapping=chord.morph,original=mapping&&source[mapping.source.bar]?.chords[mapping.source.chord];

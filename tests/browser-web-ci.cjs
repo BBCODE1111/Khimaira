@@ -100,6 +100,7 @@ const read=page=>page.evaluate(()=>JSON.parse(localStorage.getItem('khimaira-v5'
   for(const [name,queries] of modules)assert.equal(queries.size,1,name);
   await require('./browser-round2-checks.cjs')(page);
   await require('./browser-round4-checks.cjs')(page);
+  await require('./browser-round5-checks.cjs')(page,output);
   await require('./browser-score-follow.cjs')(page,output);
   for(const [width,height] of [[375,667],[390,844]]){
    await page.setViewportSize({width,height});

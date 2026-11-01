@@ -1,9 +1,9 @@
 /**
- * Shared music theory 1.1.6. Canonical source; generated deployment copies are
+ * Shared music theory 1.1.7. Canonical source; generated deployment copies are
  * checked by scripts/sync-music-core.mjs. No UI, playback or generation imports.
  * Profiles preserve the two apps' existing contracts, including known differences.
  */
-export const MUSIC_CORE_VERSION = '1.1.6';
+export const MUSIC_CORE_VERSION = '1.1.7';
 export const names=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
 export const mod=n=>((n%12)+12)%12;
 const pc=s=>mod(({C:0,D:2,E:4,F:5,G:7,A:9,B:11})[s[0]]+[...s.slice(1)].reduce((n,a)=>n+(a==='#'?1:a==='b'?-1:0),0));
@@ -45,6 +45,7 @@ export function createTheory(profile) {
       .replace(/^min/,'m').replace(/^Δ/,'maj').replace(/^ø7?$/,'m7b5').replace(/^°7$/,'dim7');
     if (!seirenCompatibility) {
       if(match[2]==='Δ')q='maj7';
+      q=q.replace(/^mi(?=7$)/,'m').replace(/^m7-5$/,'m7b5').replace(/^m69$/,'m6(9)').replace(/^13sus4$/,'9sus4(13)').replace(/^7sus4b9$/,'7sus4(b9)').replace(/^madd11$/,'m(11)');
       q=q.replace(/^Maj/,'maj').replace(/^add11$/,'(11)').replace(/^m\(add9\)$/,'madd9')
         .replace(/^7((?:[#b](?:9|13|5)){2,})$/,(_,tokens)=>'7('+tokens.match(/[#b](?:13|9|5)/g).join(',')+')');
       q = q.replace(/^ma7$/,'maj7').replace(/^maj7#5$/,'maj7(#5)').replace(/^°$/,'dim').replace(/^\+$/,'aug').replace(/^sus$/,'sus4')

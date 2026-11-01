@@ -1,0 +1,59 @@
+{
+  "baseline": {
+    "exit": 1,
+    "signal": null
+  },
+  "results": [
+    {
+      "id": "M02",
+      "exit": 1,
+      "restored": true,
+      "beforeSha256": "319f15affb987042b23b42f795848179bf91000045525def58f72a6727ab68a0",
+      "mutantSha256": "5ca7c9abed472db9313753a5c875fe1f02cf60e40fd586855e23e12159f8bc5d",
+      "afterSha256": "319f15affb987042b23b42f795848179bf91000045525def58f72a6727ab68a0",
+      "status": "baseline-blocked",
+      "expectedAssertion": "M02"
+    },
+    {
+      "id": "M03",
+      "exit": 1,
+      "restored": true,
+      "beforeSha256": "319f15affb987042b23b42f795848179bf91000045525def58f72a6727ab68a0",
+      "mutantSha256": "93e1198ec9f0f0fc5ca7be53feb7b5e7dff675f29e73a397eb02f79d203d53e2",
+      "afterSha256": "319f15affb987042b23b42f795848179bf91000045525def58f72a6727ab68a0",
+      "status": "baseline-blocked",
+      "expectedAssertion": "M03"
+    },
+    {
+      "id": "M07",
+      "exit": 1,
+      "restored": true,
+      "beforeSha256": "319f15affb987042b23b42f795848179bf91000045525def58f72a6727ab68a0",
+      "mutantSha256": "b11728b5c843649b7adf212a0b0c542959ea7fc6f7278e49c04f0b3d8cae9c06",
+      "afterSha256": "319f15affb987042b23b42f795848179bf91000045525def58f72a6727ab68a0",
+      "status": "baseline-blocked",
+      "expectedAssertion": "M07"
+    },
+    {
+      "id": "M08",
+      "exit": 1,
+      "restored": true,
+      "beforeSha256": "50954d0c5edaa1d80d4d2937a1e7c5c5e72845e9b67cc8c1638e7c569358a165",
+      "mutantSha256": "74009c203e34ff5dc117b0e9d54e29a3dbd3bbb830426921c4184199ee8b1900",
+      "afterSha256": "50954d0c5edaa1d80d4d2937a1e7c5c5e72845e9b67cc8c1638e7c569358a165",
+      "status": "baseline-blocked",
+      "expectedAssertion": "M08"
+    },
+    {
+      "id": "M11",
+      "exit": 1,
+      "restored": true,
+      "beforeSha256": "319f15affb987042b23b42f795848179bf91000045525def58f72a6727ab68a0",
+      "mutantSha256": "6336430fbb8d4b17154f53a459dda4852ecd0b4189f7c47c416aa73d2fba741d",
+      "afterSha256": "319f15affb987042b23b42f795848179bf91000045525def58f72a6727ab68a0",
+      "status": "baseline-blocked",
+      "expectedAssertion": "M11"
+    }
+  ],
+  "output": "/var/folders/9n/z3tbhw793tg_d1ytfjz9gff80000gn/T/khimaira-r5-mutations-jUChWw"
+}

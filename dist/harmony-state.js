@@ -1,13 +1,13 @@
-import {editBackbone} from './chord-input.js?v=1.0.7';
-import {parseChart,chordList,serialize} from './solutions.js?v=1.0.7';
-import {parse} from './music.js?v=1.0.7';
-import {normalizeKey,parseDegreeChart,chartToDegrees,materializeChart,sameDegrees,formatDegreeChart,degreeLabels} from './degree-chart.js?v=1.0.7';
-import {detectKey} from './key-detection.js?v=1.0.7';
-import {mutate,styles} from './style-engine.js?v=1.0.7';
-import {styleTonality} from './backbone-mutation.js?v=1.0.7';
-import {examplesForKey,nextKeyedExample} from './keyed-examples.js?v=1.0.7';
+import {editBackbone} from './chord-input.js?v=1.0.8';
+import {parseChart,chordList,serialize} from './solutions.js?v=1.0.8';
+import {parse} from './music.js?v=1.0.8';
+import {normalizeKey,parseDegreeChart,chartToDegrees,materializeChart,sameDegrees,formatDegreeChart,degreeLabels} from './degree-chart.js?v=1.0.8';
+import {detectKey} from './key-detection.js?v=1.0.8';
+import {mutate,styles} from './style-engine.js?v=1.0.8';
+import {styleTonality} from './backbone-mutation.js?v=1.0.8';
+import {examplesForKey,nextKeyedExample} from './keyed-examples.js?v=1.0.8';
 
-import {convertDegreeMode} from './mode-conversion.js?v=1.0.7';
+import {convertDegreeMode} from './mode-conversion.js?v=1.0.8';
 
 export const HARMONY_SCHEMA=1;
 const copy=x=>structuredClone(x);
@@ -83,7 +83,7 @@ export function applyHarmonyAction(current,action){
   }
   case 'auto':{
    const detected=detectKey(materializeChart(s.backbone.degrees,s.key));
-   if(detected.primary){s=applyHarmonyAction(s,{type:'reinterpret',key:detected.primary});s.history=copy(current.history);}
+   if(detected.primary&&!keyEqual(detected.primary,s.key)){s=applyHarmonyAction(s,{type:'reinterpret',key:detected.primary});s.history=copy(current.history);s.warning={type:'history-cleared'};}
    s.keyMode='auto';s.candidates=detected.candidates.map(normalizeKey);break;
   }
   case 'lock':s.key=tonalKey(s.key);s.keyMode='locked';break;
@@ -115,7 +115,9 @@ export function applyHarmonyAction(current,action){
    s.traceValid=false;s.recentMorphs=[];s.morphHistory=[];s.compareIndex=null;s.backbone={degrees:copy(s.score),originalDegrees:copy(s.score),enteredKey:copy(s.key)};s.origin={type:'backbone'};break;
   case 'edit':{
    if(!s.score[action.bar])throw Error('Invalid bar');
-   s.score[action.bar]=parseDegreeChart(action.text,s.key)[0];s.origin={type:'edit'};break;
+   const before=s.score[action.bar],after=parseDegreeChart(action.text,s.key)[0];
+   let onset=0;for(const c of after.chords){let at=0;const old=before.chords.find(p=>{const match=Math.abs(at-onset)<1e-8&&p.beats===c.beats;at+=p.beats;return match;});if(old?.morph)c.morph={source:copy(old.morph.source),technique:'manual'};onset+=c.beats;}
+   s.score[action.bar]=after;s.origin={type:'edit'};break;
   }
   case 'replaceScore':s.score=chartToDegrees(action.bars,s.key);s.origin=action.origin||{type:'edit'};break;
   case 'example':{

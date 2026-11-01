@@ -1,6 +1,6 @@
 # Khimaira / Seiren 共用樂理維護
 
-共用核心版本：1.1.6。此次只搬移基礎樂理，保留兩個產品原本的音樂輸出與相容差異。
+共用核心版本：1.1.7。此次只搬移基礎樂理，保留兩個產品原本的音樂輸出與相容差異。
 
 ## 單一來源與發布
 
@@ -94,3 +94,5 @@ node scripts/verify-shared-music-browser.cjs ../Seiren /tmp/chord-core-browser
 2026-11-01 第 3 輪：1.1.5 擴充 khimaira-v1 的 Maj7、add11、m(add9)、連寫升降張力；獨立 Δ 定義為 maj7。藍調 VI7→ii 的 analyzeHarmony 現回傳 V7/ii，I7／IV7 保留藍調角色。seiren-v1 解析形狀及接受範圍保持不變；核心 corpus 未重製。僅同步本 checkout，SEIREN 尚未同步／跑其 harness。Khimaira 配音、MORPH、MIDI metadata、播放器變更會影響採用同一引擎的外掛 1.5；plugin 未修改、宿主未驗證。
 
 2026-11-01 使用者答覆續：1.1.6 只調整 Khimaira 使用的物件參數 `spellPitch(pitch, key)`：小調升高第 6 級保留第六字母（A minor F#），自然第 6 級不變。數字參數、seiren-v1 公開 API、既有 golden 不變。同步本 checkout，SEIREN checkout 未同步、未跑 harness；網站仍為未發布 1.0.7。
+
+2026-11-01 第 5 輪：1.1.7 僅擴充 khimaira-v1 的 Am7-5、Cm69、Cmi7、C13sus4、G7sus4b9、Cmadd11 別名。seiren-v1 接受範圍不變；只同步本 checkout，SEIREN 尚未同步或驗證。plugin 未修改，重新打包時會採用新核心，需主持人另驗。

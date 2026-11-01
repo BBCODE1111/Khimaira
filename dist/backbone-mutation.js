@@ -1,7 +1,7 @@
-import {morphProfiles,morphRandom,techniqueChoice,openingTonicChoice} from './morph-profiles.js?v=1.0.7';
-import {parse,mod,analyzeHarmony} from './music.js?v=1.0.7';
-import {parallelDegreeChord,invertForMorph} from './morph-techniques.js?v=1.0.7';
-import {worldScales} from './world-styles.js?v=1.0.7';
+import {morphProfiles,morphRandom,techniqueChoice,openingTonicChoice} from './morph-profiles.js?v=1.0.8';
+import {parse,mod,analyzeHarmony} from './music.js?v=1.0.8';
+import {parallelDegreeChord,invertForMorph} from './morph-techniques.js?v=1.0.8';
+import {worldScales} from './world-styles.js?v=1.0.8';
 
 export function styleTonality(style,cfg,key){
  const modes={'Dorian folk':'dorian','Phrygian dominant':'hijaz','Major blues':'major-blues','Minor blues':'minor-blues'};
@@ -95,7 +95,7 @@ export function anchoredMutation(source,options,tools){
  const plans=[];
  source.forEach((bar,barIndex)=>{let onset=0;bar.chords.forEach((c,chord)=>{
   const i=plans.length,selected=(i-start+count)%count<Math.max(1,Math.floor(count/4));
-  plans.push({original:c,bar:barIndex,chord,onset,symbol:level==='low'&&!selected?c.symbol:paint(c.symbol,i),technique:'color'});
+  plans.push({original:c,bar:barIndex,chord,onset,symbol:level==='low'&&(modal||!selected)?c.symbol:paint(c.symbol,i),technique:'color'});
   onset+=c.beats;
  });});
  const mutable=options.freedom!=='color'&&method==='style';
@@ -122,13 +122,26 @@ export function anchoredMutation(source,options,tools){
  // Retained arrivals must be settled before checking neighbouring candidates.
  if(plans.length&&mutable&&level!=='low')for(const index of protectedTargets){const target=plans[index];target.symbol=retainedSymbol(target,index);target.technique='retained-target';}
  const duplicatesNeighbour=(i,symbol)=>[plans[i-1],plans[i+1]].some(other=>other&&other.bar===plans[i].bar&&!other.replacement&&other.original.symbol!==plans[i].original.symbol&&other.symbol===symbol&&!(other===plans[i+1]&&sameBarIv(i)));
+ if(level==='low'&&!modal&&plans.every(p=>p.symbol===p.original.symbol)){
+  for(let n=0;n<count;n++){const i=(start+n)%count,p=plans[i];if(signatures.has(i))continue;const candidate=paint(p.original.symbol,i);if(candidate!==p.original.symbol&&!duplicatesNeighbour(i,candidate)){p.symbol=candidate;break;}}
+ }
  let used=0;const reserved=new Map();
  for(let n=0;n<count&&used<budget;n++){
   const i=(start+n)%count,p=plans[i];
   if(protectedTargets.has(i))continue;
   const next=plans[i+1]||(options.loop!==false?plans[0]:null);
   const adjacent=next&&(next.bar===p.bar||next.bar===p.bar+1&&next.chord===0||p.bar===source.length-1&&next.bar===0);
-  const choice=i===0&&parse(p.original.symbol).root===key.root?openingTonicChoice(style,seed):techniqueChoice(style,seed,i);
+  let choice=i===0&&parse(p.original.symbol).root===key.root?openingTonicChoice(style,seed):techniqueChoice(style,seed,i);
+  // Renormalize only disabled choices. Keep the established all-enabled
+  // distribution and the approved opening-tonic proposal probability.
+  const enabled=[techniques.inversion!==false&&!preserveBass,techniques.parallel!==false&&!modal,approaches];
+  if(!enabled[choice]){
+   const opening=i===0&&parse(p.original.symbol).root===key.root;
+   const weights=profile.slice(0,3).map((w,k)=>enabled[k]&&!(opening&&k===1&&choice!==1)?w:0);
+   const total=weights.reduce((a,b)=>a+b,0);if(!total)continue;
+   let draw=morphRandom(seed,i,style,6)*total;
+   choice=weights.findIndex(w=>{draw-=w;return w>0&&draw<0;});
+  }
   const parallel=modal||techniques.parallel===false||dominantSources.has(i)?null:parallelDegreeChord(p.original.symbol,key);
   const cadence=adjacent&&tools.cadenceTo(next.original.symbol,{rich:level==='high'});
   const previous=plans[i-1]||(options.loop!==false?plans.at(-1):null);

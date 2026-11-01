@@ -1,5 +1,5 @@
-import {analyzeHarmony,mod,parse} from './music.js?v=1.0.7';
-import {normalizeKey} from './degree-chart.js?v=1.0.7';
+import {analyzeHarmony,mod,parse} from './music.js?v=1.0.8';
+import {normalizeKey} from './degree-chart.js?v=1.0.8';
 
 // Krumhansl–Kessler pitch-class profiles (Krumhansl 1990). Published numeric
 // research data; Pearson correlation implemented here, no third-party code.
