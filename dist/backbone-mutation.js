@@ -1,7 +1,7 @@
-import {morphProfiles,morphRandom,techniqueChoice,openingTonicChoice} from './morph-profiles.js?v=1.0.8';
-import {parse,mod,analyzeHarmony} from './music.js?v=1.0.8';
-import {parallelDegreeChord,invertForMorph} from './morph-techniques.js?v=1.0.8';
-import {worldScales} from './world-styles.js?v=1.0.8';
+import {morphProfiles,morphRandom,techniqueChoice,openingTonicChoice} from './morph-profiles.js?v=1.0.9';
+import {parse,mod,analyzeHarmony} from './music.js?v=1.0.9';
+import {parallelDegreeChord,invertForMorph,resolveAutomaticBass} from './morph-techniques.js?v=1.0.9';
+import {worldScales} from './world-styles.js?v=1.0.9';
 
 export function styleTonality(style,cfg,key){
  const modes={'Dorian folk':'dorian','Phrygian dominant':'hijaz','Major blues':'major-blues','Minor blues':'minor-blues'};
@@ -172,7 +172,7 @@ export function anchoredMutation(source,options,tools){
  for(let i=1;i<plans.length;i++){const a=plans[i-1],b=plans[i];if(a.bar===b.bar&&!a.replacement&&!b.replacement&&a.symbol===b.symbol&&a.original.symbol!==b.original.symbol&&!sameBarIv(i-1)){a.symbol=a.original.symbol;b.symbol=b.original.symbol;a.technique=b.technique='retained-target';}}
  const address=p=>({bar:p.bar,chord:p.chord,onset:p.onset});
  let ordinal=0;
- return source.map((bar,barIndex)=>{
+ const result=source.map((bar,barIndex)=>{
   let room=Math.max(0,limit-bar.chords.length-(reserved.get(barIndex)||0));
   const chords=bar.chords.flatMap((c,j)=>{
    const i=ordinal++,p=plans[i],mapping={source:address(p),technique:p.technique};
@@ -198,6 +198,7 @@ export function anchoredMutation(source,options,tools){
   });
   return {...bar,chords,reason:style+' · 骨幹對應／色彩、轉位與目標接近'};
  });
+ return resolveAutomaticBass(result,source,{loop:options.loop!==false});
 }
 
 // Diagnostic only: authored conflicts are permitted by the round-3 MORPH contract.

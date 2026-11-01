@@ -1,6 +1,6 @@
-import {parse,names,mod,spellInterval} from './music.js?v=1.0.8';
-import {chordList} from './solutions.js?v=1.0.8';
-import {insertApproach,cadenceTo} from './style-engine.js?v=1.0.8';
+import {parse,names,mod,spellInterval} from './music.js?v=1.0.9';
+import {chordList} from './solutions.js?v=1.0.9';
+import {insertApproach,cadenceTo} from './style-engine.js?v=1.0.9';
 
 // Resolve to the next sounding event. Never skip a rest or overwrite a target.
 export function insertCadence(bars,barIndex,chordIndex,{loop=false,startBar=0}={}){
@@ -18,9 +18,21 @@ export function insertCadence(bars,barIndex,chordIndex,{loop=false,startBar=0}={
  const previous=list[chordIndex-1]||(barIndex>startBar?chordList(bars[barIndex-1]).at(-1):loop?chordList(bars.at(-1)).at(-1):null);
  if(replacement.length===2&&previous&&parse(previous.symbol).root===parse(replacement[0].symbol).root){replacement[1].beats+=replacement[0].beats;replacement.splice(0,1);}
  if(replacement.length===3&&[current,previous].some(c=>c&&parse(c.symbol).root===parse(replacement[1].symbol).root)){replacement[2].beats+=replacement[1].beats;replacement.splice(1,1);}
+ // Removing a redundant ii can expose G -> G7. Keep the arrival V for the
+ // complete selected duration instead of advertising a nonexistent ii–V.
+ for(let i=replacement.length-1;i>0;i--){
+  if(parse(replacement[i-1].symbol).root!==parse(replacement[i].symbol).root)continue;
+  replacement[i].beats+=replacement[i-1].beats;
+  replacement.splice(i-1,1);
+ }
+ const unchanged=replacement.length===1&&replacement[0].symbol===current.symbol;
+ const kind=unchanged?'retained':replacement.some(c=>parse(c.symbol).root===parse(pair[0]).root)?'ii–V':'V';
  out[barIndex].chords.splice(chordIndex,1,...replacement);
- out[barIndex].reason=`ii–V → ${next.symbol}`;
- return {bars:out,target:next.symbol,kind:replacement.length===1?'V':'ii–V'};
+ out[barIndex].reason=`${kind==='retained'?'保留原和弦':kind} → ${next.symbol}`;
+ return {bars:out,target:next.symbol,kind};
+}
+export function cadenceMessage({kind,target}){
+ return kind==='retained'?`已保留原屬和弦，解決到 ${target}；未插入新和弦。`:`已插入 ${kind}，解決到 ${target}；骨幹保留。`;
 }
 export function invertChord(symbol){
  const c=parse(symbol);if(!c)throw Error('請先選擇和弦。');

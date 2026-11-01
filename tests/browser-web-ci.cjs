@@ -41,7 +41,27 @@ const read=page=>page.evaluate(()=>JSON.parse(localStorage.getItem('khimaira-v5'
    };
   });
   await page.goto(url);await page.locator('.chord-event').first().waitFor();
+  // R06: first Tab bypasses the score and transport; Enter focuses MORPH.
+  await page.keyboard.press('Tab');
+  assert.equal(await page.evaluate(()=>document.activeElement.className),'skip-morph');
+  const skip=await page.locator('.skip-morph').boundingBox();assert.ok(skip.y>=0);
+  const desktopAxe=await new AxeBuilder({page}).analyze();
+  await fs.writeFile(path.join(output,'axe-desktop-skip.json'),JSON.stringify(desktopAxe,null,2));
+  assert.deepEqual(desktopAxe.violations.filter(v=>['serious','critical'].includes(v.impact)).map(v=>v.id),[]);
+  await page.keyboard.press('Enter');
+  assert.equal(await page.evaluate(()=>document.activeElement.id),'generate');
   await page.locator('#advancedInput summary').click();
+  // R06: the last-bar NEXT response describes the actual single V.
+  await page.fill('#chartInput','C | Am | Dm | G');await page.click('#applyChart');
+  await page.locator('.chord-event').last().click();await page.keyboard.press('Escape');
+  await page.click('#resolve');
+  assert.match(await page.textContent('#status'),/已插入 V，解決到 C/);
+  const nextResult=await page.evaluate(async()=>{
+   const {harmonyView}=await import(performance.getEntriesByType('resource').map(r=>r.name).find(n=>n.includes('/harmony-state.js')));
+   return harmonyView(JSON.parse(localStorage.getItem('khimaira-v5')).harmony).bars;
+  });
+  assert.deepEqual(nextResult.at(-1).chords.map(c=>[c.symbol,c.beats]),[['G7',4]]);
+  await page.click('#resolve');assert.match(await page.textContent('#status'),/未插入新和弦/);
   await page.fill('#chartInput','C | Am | F | G');await page.click('#applyChart');
   const loaded=await read(page);
   await page.selectOption('#randomness','high');await page.click('#generate');

@@ -8,7 +8,7 @@ KHIMAIRA 是給作曲、編曲與吉他手的和聲探索工具。輸入一條�
 
 ![KHIMAIRA](docs/screenshots/odyssey-desktop.png)
 
-已發布網站：**1.0.7**（`web-v1.0.7`，基準 `7448779`，依主持人提供的發布狀態）。本 checkout 為 **1.0.8 待發布版**（預定 tag `web-v1.0.8`）；`release-candidate` 只描述此候選檔案，不代表線上狀態，本輪不建立 tag／部署。版本與資產 query 由 `dist/version.json` 驅動；執行 `npm run assets:sync`／`assets:check` 同步與驗證。見 [第 5 輪紀錄](docs/reviews/ROUND5-IMPLEMENTATION.md)。
+本輪網站修改基準：**1.0.8**（`459d182`，依主持人提供的基準）。本 checkout 為 **1.0.9 待發布版**（預定 tag `web-v1.0.9`）；`release-candidate` 不代表線上已部署，本輪不建立 tag／commit／push。主持人驗證後建立 tag 並發布。版本與資產 query 由 `dist/version.json` 驅動；執行 `npm run assets:sync`／`assets:check` 同步與驗證。見 [第 6 輪紀錄](docs/reviews/ROUND6-IMPLEMENTATION.md)。
 
 前一版網頁穩定基準：**1.0.2**（`web-v1.0.2`，2026-10-27）。[修正與驗證紀錄](docs/stable-20261027/REPORT.md)。原生外掛另行開發與驗證。
 
@@ -218,10 +218,19 @@ MORPH 保留小節、骨幹順序與起拍，允許轉位、同級平行大小�
 
 其後 2026-11-01 使用者已決定 A 小調升高第 6 級拼 F#，自然第 6 級 F 不變，已納入發布版；詳見 CONFIRMED-THEORY §1。本輪不改共用核心、golden 或 `plugin/`；瀏覽器及 axe 由主持人在 sandbox 外執行。測試數據、未達條件與外掛影響見 [第 4 輪紀錄](docs/reviews/ROUND4-IMPLEMENTATION.md)。
 
-## 1.0.8 第 5 輪（待發布）
+## 1.0.8 第 5 輪（本輪修改基準；以下為歷史紀錄）
 
 目前最多 16 小節，每小節最多四個和弦；超出上限時保留原譜並提示。此輪保留既有產品上限，讓手機編輯、循環排程與存檔驗證維持既有受測範圍；32 小節效能尚未驗證，長曲可分段使用。不是樂理限制。
 
 低幅度保留零結構手法預算，非調式樂風在其他可用位置尋找色彩；地域／調式樂風低幅度不改色彩，介面明示提高幅度。開關關閉後，預算改分配至其他可行且受樂風支援的手法；原有保護及流行開頭平行機率不變。
 
 播放中 MORPH 於下一小節切換前顯示正在發聲的舊譜並提示排隊；INVERT、COLOR、EDIT、NEXT 保持播放與拍位。手機顯示變更手法標記，歷史選單限制於面板內，橫向控制列固定底部。LOOP 狀態保存；同調 AUTO 保留 A/B 歷史。全休止／空白 MORPH 明示產生新進行，RESTORE 仍回原骨幹。UNDO 存檔以共用資料池去除重複內容，舊格式仍可讀。
+
+
+## 1.0.9 第 6 輪（待發布）
+
+自動 MORPH 新增的屬七 4/2 轉位必須接下一實際低音下行半音／全音，含 Jazz、Neo-soul、同小節與 LOOP 尾接頭；無法順接便撤回該轉位，保留目標。手動 INVERT 與原輸入的轉位不受限制。MORPH 整組、同級平行互換、ii–V 替換、骨幹小節數／順序／起拍、RESTORE 與不移調契約維持 CONFIRMED-THEORY §1。
+
+手動 ii–V → NEXT 合併選取格內同根尾段，訊息依實際 ii–V、V 或保留原屬和弦顯示。Reggaeton、Amapiano、Dancehall 各新增一組原創大調練習，不冒稱歌曲；既有小調範例保留。鍵盤第一個 Tab 可選「跳至 MORPH」，Enter 直接移到 MORPH 按鈕。
+
+A 小調升高第 6 級仍為 F#，自然第 6 級為 F；遵守 CONFIRMED-THEORY §1 使用者答覆第 2 題。Heavy Metal bVII、D 小調第 6 個半音與斜線低音數字寫法未變更。版本 1.0.9／預定 tag `web-v1.0.9`；瀏覽器與 axe 由主持人在 sandbox 外驗證，未跑不得視為通過。

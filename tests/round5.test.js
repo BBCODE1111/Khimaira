@@ -84,7 +84,7 @@ test('R05-P2-17 45 MORPHs at 16 bars save below 500KB and retain all undo/A/B da
 });
 test('R05-P2-12/14 release status and documented 16-bar product limit',()=>{
  const readme=readFileSync(new URL('../README.md',import.meta.url),'utf8'),version=JSON.parse(readFileSync(new URL('../dist/version.json',import.meta.url)));
- assert.equal(version.version,'1.0.8');assert.equal(version.channel,'release-candidate');
- assert.match(readme,/已發布.*1\.0\.7.*web-v1\.0\.7/);assert.match(readme,/1\.0\.8 待發布/);assert.match(readme,/最多 16 小節/);
+ assert.equal(version.tag,`web-v${version.version}`);assert.equal(version.channel,'release-candidate');
+ assert.ok(readme.includes(version.version+' 待發布'));assert.match(readme,/459d182/);assert.match(readme,/最多 16 小節/);
  assert.throws(()=>createHarmony({text:Array(17).fill('C').join(' | ')}),/16/);
 });

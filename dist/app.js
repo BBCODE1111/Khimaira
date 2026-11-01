@@ -1,28 +1,28 @@
-import {encodeSession} from './session-codec.js?v=1.0.8';
-import {morphProfiles} from './morph-profiles.js?v=1.0.8';
-import {morphTraceText,morphHistoryLabel,morphTechniqueLabel} from './morph-presentation.js?v=1.0.8';
-import {spellSelectedChord} from './chord-input.js?v=1.0.8';
-import {mountScoreFollow} from './score-follow.js?v=1.0.8';
-import {rootPicker} from './root-picker.js?v=1.0.8';
-import {readSession} from './session-storage.js?v=1.0.8';
-import {mountChordPicker} from './chord-picker.js?v=1.0.8';
-import {selectGenre,swingDescription,genreProfiles} from './genre-rhythm.js?v=1.0.8';
-import {referenceNotes} from './melody-reference.js?v=1.0.8';
-import {mountPianoTools} from './piano-tools.js?v=1.0.8';
-import {arpModes,arpRates,arpPresets} from './arpeggiator.js?v=1.0.8';
-import {examplesForKey} from './keyed-examples.js?v=1.0.8';
-import {createHarmony,migrateHarmony,applyHarmonyAction,effectiveKey,harmonyView} from './harmony-state.js?v=1.0.8';
-import {formatDegreeChart,materializeChart,parseDegreeChart} from './degree-chart.js?v=1.0.8';
-import {BeatPlayer,validTempo,clampTempo} from './tempo-player.js?v=1.0.8';
-import {insertCadence,invertChord,parallelColor} from './harmony-actions.js?v=1.0.8';
-import {playbackSlice,spaceToggles} from './transport.js?v=1.0.8';
-import {names,mod,parse,spellPitch,keyName,guitarShapes,scales,midiBytes,chordTones} from './music.js?v=1.0.8';
-import {parseChart,chordList,serialize} from './solutions.js?v=1.0.8';
-import {styles,styleLabels} from './style-engine.js?v=1.0.8';
-import {performance as events,patterns,voicePlan,performanceLabel} from './performance.js?v=1.0.8';
-import {scaleNotes,scalePositions} from './scale-library.js?v=1.0.8';
-import {guitarMelody,melodyShapes,melodyEvents} from './guitar-melody.js?v=1.0.8';
-import {Piano} from './piano.js?v=1.0.8';
+import {encodeSession} from './session-codec.js?v=1.0.9';
+import {morphProfiles} from './morph-profiles.js?v=1.0.9';
+import {morphTraceText,morphHistoryLabel,morphTechniqueLabel} from './morph-presentation.js?v=1.0.9';
+import {spellSelectedChord} from './chord-input.js?v=1.0.9';
+import {mountScoreFollow} from './score-follow.js?v=1.0.9';
+import {rootPicker} from './root-picker.js?v=1.0.9';
+import {readSession} from './session-storage.js?v=1.0.9';
+import {mountChordPicker} from './chord-picker.js?v=1.0.9';
+import {selectGenre,swingDescription,genreProfiles} from './genre-rhythm.js?v=1.0.9';
+import {referenceNotes} from './melody-reference.js?v=1.0.9';
+import {mountPianoTools} from './piano-tools.js?v=1.0.9';
+import {arpModes,arpRates,arpPresets} from './arpeggiator.js?v=1.0.9';
+import {examplesForKey} from './keyed-examples.js?v=1.0.9';
+import {createHarmony,migrateHarmony,applyHarmonyAction,effectiveKey,harmonyView} from './harmony-state.js?v=1.0.9';
+import {formatDegreeChart,materializeChart,parseDegreeChart} from './degree-chart.js?v=1.0.9';
+import {BeatPlayer,validTempo,clampTempo} from './tempo-player.js?v=1.0.9';
+import {insertCadence,cadenceMessage,invertChord,parallelColor} from './harmony-actions.js?v=1.0.9';
+import {playbackSlice,spaceToggles} from './transport.js?v=1.0.9';
+import {names,mod,parse,spellPitch,keyName,guitarShapes,scales,midiBytes,chordTones} from './music.js?v=1.0.9';
+import {parseChart,chordList,serialize} from './solutions.js?v=1.0.9';
+import {styles,styleLabels} from './style-engine.js?v=1.0.9';
+import {performance as events,patterns,voicePlan,performanceLabel} from './performance.js?v=1.0.9';
+import {scaleNotes,scalePositions} from './scale-library.js?v=1.0.9';
+import {guitarMelody,melodyShapes,melodyEvents} from './guitar-melody.js?v=1.0.9';
+import {Piano} from './piano.js?v=1.0.9';
 const $=id=>document.getElementById(id);let bars=parseChart('| C | Am | F | G |'),source=structuredClone(bars),selected=0,selectedChord=0,tab='scales',timer=null,run=0;
 let startBar=0,isPlaying=false,loading=false,player=null,playbackKind='score';
 let piano=null,scaleChoice='',lastScaleChord='',positionChoice=0,method='style',melodySeed=0,arrangement=[];
@@ -242,7 +242,12 @@ function populateLibrary(){const selected=$('library').value,items=currentPool()
 $('loadPreset').onclick=()=>{const p=currentPool().find(p=>p.id===$('library').value);if(p&&dispatch({type:'example',id:p.id},{message:'已載入 '+p.title+'；已設為新骨幹，可 UNDO。'})){$('seedMood').hidden=false;$('seedMood').textContent='EXAMPLE · '+p.title;}};
 $('nextSong').onclick=()=>{if(dispatch({type:'inspire',options:config()},{message:'已探索新的靈感；按 KEEP 可採用為新骨幹，再用 MORPH 發展。'})){$('seedMood').hidden=false;$('seedMood').textContent='INSPIRE · 預覽（KEEP 採用／RESTORE 回骨幹）';}};
 $('voicingTab').onclick=()=>{tab='chords';$('voicingTab').classList.add('active');$('scaleTab').classList.remove('active');reference();};$('scaleTab').onclick=()=>{tab='scales';$('scaleTab').classList.add('active');$('voicingTab').classList.remove('active');reference();};
-$('resolve').onclick=()=>{try{const result=insertCadence(bars,selected,selectedChord,{loop:$('loop').checked,startBar});dispatch({type:'replaceScore',bars:result.bars},{message:'已插入 '+result.kind+'，解決到 '+result.target+'；骨幹保留。'});}catch(e){status(e.message);}};
+$('resolve').onclick=()=>{
+ try{
+  const result=insertCadence(bars,selected,selectedChord,{loop:$('loop').checked,startBar});
+  dispatch({type:'replaceScore',bars:result.bars},{message:cadenceMessage(result)});
+ }catch(e){status(e.message);}
+};
 function editHarmony(transform,message){try{const symbol=transform(selectedSymbol());bars[selected].chords[selectedChord].symbol=symbol;if(bars[selected].chords[selectedChord].morph)bars[selected].chords[selectedChord].morph={source:bars[selected].chords[selectedChord].morph.source,technique:'manual'};commitScore(message);}catch(e){status(e.message);}}
 $('invert').onclick=()=>editHarmony(invertChord,'已使用和弦內音轉位；延伸音不作傳統轉位低音。');
 $('borrow').onclick=()=>editHarmony(parallelColor,'已切換平行大小調色彩，保留延伸音設定及仍相容的低音。這是手動借用，可 UNDO。');
