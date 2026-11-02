@@ -1,0 +1,9 @@
+.language-switch{display:inline-flex;align-items:center;gap:3px;flex-shrink:0;padding:3px;border:1px solid #9e815a;border-radius:9px;background:#102134;}
+.language-switch button[data-language]{min-width:44px;min-height:44px;padding:7px 10px;border:0;border-radius:6px;background:transparent;color:#dce5ee;font:600 13px/1.2 system-ui,sans-serif;letter-spacing:0;cursor:pointer;}
+.language-switch button[data-language][aria-pressed="true"]{background:#e1c8a4;color:#172333!important;box-shadow:inset 0 0 0 1px #f2dfc4;}
+.language-switch button:focus-visible{outline:3px solid #96d9ff;outline-offset:2px;}
+header .language-switch{margin-left:auto;}
+#keyLock{min-width:44px;}
+.about-language{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px;}
+html[lang="zh-Hant"] button,html[lang="zh-Hant"] summary,html[lang="zh-Hant"] label{font-family:system-ui,sans-serif;}
+@media(max-width:600px){header{gap:8px;flex-wrap:wrap;}header .header-note,header .research-link{display:none;}header .language-switch{margin-left:auto;}.language-switch button[data-language]{padding:7px 9px;}.language-switch{max-width:100%;}}

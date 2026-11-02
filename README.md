@@ -4,6 +4,8 @@
 
 [開啟 KHIMAIRA 網站](https://bbcode1111.github.io/Khimaira/) · 免費使用，不需登入。
 
+網站右上角可切換 **中文／EN**，首次使用預設繁體中文，之後記住此瀏覽器的選擇。主介面、動態提示、樂風與範例說明、和弦／骨幹編輯器、吉他工具、伴奏設定及 About 頁面同步切換；語言切換保留目前和弦、未完成輸入、速度與播放狀態，不改變 MIDI 音符。
+
 KHIMAIRA 是給作曲、編曲與吉他手的和聲探索工具。輸入一條簡單進行，讓它長出不同的和聲色彩、聲部與演奏方式，再把 MIDI 帶進 DAW。
 
 ![KHIMAIRA](docs/screenshots/odyssey-desktop.png)

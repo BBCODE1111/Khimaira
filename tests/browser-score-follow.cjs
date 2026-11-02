@@ -35,7 +35,7 @@ module.exports=async function scoreFollowChecks(page,output){
    e.dispatchEvent(new PointerEvent('pointermove',{pointerId:1,clientX:100,clientY:102}));
    e.dispatchEvent(new PointerEvent('pointerup',{pointerId:1}));e.scrollLeft=0;
   });
-  assert.equal(await page.textContent('#scoreFollow'),'RESUME FOLLOW');
+  assert.equal(await page.textContent('#scoreFollow'),await page.getAttribute('html','lang')==='en'?'RESUME FOLLOW':'繼續跟隨');
   const beat=await page.locator('#position').getAttribute('data-beat');
   await page.waitForFunction(b=>Number(document.getElementById('position').dataset.beat)>Number(b)+4,beat);
   assert.equal(await page.locator('#grid').evaluate(e=>e.scrollLeft),0,'manual browsing is not pulled away');

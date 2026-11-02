@@ -162,5 +162,5 @@ test('R04 P2-F: release docs agree on default bass preservation and drop obsolet
  for(const name of ['README.md','docs/morph-backbone/README.md','docs/reviews/CONFIRMED-THEORY.md']){
   const text=read(name);assert.match(text,/保留低音線.{0,10}預設關閉/);assert.doesNotMatch(text,/preserves authored chord onsets, roots and slash basses|web-v1\.0\.4.*尚未/);
  }
- assert.equal(JSON.parse(read('dist/version.json')).version,'1.0.11');
+ assert.equal(JSON.parse(read('dist/version.json')).version,'1.0.12');
 });

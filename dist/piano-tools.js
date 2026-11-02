@@ -1,5 +1,5 @@
-import {parseMelody,readMelodyMidi,melodyText} from './melody-reference.js?v=1.0.11';
-import {pianoPatterns,pianoRecommendations} from './piano-patterns.js?v=1.0.11';
+import {parseMelody,readMelodyMidi,melodyText} from './melody-reference.js?v=1.0.12';
+import {pianoPatterns,pianoRecommendations} from './piano-patterns.js?v=1.0.12';
 import {texturePatterns,normalizePhraseMode} from './piano-motion.js?v=2.0.0';
 const allPianoPatterns={...pianoPatterns,...texturePatterns};
 export function mountPianoTools(container,{getState,setState,onChange,blankUsesExamples=false,patternControl=null,phraseAfter=null}){
@@ -33,6 +33,6 @@ export function mountPianoTools(container,{getState,setState,onChange,blankUsesE
  el('clear').onclick=()=>{setState({melodyText:''});el('melodyText').value='';tracks=[];el('file').value='';el('track').replaceChildren(new Option('請先選擇檔案',''));el('track').disabled=true;onChange('melodyText');refresh();};
  const selectTrack=()=>{try{el('melodyText').value=melodyText(tracks[+el('track').value].notes);report('已讀取音軌；請按 APPLY MELODY 套用。');}catch(e){report(e.message);}};
  el('track').onchange=selectTrack;
- el('file').onchange=async()=>{try{const file=el('file').files[0];if(!file)return;if(file.size>5*1024*1024)throw Error('旋律 MIDI 請小於 5 MB。');tracks=readMelodyMidi(await file.arrayBuffer());el('track').replaceChildren(...tracks.map((t,i)=>new Option(t.name,String(i))));el('track').disabled=false;selectTrack();}catch(e){report(e.message);}};
+ el('file').onchange=async()=>{try{const file=el('file').files[0];if(!file)return;if(file.size>5*1024*1024)throw Error('旋律 MIDI 請小於 5 MB。');tracks=readMelodyMidi(await file.arrayBuffer());el('track').replaceChildren(...tracks.map((t,i)=>{const option=new Option(t.name,String(i));option.translate=false;return option;}));el('track').disabled=false;selectTrack();}catch(e){report(e.message);}};
  refresh();return {refresh};
 }

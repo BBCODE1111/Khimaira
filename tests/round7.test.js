@@ -181,7 +181,7 @@ test('R07-07 initial modules are preloaded with one identity, media bytes stay b
  const read=name=>readFileSync(new URL('../dist/'+name,import.meta.url),'utf8');
  const html=read('index.html'),preloads=[...html.matchAll(/rel="modulepreload" href="([^"]+)"/g)].map(m=>m[1]);
  assert.equal(new Set(preloads).size,preloads.length);assert.ok(preloads.length>30);
- const queue=['app.js?v=1.0.11'],seen=new Set();
+ const queue=[`app.js?v=${JSON.parse(read('version.json')).version}`],seen=new Set();
  while(queue.length){
   const path=queue.shift();if(seen.has(path))continue;seen.add(path);
   assert.ok(preloads.includes(path),'preload '+path);
