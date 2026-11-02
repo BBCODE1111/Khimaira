@@ -1,8 +1,8 @@
-import {styles} from './style-engine.js?v=1.0.12';
-import {songs} from './song-pool.js?v=1.0.12';
-import {parseChart,serialize} from './solutions.js?v=1.0.12';
-import {studyMood,moodCategory,exampleTitle} from './example-titles.js?v=1.0.12';
-import {contrastExamples,moodOrder} from './contrast-examples.js?v=1.0.12';
+import {styles} from './style-engine.js?v=1.0.13';
+import {songs} from './song-pool.js?v=1.0.13';
+import {parseChart,serialize} from './solutions.js?v=1.0.13';
+import {studyMood,moodCategory,exampleTitle} from './example-titles.js?v=1.0.13';
+import {contrastExamples,moodOrder} from './contrast-examples.js?v=1.0.13';
 // Original major studies supplement the four contrast directions without
 // replacing minor examples or claiming a song reference.
 const danceMajorStudies=Object.fromEntries(Object.entries({

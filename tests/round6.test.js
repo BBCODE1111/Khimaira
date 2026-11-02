@@ -63,7 +63,7 @@ test('R06 N3 dance example coverage: every major/minor key, original studies onl
 test('R06 N4 release metadata and current policy agree',()=>{
  const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
  const version=JSON.parse(read('dist/version.json'));
- assert.equal(version.version,'1.0.12');assert.equal(version.tag,'web-v1.0.12');
+ assert.equal(version.version,'1.0.13');assert.equal(version.tag,'web-v1.0.13');
  assert.match(read('README.md'),/version\.json/);assert.doesNotMatch(read('README.md'),/\d+\.\d+\.\d+ 待發布/);
  assert.match(read('docs/reviews/CONFIRMED-THEORY.md').split('## 2.')[0],/Jazz.*Neo-soul/);
 });

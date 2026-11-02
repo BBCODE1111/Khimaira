@@ -1,5 +1,9 @@
 // UI copy only. Keep chord symbols, IDs and session data language-independent.
 export const english = {
+  "下載圖片 PNG": "DOWNLOAD PNG",
+  "正在製作和弦旋律圖片…": "Creating chord melody image…",
+  "圖片已匯出：包含和弦進行、組成音與目前指法。": "Image exported with the progression, chord tones and current voicings.",
+  "圖片匯出失敗，請再試一次。": "Image export failed. Please try again.",
   "Khimaira奇美拉 - 和弦怪物": "Khimaira — The Chord Monster",
   "跳至 MORPH · 改變整組和弦": "Skip to MORPH · Transform all chords",
   "奇美拉 · 和弦怪物": "The Chord Monster",

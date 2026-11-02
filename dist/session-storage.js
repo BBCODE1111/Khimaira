@@ -1,7 +1,7 @@
-import {decodeSession} from './session-codec.js?v=1.0.12';
-import {createHarmony,migrateHarmony,harmonyView,HARMONY_SCHEMA} from './harmony-state.js?v=1.0.12';
-import {materializeChart} from './degree-chart.js?v=1.0.12';
-import {styles} from './style-engine.js?v=1.0.12';
+import {decodeSession} from './session-codec.js?v=1.0.13';
+import {createHarmony,migrateHarmony,harmonyView,HARMONY_SCHEMA} from './harmony-state.js?v=1.0.13';
+import {materializeChart} from './degree-chart.js?v=1.0.13';
+import {styles} from './style-engine.js?v=1.0.13';
 
 const keys=['khimaira-v5','khimaira-v4','khimaira-v3','chord-advisor-v2','chord-advisor-v1'];
 const object=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);

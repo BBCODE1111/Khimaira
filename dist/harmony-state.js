@@ -1,13 +1,13 @@
-import {editBackbone} from './chord-input.js?v=1.0.12';
-import {parseChart,chordList,serialize} from './solutions.js?v=1.0.12';
-import {parse} from './music.js?v=1.0.12';
-import {normalizeKey,parseDegreeChart,chartToDegrees,materializeChart,sameDegrees,formatDegreeChart,degreeLabels} from './degree-chart.js?v=1.0.12';
-import {detectKey} from './key-detection.js?v=1.0.12';
-import {mutate,styles} from './style-engine.js?v=1.0.12';
-import {styleTonality} from './backbone-mutation.js?v=1.0.12';
-import {examplesForKey,nextKeyedExample} from './keyed-examples.js?v=1.0.12';
+import {editBackbone} from './chord-input.js?v=1.0.13';
+import {parseChart,chordList,serialize} from './solutions.js?v=1.0.13';
+import {parse} from './music.js?v=1.0.13';
+import {normalizeKey,parseDegreeChart,chartToDegrees,materializeChart,sameDegrees,formatDegreeChart,degreeLabels} from './degree-chart.js?v=1.0.13';
+import {detectKey} from './key-detection.js?v=1.0.13';
+import {mutate,styles} from './style-engine.js?v=1.0.13';
+import {styleTonality} from './backbone-mutation.js?v=1.0.13';
+import {examplesForKey,nextKeyedExample} from './keyed-examples.js?v=1.0.13';
 
-import {convertDegreeMode} from './mode-conversion.js?v=1.0.12';
+import {convertDegreeMode} from './mode-conversion.js?v=1.0.13';
 
 export const HARMONY_SCHEMA=1;
 const copy=x=>structuredClone(x);
