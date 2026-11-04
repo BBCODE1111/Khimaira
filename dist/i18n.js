@@ -1,4 +1,4 @@
-import {english,chinese} from './i18n-catalog.js?v=1.0.13';
+import {english,chinese} from './i18n-catalog.js?v=1.0.14';
 
 export const LANGUAGE_KEY='khimaira-language';
 export const normalizeLanguage=value=>value==='en'?'en':'zh-Hant';

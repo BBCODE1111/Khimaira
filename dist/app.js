@@ -1,29 +1,29 @@
-import {mountLanguage} from './i18n.js?v=1.0.13';
-import {encodeSession} from './session-codec.js?v=1.0.13';
-import {morphProfiles} from './morph-profiles.js?v=1.0.13';
-import {morphTraceText,morphHistoryLabel,morphTechniqueLabel} from './morph-presentation.js?v=1.0.13';
-import {spellSelectedChord} from './chord-input.js?v=1.0.13';
-import {mountScoreFollow} from './score-follow.js?v=1.0.13';
-import {rootPicker} from './root-picker.js?v=1.0.13';
-import {readSession} from './session-storage.js?v=1.0.13';
-import {mountChordPicker} from './chord-picker.js?v=1.0.13';
-import {selectGenre,swingDescription,genreProfiles} from './genre-rhythm.js?v=1.0.13';
-import {referenceNotes} from './melody-reference.js?v=1.0.13';
-import {mountPianoTools} from './piano-tools.js?v=1.0.13';
-import {arpModes,arpRates,arpPresets} from './arpeggiator.js?v=1.0.13';
-import {examplesForKey} from './keyed-examples.js?v=1.0.13';
-import {createHarmony,migrateHarmony,applyHarmonyAction,effectiveKey,harmonyView} from './harmony-state.js?v=1.0.13';
-import {formatDegreeChart,materializeChart,parseDegreeChart} from './degree-chart.js?v=1.0.13';
-import {BeatPlayer,validTempo,clampTempo} from './tempo-player.js?v=1.0.13';
-import {insertCadence,cadenceMessage,invertChord,parallelColor} from './harmony-actions.js?v=1.0.13';
-import {playbackSlice,spaceToggles} from './transport.js?v=1.0.13';
-import {names,mod,parse,spellPitch,keyName,guitarShapes,scales,midiBytes,chordTones} from './music.js?v=1.0.13';
-import {parseChart,chordList,serialize} from './solutions.js?v=1.0.13';
-import {styles,styleLabels} from './style-engine.js?v=1.0.13';
-import {performance as events,patterns,voicePlan,performanceLabel} from './performance.js?v=1.0.13';
-import {scaleNotes,scalePositions} from './scale-library.js?v=1.0.13';
-import {guitarMelody,melodyShapes,melodyEvents} from './guitar-melody.js?v=1.0.13';
-import {Piano} from './piano.js?v=1.0.13';
+import {mountLanguage} from './i18n.js?v=1.0.14';
+import {encodeSession} from './session-codec.js?v=1.0.14';
+import {morphProfiles} from './morph-profiles.js?v=1.0.14';
+import {morphTraceText,morphHistoryLabel,morphTechniqueLabel} from './morph-presentation.js?v=1.0.14';
+import {spellSelectedChord} from './chord-input.js?v=1.0.14';
+import {mountScoreFollow} from './score-follow.js?v=1.0.14';
+import {rootPicker} from './root-picker.js?v=1.0.14';
+import {readSession} from './session-storage.js?v=1.0.14';
+import {mountChordPicker} from './chord-picker.js?v=1.0.14';
+import {selectGenre,swingDescription,genreProfiles} from './genre-rhythm.js?v=1.0.14';
+import {referenceNotes} from './melody-reference.js?v=1.0.14';
+import {mountPianoTools} from './piano-tools.js?v=1.0.14';
+import {arpModes,arpRates,arpPresets} from './arpeggiator.js?v=1.0.14';
+import {examplesForKey} from './keyed-examples.js?v=1.0.14';
+import {createHarmony,migrateHarmony,applyHarmonyAction,effectiveKey,harmonyView} from './harmony-state.js?v=1.0.14';
+import {formatDegreeChart,materializeChart,parseDegreeChart} from './degree-chart.js?v=1.0.14';
+import {BeatPlayer,validTempo,clampTempo} from './tempo-player.js?v=1.0.14';
+import {insertCadence,cadenceMessage,invertChord,parallelColor} from './harmony-actions.js?v=1.0.14';
+import {playbackSlice,spaceToggles} from './transport.js?v=1.0.14';
+import {names,mod,parse,spellPitch,keyName,guitarShapes,scales,midiBytes,chordTones} from './music.js?v=1.0.14';
+import {parseChart,chordList,serialize} from './solutions.js?v=1.0.14';
+import {styles,styleLabels} from './style-engine.js?v=1.0.14';
+import {performance as events,patterns,voicePlan,performanceLabel} from './performance.js?v=1.0.14';
+import {scaleNotes,scalePositions} from './scale-library.js?v=1.0.14';
+import {guitarMelody,melodyShapes,melodyEvents} from './guitar-melody.js?v=1.0.14';
+import {Piano} from './piano.js?v=1.0.14';
 const $=id=>document.getElementById(id);let bars=parseChart('| C | Am | F | G |'),source=structuredClone(bars),selected=0,selectedChord=0,tab='scales',timer=null,run=0;
 let startBar=0,isPlaying=false,loading=false,player=null,playbackKind='score';
 let piano=null,scaleChoice='',lastScaleChord='',positionChoice=0,method='style',melodySeed=0,arrangement=[];
@@ -271,7 +271,7 @@ $('melodyImage').onclick=async()=>{
  try{
   if(!arrangement.length&&bars.some(b=>chordList(b).length))$('melodyGenerate').click();
   const snapshot={bars:structuredClone(bars),arrangement:structuredClone(arrangement),language:document.documentElement.lang,key:keyName(currentKey().root,currentKey().mode),tempo:appliedTempo};
-  const {melodyImageModel,melodyImageBlob}=await import('./chord-melody-image.js?v=1.0.13');
+  const {melodyImageModel,melodyImageBlob}=await import('./chord-melody-image.js?v=1.0.14');
   const blob=await melodyImageBlob(melodyImageModel(snapshot.bars,snapshot.arrangement),snapshot);
   const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='KHIMAIRA-chord-melody.png';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
   message.textContent='圖片已匯出：包含和弦進行、組成音與目前指法。';
@@ -333,7 +333,7 @@ async function startPerformance(clip,{label,kind,initialBeat=0}){
 function togglePlayback(){if(isPlaying||loading)stop();else play();}
 $('play').onclick=()=>play();$('stop').onclick=stop;
 $('loopButton').onclick=()=>{$('loop').checked=!$('loop').checked;$('loopButton').setAttribute('aria-pressed',String($('loop').checked));if(playbackKind!=='scale')player?.setLoop($('loop').checked);save();};
-document.addEventListener('keydown',e=>{if(spaceToggles(e)&&!document.querySelector('dialog[open]')){e.preventDefault();togglePlayback();}});
+document.addEventListener('keydown',e=>{if(spaceToggles(e)&&!document.querySelector('dialog[open]')){e.preventDefault();if(!e.repeat)togglePlayback();}});
 $('dockMidi').onclick=()=>exportMidi();
 let downloadURL=null;function downloadNotes(notes,suffix){if(downloadURL)URL.revokeObjectURL(downloadURL);downloadURL=URL.createObjectURL(new Blob([midiBytes(notes,bars.length*4,{bpm:appliedTempo})],{type:'audio/midi'}));const a=document.createElement('a');a.href=downloadURL;a.download='KHIMAIRA-'+suffix+'.mid';a.click();status('已下載 '+suffix+' MIDI。');}
 function exportMidi(sustained=false){const notes=events(bars,sustained?'sustain':$('pattern').value,performanceOptions());if(!notes.length){status('尚無可匯出的音符。');return;}if(downloadURL)URL.revokeObjectURL(downloadURL);downloadURL=URL.createObjectURL(new Blob([midiBytes(notes,bars.length*4,{bpm:appliedTempo,split:$('midiSplit').value==='split',pedal:$('midiPedal').value==='on',chordSpans:voicePlan(bars).map(c=>({start:c.beat,end:c.beat+c.beats,symbol:c.symbol})),melody:referenceNotes(performanceOptions()).map(n=>({start:n.beat,end:n.beat+n.duration}))})],{type:'audio/midi'}));const a=document.createElement('a');a.href=downloadURL;a.download='KHIMAIRA-'+keyName(currentKey().root,currentKey().mode)+'-'+bars.length+'bars-'+(sustained?'sustain':$('pattern').value==='arp'?'arp-'+$('arpMode').value+'-'+$('arpRate').value+'-'+$('arpOctaves').value+'oct':$('pattern').value)+'.mid';a.click();status(sustained?'已匯出原樣長音：音符準確填滿每個和弦拍數。':'已匯出目前演奏：音序、音長、力度與試聽使用同一組資料。');}

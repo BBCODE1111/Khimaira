@@ -8,5 +8,10 @@ export function playbackSlice(notes,startBar,totalBars){
 }
 export function spaceToggles(event){
  const target=event.target;
- return event.code==='Space'&&!event.repeat&&!event.altKey&&!event.ctrlKey&&!event.metaKey&&!event.shiftKey&&!target?.closest?.('button,[role="button"],input,textarea,select,a,summary,[contenteditable],dialog');
+ if(event.code!=='Space'||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return false;
+ if(target?.closest?.('input,textarea,select,a,summary,[contenteditable],dialog'))return false;
+ const button=target?.closest?.('button,[role="button"]');
+ // Playback buttons keep focus after a click. Space must toggle transport,
+ // not activate their native click handler (which starts from the cue again).
+ return !button||['play','melodyPlay'].includes(button.id);
 }

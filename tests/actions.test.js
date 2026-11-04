@@ -36,9 +36,16 @@ test('seek clips notes at selected bar, rebases time and never exceeds the segme
  const real=playbackSlice(events(parseChart('| C | Am | F | G |'),'sustain'),2,4);
  assert.equal(real.beats,8);assert.ok(real.notes.length);assert.ok(real.notes.every(n=>n.beat>=0&&n.beat+n.duration<=8));
 });
-test('space ignores repeated keys, modifiers and editing controls',()=>{
+test('space reserves transport keys and ignores modifiers and editing controls',()=>{
  assert.equal(spaceToggles({code:'Space'}),true);
- for(const e of [{code:'Enter'},{code:'Space',repeat:true},{code:'Space',metaKey:true},{code:'Space',target:{closest:()=>true}}])assert.equal(spaceToggles(e),false);
+ for(const e of [{code:'Enter'},{code:'Space',metaKey:true},{code:'Space',target:{closest:()=>true}}])assert.equal(spaceToggles(e),false);
+});
+test('Space toggles when either playback button retains keyboard focus',()=>{
+ for(const id of ['play','melodyPlay']){
+  const target={closest:selector=>selector.includes('button')?{id}:null};
+  assert.equal(spaceToggles({code:'Space',target}),true);
+  assert.equal(spaceToggles({code:'Space',target,repeat:true}),true);
+ }
 });
 test('one-shot automatic cadence does not pretend to resolve past the final bar',()=>{
  const out=mutate(parseChart('| C | Am | F | G |'),{method:'cadence',density:3,loop:false,randomness:'low'});

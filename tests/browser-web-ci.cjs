@@ -102,7 +102,14 @@ const read=page=>page.evaluate(()=>JSON.parse(localStorage.getItem('khimaira-v5'
   await page.fill('#chartInput','C | Am | F | G');await page.click('#applyChart');await page.selectOption('#pattern','sustain');
   await page.fill('#tempo','137');await page.locator('#tempo').blur();
   await page.click('#play');await page.waitForFunction(()=>window.__energy>0.00001,null,{timeout:30000});
-  await page.waitForFunction(()=>Number(document.getElementById('position').dataset.beat)>1);await page.click('#stop');
+  await page.waitForFunction(()=>Number(document.getElementById('position').dataset.beat)>1);
+  // Real keyup used to activate the focused PLAY button and restart playback.
+  assert.equal(await page.evaluate(()=>document.activeElement.id),'play');
+  await page.keyboard.press('Space');assert.equal(await page.getAttribute('#play','aria-pressed'),'false');
+  await page.keyboard.press('Space');await page.waitForFunction(()=>document.getElementById('play').getAttribute('aria-pressed')==='true');
+  await page.keyboard.down('Space');await page.keyboard.down('Space');await page.keyboard.up('Space');
+  assert.equal(await page.getAttribute('#play','aria-pressed'),'false','holding Space must not restart');
+  await page.click('#stop');
   await page.locator('#performanceOptions summary').click();
   for(const split of ['merged','split'])for(const pedal of ['off','on']){
    await page.selectOption('#midiSplit',split);await page.selectOption('#midiPedal',pedal);

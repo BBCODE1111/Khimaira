@@ -1,4 +1,4 @@
-import {parse,mod,keyName,spellInterval,analyzeHarmony} from './music.js?v=1.0.13';
+import {parse,mod,keyName,spellInterval,analyzeHarmony} from './music.js?v=1.0.14';
 
 // Chromatic Roman notation is major-referenced in BOTH modes: Cm–Ab–Bb is
 // i–bVI–bVII. Quality is explicit, so changing tonic never changes chord type.
