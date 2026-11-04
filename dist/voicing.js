@@ -1,4 +1,4 @@
-import {parse,mod} from './music.js?v=1.0.14';
+import {parse,mod} from './music.js?v=1.0.15';
 
 export function voicingCandidates(symbol,voicing='close'){
  const c=parse(symbol);if(!c)return [];

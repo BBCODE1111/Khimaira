@@ -1,13 +1,13 @@
-import {darkStyles} from './dark-styles.js?v=1.0.14';
-import {names,mod,parse,spellPitch,spellChord,spellInterval,transposeSymbol,chordTones,tritoneRoot} from './music.js?v=1.0.14';
-import {parseBar,chordList,parseChart} from './solutions.js?v=1.0.14';
-import {songs} from './song-pool.js?v=1.0.14';
-import {worldStyles} from './world-styles.js?v=1.0.14';
-import {worldMutation} from './world-generator.js?v=1.0.14';
-import {harmonyStudies,learnedIdea} from './harmony-knowledge.js?v=1.0.14';
-import {detectKey} from './key-detection.js?v=1.0.14';
-import {normalizeKey} from './degree-chart.js?v=1.0.14';
-import {anchoredMutation} from './backbone-mutation.js?v=1.0.14';
+import {darkStyles} from './dark-styles.js?v=1.0.15';
+import {names,mod,parse,spellPitch,spellChord,spellInterval,transposeSymbol,chordTones,tritoneRoot} from './music.js?v=1.0.15';
+import {parseBar,chordList,parseChart} from './solutions.js?v=1.0.15';
+import {songs} from './song-pool.js?v=1.0.15';
+import {worldStyles} from './world-styles.js?v=1.0.15';
+import {worldMutation} from './world-generator.js?v=1.0.15';
+import {harmonyStudies,learnedIdea} from './harmony-knowledge.js?v=1.0.15';
+import {detectKey} from './key-detection.js?v=1.0.15';
+import {normalizeKey} from './degree-chart.js?v=1.0.15';
+import {anchoredMutation} from './backbone-mutation.js?v=1.0.15';
 export const styles={
 Jazz:{description:'功能替代、次屬和弦、ii–V、三全音／backdoor，讓 3rd 與 7th 連接。',pattern:'jazz',voicing:'rootless',phrases:[['Cmaj9 Ebdim7','Dm9 G13','Em7 A7b9','Dm9 Db7#11'],['Em9 A7alt','Dm9 G13','Fm9 Bb13','C69 G7alt'],['C69','F#m7b5 B7b9','Em9 A7alt','Dm9 G13']],T:['Cmaj9','Em9 A7alt','C69 Ebdim7'],R:['Am9','Em7 A7alt','Dm9 G13'],S:['Fmaj9','Fm9 Bb13','Dm9 G13'],D:['G13','Dm9 Db7#11','G7sus4 G7alt']},
 Gospel:{description:'斜線低音、減七經過和弦、IV–iv、sus 解決與 plagal 色彩。',pattern:'gospel',voicing:'open',phrases:[['C69 E7/G#','Am9 C7/G','Fmaj9 Fm6','C/G G7sus4'],['Cmaj9/E','Fmaj9 F#dim7','C/G A7b9','Dm9 G13'],['C69','Bb/C C7','Fmaj9 Fm6','C/G G7']],T:['C69/E','Cmaj9 E7/G#','C/G'],R:['Am9 C7/G','C7/G','Em7 A7b9'],S:['Fmaj9 Fm6','Fmaj9 F#dim7','Dm9/G'],D:['G7sus4 G13','C/G G7','Db9 C69']},
@@ -20,7 +20,6 @@ Classical:{description:'三和弦轉位、級進低音、次屬和弦與終止�
 'Phrygian dominant':{description:'1 ♭2 3 4 5 ♭6 ♭7；主大三和弦、♭II 與小 iv。具體調式，非泛稱民族音樂。',pattern:'ostinato',voicing:'open',phrases:[['C','Db','Fm','C'],['C Db/C','C','Bbm','C'],['C7b9','Dbmaj7','Fm/C','C']],T:['C','C7b9','Db/C'],R:['Ab','Bbm','Ab/C'],S:['Fm','Db','Fm/C'],D:['Db/C','Bbm C','C7b9']},
 'Dorian folk':{description:'小調主音配大六度；i–IV 的 Dorian 色彩、持續低音與開放弦感。',pattern:'folk',voicing:'open',phrases:[['Cm','F','Bb','Cm'],['Cm9','F/C','Dm7','Cm6'],['Cm','Bb/C','F','Cm']],T:['Cm','Cm6','Cm9'],R:['Am7b5','Cm/A','Cm6'],S:['F','F/C','Dm7'],D:['Gm7','Bb','F/C']}
 };
-const transpose=(symbol,key)=>transposeSymbol(symbol,key,key);
 function preset(description,pattern,voicing,phrases){return {description,pattern,voicing,phrases};}
 Object.assign(styles,{
 'Soul':preset('大六／九和弦、IV–iv 與柔和次屬；有呼吸的切分和聲。','soul','open',[['Fmaj9','Fm6','C/E','A7 Dm7'],['C69','Em7 A7','Dm9','G13'],['Am9','D9','Fmaj9','C69']]),
@@ -186,6 +185,7 @@ export function mutate(source,options={}){
  return legacyMutation(source,{...options,key:key.root,mode:key.mode,freedom:recreate?'free':'color'});
 }
 function legacyMutation(source,{style='Jazz',key=0,mode='major',freedom='free',density=2,seed=0,randomness='medium',method='style',loop=true,ideaFamily='auto'}={}){
+ const transpose=(symbol,key)=>transposeSymbol(symbol,key,key,mode);
  if(method==='original')return structuredClone(source);
  const cfg=styles[style]||styles.Jazz,styleSeed=[...style].reduce((n,c)=>n+c.charCodeAt(0),0),random=seeded(seed+styleSeed),count=source.length||4,filled=source.some(b=>chordList(b).length),level=randomness;
  const songCandidates=songs.filter(s=>s.style===style&&s.mode===mode);

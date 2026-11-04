@@ -1,7 +1,7 @@
-import {rootPicker} from './root-picker.js?v=1.0.14';
-import {chordChoices,extraChordChoices,quickProgressions,spellSelectedChord} from './chord-input.js?v=1.0.14';
-import {parse,spellPitch,chordTones} from './music.js?v=1.0.14';
-import {materializeChart} from './degree-chart.js?v=1.0.14';
+import {rootPicker} from './root-picker.js?v=1.0.15';
+import {chordChoices,extraChordChoices,quickProgressions,spellSelectedChord} from './chord-input.js?v=1.0.15';
+import {parse,spellPitch,chordTones} from './music.js?v=1.0.15';
+import {materializeChart} from './degree-chart.js?v=1.0.15';
 export function mountChordPicker({state,dispatch,select,editScore}){
  const panel=document.createElement('section');panel.id='chordPicker';panel.className='chord-picker';panel.hidden=true;panel.setAttribute('role','dialog');panel.setAttribute('aria-label','點按編輯骨幹');
  document.querySelector('.score-shell').after(panel);

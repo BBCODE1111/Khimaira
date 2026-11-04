@@ -1,7 +1,7 @@
-import {morphProfiles,morphRandom,techniqueChoice,openingTonicChoice} from './morph-profiles.js?v=1.0.14';
-import {parse,mod,analyzeHarmony} from './music.js?v=1.0.14';
-import {parallelDegreeChord,invertForMorph,resolveAutomaticBass} from './morph-techniques.js?v=1.0.14';
-import {worldScales} from './world-styles.js?v=1.0.14';
+import {morphProfiles,morphRandom,techniqueChoice,openingTonicChoice} from './morph-profiles.js?v=1.0.15';
+import {parse,mod,analyzeHarmony} from './music.js?v=1.0.15';
+import {parallelDegreeChord,invertForMorph,resolveAutomaticBass} from './morph-techniques.js?v=1.0.15';
+import {worldScales} from './world-styles.js?v=1.0.15';
 
 export function styleTonality(style,cfg,key){
  const modes={'Dorian folk':'dorian','Phrygian dominant':'hijaz','Major blues':'major-blues','Minor blues':'minor-blues'};

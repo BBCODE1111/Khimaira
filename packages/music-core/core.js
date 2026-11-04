@@ -1,9 +1,9 @@
 /**
- * Shared music theory 1.1.7. Canonical source; generated deployment copies are
+ * Shared music theory 1.1.8. Canonical source; generated deployment copies are
  * checked by scripts/sync-music-core.mjs. No UI, playback or generation imports.
  * Profiles preserve the two apps' existing contracts, including known differences.
  */
-export const MUSIC_CORE_VERSION = '1.1.7';
+export const MUSIC_CORE_VERSION = '1.1.8';
 export const names=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
 export const mod=n=>((n%12)+12)%12;
 const pc=s=>mod(({C:0,D:2,E:4,F:5,G:7,A:9,B:11})[s[0]]+[...s.slice(1)].reduce((n,a)=>n+(a==='#'?1:a==='b'?-1:0),0));
@@ -17,13 +17,19 @@ function intervalsFor(q, seirenCompatibility) {
   if (!match || !qualities[match[1]] || (seirenCompatibility && match[1] === '7b5')) return null;
   let intervals = [...qualities[match[1]]];
   const alterations = {'b9':13,'9':14,'#9':15,'11':17,'#11':18,'b13':20,'13':21,'b5':6,'#5':8,'no5':-7};
+  const cleared = new Set();
   for (const token of match[2].split(',')) {
     if (!(token in alterations)) return null;
     const interval = alterations[token];
-    if (['b9','9','#9'].includes(token)) intervals = intervals.filter(n => ![13,14,15].includes(n));
-    if (['11','#11'].includes(token)) intervals = intervals.filter(n => ![17,18].includes(n));
-    if (['b13','13'].includes(token)) intervals = intervals.filter(n => ![20,21].includes(n));
-    if (['b5','#5','no5'].includes(token)) intervals = intervals.filter(n => ![6,7,8].includes(n));
+    const family = ['b9','9','#9'].includes(token) ? [13,14,15]
+      : ['11','#11'].includes(token) ? [17,18]
+      : ['b13','13'].includes(token) ? [20,21] : [6,7,8];
+    // Remove the implicit base family once, then retain all explicitly named
+    // alterations. Seiren's existing parser contract stays opt-in unchanged.
+    if (seirenCompatibility || !cleared.has(family[0])) {
+      intervals = intervals.filter(n => !family.includes(n));
+      cleared.add(family[0]);
+    }
     if (interval >= 0) intervals.push(interval);
   }
   return [...new Set(intervals)].sort((a,b) => a-b);
@@ -74,7 +80,7 @@ export function createTheory(profile) {
     const degrees = {0:0,1:1,2:1,3:2,4:2,5:3,6:4,7:4,8:4,9:5,10:6,11:6,13:1,14:1,15:1,17:3,18:3,20:5,21:5};
     return chord.intervals.map(interval => {
       let degree = degrees[interval] ?? 0;
-      if (chord.q === 'dim7' && interval === 9) degree = 6;
+      if ((chord.q === 'dim7' || !seirenCompatibility && chord.q.startsWith('dim7(')) && interval === 9) degree = 6;
       const letter = (base+degree)%7;
       let delta = mod(chord.root+interval)-naturals[letter];
       while (delta > 6) delta -= 12;
@@ -153,8 +159,8 @@ export function createTheory(profile) {
     const degree=(letters.indexOf(c.rootName[0])-letters.indexOf(tonic[0])+7)%7;
     let a=mod(c.root-root-[0,2,4,5,7,9,11][degree]);if(a>6)a-=12;
     let numeral=['I','II','III','IV','V','VI','VII'][degree],q=c.q;
-    if(q==='m7b5'){numeral=numeral.toLowerCase();q='ø7';}
-    else if(q.startsWith('dim')){numeral=numeral.toLowerCase();q=q==='dim7'?'°7':'°';}
+    if(/^m7b5(?:\(|$)/.test(q)){numeral=numeral.toLowerCase();q='ø7'+q.slice(4);}
+    else if(q.startsWith('dim')){numeral=numeral.toLowerCase();q='°'+q.slice(3);}
     else if(q.startsWith('m')&&!q.startsWith('maj')){numeral=numeral.toLowerCase();q=q.startsWith('mMaj')?'maj'+q.slice(4):q.slice(1);}
     return (a>0?'#'.repeat(a):'b'.repeat(-a))+numeral+q;
    };

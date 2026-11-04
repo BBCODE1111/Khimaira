@@ -1,6 +1,6 @@
 # Khimaira / Seiren 共用樂理維護
 
-共用核心版本：1.1.7。此次只搬移基礎樂理，保留兩個產品原本的音樂輸出與相容差異。
+共用核心版本：1.1.8。此次只搬移基礎樂理，保留兩個產品原本的音樂輸出與相容差異。
 
 ## 單一來源與發布
 
@@ -96,3 +96,5 @@ node scripts/verify-shared-music-browser.cjs ../Seiren /tmp/chord-core-browser
 2026-11-01 使用者答覆續：1.1.6 只調整 Khimaira 使用的物件參數 `spellPitch(pitch, key)`：小調升高第 6 級保留第六字母（A minor F#），自然第 6 級不變。數字參數、seiren-v1 公開 API、既有 golden 不變。同步本 checkout，SEIREN checkout 未同步、未跑 harness；網站仍為未發布 1.0.7。
 
 2026-11-01 第 5 輪：1.1.7 僅擴充 khimaira-v1 的 Am7-5、Cm69、Cmi7、C13sus4、G7sus4b9、Cmadd11 別名。seiren-v1 接受範圍不變；只同步本 checkout，SEIREN 尚未同步或驗證。plugin 未修改，重新打包時會採用新核心，需主持人另驗。
+
+2026-11-04：1.1.8 修正 khimaira-v1 明示複合變化音不互相覆蓋、減七延伸音的七音拼字，以及含延伸音的減／半減級數。seiren-v1 保留既有解析與拼字契約；新核心同步至隔離的 Seiren-beato-core-verify checkout 驗證，未發布 Seiren。詳細案例、實測與教材閱讀範圍見 docs/beato-study-20261104.md。

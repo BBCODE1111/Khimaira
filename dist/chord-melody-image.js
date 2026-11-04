@@ -1,5 +1,5 @@
-import {parse,chordTones,mod,names} from './music.js?v=1.0.14';
-import {chordList} from './solutions.js?v=1.0.14';
+import {parse,chordTones,mod,names} from './music.js?v=1.0.15';
+import {chordList} from './solutions.js?v=1.0.15';
 
 // Export the selected voicings, never run the guitar generator a second time.
 export function melodyImageModel(bars,arrangement){

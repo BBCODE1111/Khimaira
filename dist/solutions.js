@@ -1,4 +1,4 @@
-import {parse,names,mod,approach} from './music.js?v=1.0.14';
+import {parse,names,mod,approach} from './music.js?v=1.0.15';
 export function parseBar(text){
  if(/^(?:N\.C\.|NC)$/i.test(text.trim()))return [];
  const tokens=text.trim().split(/\s+|,(?![^()]*\))/).filter(Boolean);
